@@ -1,4 +1,5 @@
 import "./Home.css";
+import { Background } from "../../components/Background/Background";
 
 export function Home(): HTMLElement {
     const home = document.createElement("main");
@@ -14,6 +15,8 @@ export function Home(): HTMLElement {
             <button>ZACZNIJ</button>
         </div>
     `;
+
+    home.appendChild(Background());
 
     return home;
 }

@@ -1,9 +1,16 @@
 .home {
+    position: relative;
     min-height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
     text-align: center;
+    overflow: hidden;
+}
+
+.home-content {
+    position: relative;
+    z-index: 1;
 }
 
 .home-content h1 {
