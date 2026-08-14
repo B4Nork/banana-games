@@ -1,0 +1,23 @@
+.home {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.home-content h1 {
+    font-size: 6rem;
+    margin: 0;
+}
+
+.home-content p {
+    font-size: 1.2rem;
+}
+
+.home-content button {
+    margin-top: 2rem;
+    padding: 1rem 2rem;
+    font-size: 1.2rem;
+    cursor: pointer;
+}
