@@ -1,5 +1,6 @@
 import "./Home.css";
 import { Background } from "../../components/Background/Background";
+import { SidePanel } from "../../components/SidePanel/SidePanel";
 
 export function Home(): HTMLElement {
     const home = document.createElement("main");
@@ -17,6 +18,20 @@ export function Home(): HTMLElement {
     `;
 
     home.appendChild(Background());
+    
+    home.appendChild(
+        SidePanel({
+            side: "left",
+            gif: "/gif/PeanutButterDancing.gif"
+        })
+    );
+
+    home.appendChild(
+        SidePanel({
+            side: "right",
+            gif: "/gif/PeanutButterDancing.gif"
+        })
+    );
 
     return home;
 }
