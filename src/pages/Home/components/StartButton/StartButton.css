@@ -49,3 +49,29 @@
 .start-button:active {
     transform: translateX(-50%) scale(0.95);
 }
+
+.falling-banana {
+    position: fixed;
+
+    top: -80px;
+
+    z-index: 100;
+
+    font-size: 60px;
+
+    pointer-events: none;
+
+    animation-name: banana-fall;
+    animation-timing-function: linear;
+    animation-fill-mode: forwards;
+}
+
+@keyframes banana-fall {
+    from {
+        transform: translateY(0) rotate(0deg);
+    }
+
+    to {
+        transform: translateY(110vh) rotate(720deg);
+    }
+}
