@@ -1,0 +1,51 @@
+@font-face {
+    font-family: "Karma";
+    src: url("/fonts/Karma/Karma-Future.otf") format("opentype");
+}
+
+.start-button {
+    position: absolute;
+
+    bottom: 100px;
+    left: 50%;
+    transform: translateX(-50%);
+
+    z-index: 5;
+
+    font-family: "Karma", serif;
+    font-size: 32px;
+    font-weight: 200;
+
+    color: rgb(128, 0, 255);
+
+    background: rgba(20, 20, 20, 0.9);
+
+    border: 1px solid rgb(104, 17, 121);
+    border-radius: 12px;
+
+    padding: 12px 45px;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 0 1px rgba(175, 2, 249, 0.4);
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        background 0.2s ease;
+}
+
+.start-button:hover {
+    transform: translateX(-50%) scale(1.08);
+
+    background: rgba(187, 2, 249, 0.1);
+
+    box-shadow:
+        0 0 10px rgba(200, 2, 249, 0.6),
+        0 0 25px rgba(187, 2, 249, 0.4);
+}
+
+.start-button:active {
+    transform: translateX(-50%) scale(0.95);
+}
