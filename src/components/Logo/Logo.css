@@ -1,0 +1,82 @@
+@font-face {
+    font-family: "Karma";
+    src: url("/fonts/Karma/Karma-Future.otf") format("opentype");
+}
+
+.logo {
+    position: absolute;
+
+    top: 80px;
+    left: 50%;
+
+    transform: translateX(-50%);
+
+    z-index: 3;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    user-select: none;
+
+    font-family: "Karma", serif;
+    font-weight: 900;
+
+    line-height: 1.2;
+
+    text-align: center;
+}
+
+.logo-line {
+    letter-spacing: 0.08em;
+
+    -webkit-text-stroke: 0.02px rgb(251, 247, 247);
+
+    color: transparent;
+
+    transform: skewX(-5deg);
+
+    text-shadow:
+        0 0 5px white,
+        0 0 15px rgba(253, 253, 253, 0.8),
+        0 0 30px rgba(255, 255, 255, 0.6);
+
+    transition:
+        transform 0.3s ease,
+        letter-spacing 0.3s ease;
+}
+
+.banana {
+    font-size: clamp(60px, 7vw, 120px);
+
+    color: rgba(209, 179, 30, 0.15);
+
+    -webkit-text-stroke: 0.1px rgb(249, 208, 2);
+
+    text-shadow:
+        0 0 5px rgb(7, 7, 0),
+        0 0 15px rgba(211, 211, 27, 0.8),
+        0 0 15px rgba(121, 121, 25, 0.736);
+        
+}
+
+.games {
+    margin-top: 12px;
+
+    font-size: clamp(50px, 6vw, 100px);
+
+    color: rgba(34, 197, 94, 0.15);
+
+    -webkit-text-stroke: 0.02px rgb(26, 60, 18);
+
+    text-shadow:
+        0 0 5px white,
+        0 0 15px rgba(34, 197, 94, 0.8),
+        0 0 30px rgba(34, 197, 94, 0.6);
+}
+
+.logo:hover .logo-line {
+    transform: skewX(-20deg) scale(1.1);
+
+    letter-spacing: 0.12em;
+}
