@@ -1,5 +1,6 @@
 import "./styles/global.css";
 import { Games } from "./pages/Games/Games";
+// TODO: Przywrócić Home jako stronę startową i dodać przejście Home -> Games
 
 const app = document.querySelector<HTMLDivElement>("#app");
 

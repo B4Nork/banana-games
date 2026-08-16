@@ -1,7 +1,7 @@
 import "./Games.css";
 
 import { Background } from "../../components/Background/Background";
-import { GameCard } from "./components/GameCard/GameCard";
+import { WheelCard } from "./components/WheelCard/WheelCard";
 
 export function Games(): HTMLElement {
     const gamesPage = document.createElement("main");
@@ -21,38 +21,10 @@ export function Games(): HTMLElement {
 
     gamesGrid.className = "games-grid";
 
-    const games = [
-        {
-            name: "PLINKO",
-            icon: "🎱"
-        },
-        {
-            name: "RISK",
-            icon: "🎯"
-        },
-        {
-            name: "KOŁO",
-            icon: "🎡"
-        },
-        {
-            name: "KAFELKI",
-            icon: "🧩"
-        },
-        {
-            name: "BANANA",
-            icon: "🍌"
-        },
-        {
-            name: "LOSOWANIE",
-            icon: "🎲"
-        }
-    ];
-
-    games.forEach((game) => {
-        gamesGrid.appendChild(GameCard(game));
-    });
 
     gamesPage.appendChild(gamesGrid);
+
+    gamesGrid.appendChild(WheelCard());
 
     return gamesPage;
 }
