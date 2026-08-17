@@ -97,3 +97,50 @@
     text-shadow:
         0 0 5px rgba(226, 226, 223, 0.7);
 }
+
+.wheel-transition {
+    position: fixed;
+
+    width: 150px;
+    height: 150px;
+
+    left: 50%;
+    top: 50%;
+
+    transform: translate(-50%, -50%);
+
+    border-radius: 50%;
+
+    background: conic-gradient(
+        rgb(215, 184, 27) 0deg 60deg,
+        rgb(54, 255, 128) 60deg 120deg,
+        rgb(246, 92, 236) 120deg 180deg,
+        rgb(87, 52, 22) 180deg 240deg,
+        rgb(25, 67, 11) 240deg 300deg,
+        rgb(33, 37, 100) 300deg 360deg
+    );
+
+    border: 5px solid rgb(29, 29, 28);
+
+    box-shadow:
+        0 0 10px rgba(116, 98, 9, 0.5),
+        0 0 30px rgba(249, 208, 2, 0.2);
+
+    z-index: 9999;
+
+    pointer-events: none;
+
+    transition:
+        width 0.6s ease-in-out,
+        height 0.6s ease-in-out;
+}
+
+.wheel-transition.expand {
+    width: 50vmax;
+    height: 50vmax;
+}
+
+.wheel-transition.shrink {
+    width: 10px;
+    height: 10px;
+}

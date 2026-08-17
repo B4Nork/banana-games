@@ -5,7 +5,7 @@ import { WheelCard } from "./components/WheelCard/WheelCard";
 import { PlinkoCard } from "./components/PlinkoCard/PlinkoCard";
 import { RandomCard } from "./components/RandomCard/RandomCard";
 
-export function Games(): HTMLElement {
+export function Games(onGameClick: (game: string) => void): HTMLElement {
     const gamesPage = document.createElement("main");
 
     gamesPage.className = "games-page";
@@ -26,7 +26,9 @@ export function Games(): HTMLElement {
 
     gamesPage.appendChild(gamesGrid);
 
-    gamesGrid.appendChild(WheelCard());
+    gamesGrid.appendChild(
+        WheelCard(() => onGameClick("wheel"))
+    );
 
     gamesGrid.appendChild(PlinkoCard());
 

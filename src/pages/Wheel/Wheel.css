@@ -1,0 +1,21 @@
+.wheel-page {
+    min-height: 100vh;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: #080808;
+
+    font-family: "Karma", serif;
+}
+
+.wheel-page h1 {
+    color: rgb(249, 208, 2);
+
+    font-size: 70px;
+
+    text-shadow:
+        0 0 10px rgba(249, 208, 2, 0.6),
+        0 0 30px rgba(249, 208, 2, 0.3);
+}
