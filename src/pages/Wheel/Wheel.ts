@@ -1,8 +1,38 @@
 import "./Wheel.css";
 import { createBananas } from "../../utils/createBananas";
 
+
+let rewardContainer: HTMLElement;
+let rewardTotal: HTMLElement;
+
+interface Reward {
+    name: string;
+    chance: number;
+}
+
+const rewards: Reward[] = [
+    {
+        name: "100 PUNKTÓW",
+        chance: 40
+    },
+    {
+        name: "VIP",
+        chance: 23
+    },
+    {
+        name: "BAN",
+        chance: 20
+    },
+    {
+        name: "???",
+        chance: 10
+    }
+];
+
+
 export function Wheel(onBack: () => void): HTMLElement {
     const wheelPage = document.createElement("main");
+    
 
     wheelPage.className = "wheel-page";
 
@@ -14,7 +44,7 @@ export function Wheel(onBack: () => void): HTMLElement {
             <section class="wheel-section">
 
                 <div class="wheel-placeholder">
-                    <span>O</span>
+                    <span>KOŁO</span>
                 </div>
 
                 <button class="spin-button">
@@ -27,42 +57,44 @@ export function Wheel(onBack: () => void): HTMLElement {
 
                 <h2>NAGRODY</h2>
 
-                <div class="reward-list">
-
-                    <div class="reward-row">
-                        <span class="reward-name">100 PUNKTÓW</span>
-                        <span class="reward-chance">40%</span>
-                    </div>
-
-                    <div class="reward-row">
-                        <span class="reward-name">VIP</span>
-                        <span class="reward-chance">30%</span>
-                    </div>
-
-                    <div class="reward-row">
-                        <span class="reward-name">BAN</span>
-                        <span class="reward-chance">20%</span>
-                    </div>
-
-                    <div class="reward-row">
-                        <span class="reward-name">???</span>
-                        <span class="reward-chance">10%</span>
-                    </div>
-
-                </div>
+                <div class="reward-container"></div>
 
                 <button class="add-reward-button">
                     + DODAJ NAGRODĘ
                 </button>
 
-                <div class="reward-total">
-                    SUMA: 100%
-                </div>
+                <div class="reward-total"></div>
 
             </section>
 
         </div>
     `;
+
+    rewardContainer =
+        wheelPage.querySelector<HTMLDivElement>(".reward-container")!;
+
+    rewardTotal =
+        wheelPage.querySelector<HTMLDivElement>(".reward-total")!;
+
+    if (!rewardContainer || !rewardTotal) {
+        throw new Error("Nie znaleziono elementów panelu nagród");
+    }
+
+    const addRewardButton =
+        wheelPage.querySelector<HTMLButtonElement>(".add-reward-button");
+
+    if (!addRewardButton) {
+        throw new Error("Nie znaleziono przycisku dodawania nagrody");
+    }
+
+    addRewardButton.addEventListener("click", () => {
+        rewards.push({
+            name: "NOWA NAGRODA",
+            chance: 0
+        });
+
+        updateRewards();
+    });
 
     const backButton = document.createElement("button");
 
@@ -80,4 +112,92 @@ export function Wheel(onBack: () => void): HTMLElement {
     wheelPage.appendChild(backButton);
 
     return wheelPage;
+}
+
+function getTotalChance(): number {
+    return rewards.reduce(
+        (total, reward) => total + reward.chance,
+        0
+    );
+}
+
+
+function createRewardList(): HTMLElement {
+    const list = document.createElement("div");
+
+    list.className = "reward-list";
+
+    rewards.forEach((reward, index) => {
+        const row = document.createElement("div");
+
+        row.className = "reward-row";
+
+        row.innerHTML = `
+            <input
+                class="reward-name-input"
+                type="text"
+                value="${reward.name}"
+            >
+
+            <input
+                class="reward-chance-input"
+                type="number"
+                min="0"
+                max="100"
+                value="${reward.chance}"
+            >
+
+            <button class="remove-reward-button">
+                ×
+            </button>
+        `;
+
+        const nameInput =
+            row.querySelector<HTMLInputElement>(".reward-name-input");
+
+        const chanceInput =
+            row.querySelector<HTMLInputElement>(".reward-chance-input");
+
+        const removeButton =
+            row.querySelector<HTMLButtonElement>(".remove-reward-button");
+
+        if (!nameInput || !chanceInput || !removeButton) {
+            throw new Error("Nie znaleziono elementów nagrody");
+        }
+
+        nameInput.addEventListener("input", () => {
+            reward.name = nameInput.value;
+        });
+
+        chanceInput.addEventListener("input", () => {
+            reward.chance = Number(chanceInput.value);
+
+            updateRewardTotal();
+        });
+
+        removeButton.addEventListener("click", () => {
+            rewards.splice(index, 1);
+
+            updateRewards();
+        });
+
+        list.appendChild(row);
+    });
+
+    return list;
+}
+
+function updateRewardTotal(): void {
+    rewardTotal.textContent =
+        `SUMA: ${getTotalChance()}%`;
+}
+
+function updateRewards(): void {
+    rewardContainer.innerHTML = "";
+
+    rewardContainer.appendChild(
+        createRewardList()
+    );
+
+    updateRewardTotal();
 }

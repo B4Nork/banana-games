@@ -104,7 +104,7 @@
 
     font-size: 45px;
 
-    color: rgb(0, 0, 0);
+    color: rgb(245, 4, 4);
 
     text-shadow:
         0 0 10px black;
@@ -157,13 +157,16 @@
 
 .rewards-panel {
     width: 360px;
+    height: 500px;
 
     padding: 25px;
 
     box-sizing: border-box;
 
-    border: 2px solid rgba(139, 92, 246, 0.6);
+    display: flex;
+    flex-direction: column;
 
+    border: 2px solid rgba(139, 92, 246, 0.6);
     border-radius: 12px;
 
     background: rgba(15, 15, 15, 0.9);
@@ -178,7 +181,7 @@
    ========================= */
 
 .rewards-panel h2 {
-    margin: 0 0 25px;
+    margin: 0 0 20px;
 
     text-align: center;
 
@@ -187,6 +190,21 @@
     color: rgb(139, 92, 246);
 
     letter-spacing: 0.08em;
+
+    flex-shrink: 0;
+}
+
+
+/* =========================
+   KONTENER LISTY
+   ========================= */
+
+.reward-container {
+    flex: 1;
+
+    min-height: 0;
+
+    overflow: hidden;
 }
 
 
@@ -195,10 +213,18 @@
    ========================= */
 
 .reward-list {
+    height: 100%;
+
     display: flex;
     flex-direction: column;
 
     gap: 10px;
+
+    overflow-y: auto;
+
+    padding-right: 8px;
+
+    box-sizing: border-box;
 }
 
 
@@ -207,28 +233,95 @@
    ========================= */
 
 .reward-row {
-    display: flex;
+    display: grid;
+
+    grid-template-columns: minmax(0, 1fr) 70px 35px;
+
+    gap: 10px;
 
     align-items: center;
-    justify-content: space-between;
 
-    padding: 12px 15px;
+    padding: 8px;
+
+    box-sizing: border-box;
 
     border-radius: 6px;
 
     background: rgba(255, 255, 255, 0.05);
 
-    font-size: 21px;
+    flex-shrink: 0;
 }
 
-.reward-name {
+
+/* =========================
+   INPUTY
+   ========================= */
+
+.reward-name-input,
+.reward-chance-input {
+    width: 100%;
+
+    min-width: 0;
+
+    box-sizing: border-box;
+
+    padding: 8px;
+
+    border: 1px solid rgba(255, 255, 255, 0.2);
+
+    border-radius: 4px;
+
+    background: rgba(0, 0, 0, 0.5);
+
     color: white;
+
+    font-family: "Karma", serif;
+
+    font-size: 18px;
 }
 
-.reward-chance {
-    color: rgb(249, 208, 2);
+.reward-name-input:focus,
+.reward-chance-input:focus {
+    outline: none;
 
-    font-weight: bold;
+    border-color: rgb(249, 208, 2);
+
+    box-shadow:
+        0 0 8px rgba(249, 208, 2, 0.3);
+}
+
+
+/* =========================
+   USUWANIE
+   ========================= */
+
+.remove-reward-button {
+    width: 35px;
+    height: 35px;
+
+    padding: 0;
+
+    border: 1px solid rgba(255, 80, 80, 0.5);
+
+    border-radius: 4px;
+
+    background: rgba(255, 0, 0, 0.1);
+
+    color: rgb(255, 100, 100);
+
+    font-size: 24px;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease;
+}
+
+.remove-reward-button:hover {
+    background: rgba(255, 0, 0, 0.25);
+
+    transform: scale(1.1);
 }
 
 
@@ -239,9 +332,11 @@
 .add-reward-button {
     width: 100%;
 
-    margin-top: 20px;
+    margin-top: 15px;
 
     padding: 12px;
+
+    flex-shrink: 0;
 
     border: 2px dashed rgba(34, 197, 94, 0.7);
 
@@ -277,14 +372,14 @@
 .reward-total {
     margin-top: 15px;
 
+    flex-shrink: 0;
+
     text-align: right;
 
     font-size: 20px;
 
     color: rgba(255, 255, 255, 0.7);
 }
-
-
 /* =========================
    POWRÓT
    ========================= */
