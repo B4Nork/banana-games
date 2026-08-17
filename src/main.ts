@@ -1,6 +1,7 @@
 import "./styles/global.css";
+
+import { Home } from "./pages/Home/Home";
 import { Games } from "./pages/Games/Games";
-// TODO: Przywrócić Home jako stronę startową i dodać przejście Home -> Games
 
 const app = document.querySelector<HTMLDivElement>("#app");
 
@@ -8,6 +9,16 @@ if (!app) {
     throw new Error("Nie znaleziono elementu #app");
 }
 
-app.appendChild(Games());
+const root = app;
 
-console.log("🍌 Banana Games uruchomione!");
+function showHome(): void {
+    root.innerHTML = "";
+    root.appendChild(Home(showGames));
+}
+
+function showGames(): void {
+    root.innerHTML = "";
+    root.appendChild(Games());
+}
+
+showHome();

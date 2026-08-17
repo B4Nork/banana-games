@@ -4,7 +4,7 @@ import { SidePanel } from "../../components/SidePanel/SidePanel";
 import { Logo } from "./components/Logo/Logo";
 import { StartButton } from "./components/StartButton/StartButton";
 
-export function Home(): HTMLElement {
+export function Home(onStart: () => void): HTMLElement {
     const home = document.createElement("main");
 
     home.className = "home";
@@ -13,7 +13,7 @@ export function Home(): HTMLElement {
     
     home.appendChild(Logo());
 
-    home.appendChild(StartButton());
+    home.appendChild(StartButton(onStart));
 
     home.appendChild(
         SidePanel({

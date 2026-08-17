@@ -1,6 +1,6 @@
 import "./StartButton.css";
 
-export function StartButton(): HTMLElement {
+export function StartButton(onStart: () => void): HTMLElement {
     const button = document.createElement("button");
 
     button.className = "start-button";
@@ -8,6 +8,10 @@ export function StartButton(): HTMLElement {
 
     button.addEventListener("click", () => {
         createBananas();
+
+        setTimeout(() => {
+            onStart();
+        }, 1500);
     });
 
     return button;
