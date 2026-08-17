@@ -1,5 +1,5 @@
 import "./StartButton.css";
-import { createBananas } from "../../../../untils/createBananas";
+import { createBananas } from "../../../../utils/createBananas";
 
 export function StartButton(onStart: () => void): HTMLElement {
     const button = document.createElement("button");
