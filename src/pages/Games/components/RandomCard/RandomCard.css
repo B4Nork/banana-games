@@ -1,0 +1,138 @@
+@font-face {
+    font-family: "Karma";
+    src: url("/fonts/Karma/Karma-Future.otf") format("opentype");
+}
+
+.random-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    width: 280px;
+
+    font-family: "Karma", serif;
+
+    color: white;
+}
+
+.random-symbol {
+    width: 150px;
+    height: 150px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    border: 5px dashed rgb(255, 255, 255);
+
+    background: rgba(10, 10, 10, 0.8);
+
+    color: rgb(77, 76, 72);
+
+    font-size: 100px;
+    font-weight: bold;
+
+    box-shadow:
+        0 0 10px rgba(175, 174, 169, 0.5),
+        0 0 30px rgba(48, 47, 40, 0.2);
+
+    cursor: pointer;
+
+    transition:
+        transform 0.3s ease,
+        box-shadow 0.3s ease;
+}
+
+.random-symbol:hover {
+    transform: rotate(15deg) scale(1.1);
+
+    box-shadow:
+        0 0 15px rgba(229, 225, 207, 0.8),
+        0 0 40px rgba(69, 68, 60, 0.4);
+}
+
+.dice {
+    position: relative;
+
+    width: 75px;
+    height: 75px;
+
+    background: rgb(77, 76, 72);
+
+    border: 4px solid white;
+
+    border-radius: 15px;
+
+    transform: rotate(-15deg);
+
+    box-shadow:
+        0 0 10px rgba(255, 255, 255, 0.4);
+}
+
+.dice span {
+    position: absolute;
+
+    width: 12px;
+    height: 12px;
+
+    border-radius: 50%;
+
+    background: white;
+}
+
+/* pozycje oczek */
+
+.dice span:nth-child(1) {
+    top: 12px;
+    left: 12px;
+}
+
+.dice span:nth-child(2) {
+    top: 12px;
+    right: 12px;
+}
+
+.dice span:nth-child(3) {
+    top: 50%;
+    right: 12px;
+
+    transform: translateY(-50%);
+}
+
+.dice span:nth-child(4) {
+    bottom: 12px;
+    left: 12px;
+}
+
+.dice span:nth-child(5) {
+    bottom: 12px;
+    right: 12px;
+}
+
+.dice span:nth-child(6) {
+    top: 50%;
+    left: 12px;
+
+    transform: translateY(-50%);
+}
+
+.random-symbol:hover .dice {
+    transform: rotate(360deg);
+
+    transition: transform 0.6s ease;
+}
+
+.random-title {
+    margin: 15px 0 0;
+
+    font-size: 34px;
+
+    color: rgb(0, 0, 0);
+
+    letter-spacing: 0.1em;
+
+    text-shadow:
+        0 0 5px rgba(255, 255, 255, 0.7);
+}
