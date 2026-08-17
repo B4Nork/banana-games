@@ -2,6 +2,7 @@ import "./Games.css";
 
 import { Background } from "../../components/Background/Background";
 import { WheelCard } from "./components/WheelCard/WheelCard";
+import { PlinkoCard } from "./components/PlinkoCard/PlinkoCard";
 
 export function Games(): HTMLElement {
     const gamesPage = document.createElement("main");
@@ -25,6 +26,8 @@ export function Games(): HTMLElement {
     gamesPage.appendChild(gamesGrid);
 
     gamesGrid.appendChild(WheelCard());
+
+    gamesGrid.appendChild(PlinkoCard());
 
     return gamesPage;
 }
