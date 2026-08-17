@@ -25,7 +25,7 @@ function showGames(): void {
 function showGame(game: string): void {
     if (game === "wheel") {
         root.innerHTML = "";
-        root.appendChild(Wheel());
+        root.appendChild(Wheel(showGames));
     }
 }
 
