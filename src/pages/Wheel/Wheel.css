@@ -80,21 +80,29 @@
 }
 
 .wheel-placeholder {
-    width: 400px;
-    height: 400px;
+    position: relative;
+}
 
-    border-radius: 50%;
+.wheel-tooltip {
+    position: absolute;
+    display: none;
+    pointer-events: none;
+    z-index: 10;
 
-    display: flex;
-    align-items: center;
+    padding: 8px 12px;
 
-    border: 8px solid rgb(172, 172, 170);
+    background: rgba(10, 10, 10, 0.95);
+    border: 2px solid rgb(249, 208, 2);
+    border-radius: 6px;
+
+    color: white;
+    font-family: "Karma", serif;
+    font-size: 18px;
+
+    white-space: nowrap;
 
     box-shadow:
-        0 0 20px rgba(141, 139, 130, 0.5),
-        0 0 60px rgba(0, 0, 0, 0.2);
-
-    overflow: hidden;
+        0 0 12px rgba(249, 208, 2, 0.3);
 }
 
 .wheel-svg {
@@ -228,7 +236,7 @@
 .reward-row {
     display: grid;
 
-    grid-template-columns: minmax(0, 1fr) 70px 35px;
+    grid-template-columns: minmax(0, 1fr) 70px 24px 35px;
 
     gap: 10px;
 
@@ -281,6 +289,14 @@
 
     box-shadow:
         0 0 8px rgba(249, 208, 2, 0.3);
+}
+
+.reward-color {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    box-shadow: 0 0 8px rgba(255, 255, 255, 0.2);
 }
 
 

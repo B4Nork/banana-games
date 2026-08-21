@@ -50,6 +50,7 @@ export function Wheel(onBack: () => void): HTMLElement {
 
                 <div class="wheel-placeholder">
                     <svg class="wheel-svg" viewBox="0 0 400 400"></svg>
+                    <div class="wheel-tooltip"></div
                 </div>
                 <button class="spin-button">
                     ZAKRĘĆ
@@ -193,6 +194,51 @@ function updateWheel(wheel: HTMLElement): void {
         segment.setAttribute("stroke", "#000");
         segment.setAttribute("stroke-width", "3");
 
+
+        segment.addEventListener("mouseenter", () => {
+            const tooltip =
+                wheel.querySelector<HTMLElement>(".wheel-tooltip");
+
+            if (!tooltip) {
+                return;
+            }
+
+            tooltip.innerHTML = `
+                <strong>${reward.name}</strong><br>
+                Szansa: ${reward.chance}%
+            `;
+
+            tooltip.style.display = "block";
+        });
+
+        segment.addEventListener("mousemove", (event) => {
+            const tooltip =
+                wheel.querySelector<HTMLElement>(".wheel-tooltip");
+
+            if (!tooltip) {
+                return;
+            }
+
+            const rect = wheel.getBoundingClientRect();
+
+            tooltip.style.left =
+                `${event.clientX - rect.left + 15}px`;
+
+            tooltip.style.top =
+                `${event.clientY - rect.top + 15}px`;
+        });
+
+        segment.addEventListener("mouseleave", () => {
+            const tooltip =
+                wheel.querySelector<HTMLElement>(".wheel-tooltip");
+
+            if (!tooltip) {
+                return;
+            }
+
+            tooltip.style.display = "none";
+        });
+
         svg.appendChild(segment);
 
         currentAngle = endAngle;
@@ -205,7 +251,7 @@ function updateWheel(wheel: HTMLElement): void {
 
     centerRing.setAttribute("cx", "200");
     centerRing.setAttribute("cy", "200");
-    centerRing.setAttribute("r", "31");
+    centerRing.setAttribute("r", "21");
     centerRing.setAttribute("fill", "#111");
     centerRing.setAttribute("stroke", "#888");
     centerRing.setAttribute("stroke-width", "4");
@@ -219,7 +265,7 @@ function updateWheel(wheel: HTMLElement): void {
 
     centerCircle.setAttribute("cx", "200");
     centerCircle.setAttribute("cy", "200");
-    centerCircle.setAttribute("r", "24");
+    centerCircle.setAttribute("r", "12");
     centerCircle.setAttribute("fill", "#000");
 
     svg.appendChild(centerCircle);
@@ -266,6 +312,8 @@ function createRewardList(wheelElement: HTMLElement): HTMLElement {
                 value="${reward.chance}"
             >
 
+            <div class="reward-color"></div>
+
             <button class="remove-reward-button">
                 ×
             </button>
@@ -279,6 +327,13 @@ function createRewardList(wheelElement: HTMLElement): HTMLElement {
 
         const removeButton =
             row.querySelector<HTMLButtonElement>(".remove-reward-button");
+
+        const colorElement =
+            row.querySelector<HTMLElement>(".reward-color");
+
+        if (colorElement) {
+            colorElement.style.backgroundColor = reward.color;
+        }
 
         if (!nameInput || !chanceInput || !removeButton) {
             throw new Error("Nie znaleziono elementów nagrody");
