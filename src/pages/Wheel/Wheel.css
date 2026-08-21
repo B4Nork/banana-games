@@ -480,3 +480,73 @@
         width: min(500px, 90vw);
     }
 }
+
+
+/* =========================
+   WYNIK KOŁA
+   ========================= */
+
+
+.spin-result-overlay {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.75);
+    z-index: 1000;
+    visibility: hidden;
+    opacity: 0;
+}
+
+.spin-result-overlay.show {
+    visibility: visible;
+    opacity: 1;
+}
+
+.spin-result-modal {
+    width: min(500px, 90vw);
+    padding: 40px;
+    box-sizing: border-box;
+    text-align: center;
+    border: 3px solid rgb(249, 208, 2);
+    border-radius: 15px;
+    background: #0c0c0c;
+    box-shadow:
+        0 0 25px rgba(249, 208, 2, 0.4),
+        0 0 60px rgba(249, 208, 2, 0.15);
+}
+
+.spin-result-modal h2 {
+    margin: 0 0 25px;
+    font-size: 48px;
+    color: rgb(249, 208, 2);
+    letter-spacing: 0.08em;
+}
+
+.spin-result-reward {
+    font-size: 42px;
+    color: white;
+    margin-bottom: 10px;
+}
+
+.spin-result-chance {
+    font-size: 22px;
+    color: rgba(255, 255, 255, 0.6);
+    margin-bottom: 30px;
+}
+
+.spin-result-close {
+    padding: 12px 35px;
+    border: 2px solid rgb(249, 208, 2);
+    border-radius: 8px;
+    background: rgba(249, 208, 2, 0.1);
+    color: rgb(249, 208, 2);
+    font-family: "Karma", serif;
+    font-size: 22px;
+    cursor: pointer;
+}
+
+.spin-result-close:hover {
+    background: rgba(249, 208, 2, 0.2);
+}

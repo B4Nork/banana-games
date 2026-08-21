@@ -61,6 +61,15 @@ export function Wheel(onBack: () => void): HTMLElement {
                 </button>
                 <div class="spin-result"></div>
 
+                <div class="spin-result-overlay">
+                    <div class="spin-result-modal">
+                        <h2>WYGRAŁEŚ!</h2>
+                        <div class="spin-result-reward"></div>
+                        <div class="spin-result-chance"></div>
+                        <button class="spin-result-close">ZAMKNIJ</button>
+                    </div>
+                </div>
+
             </section>
 
             <section class="rewards-panel">
@@ -104,7 +113,27 @@ export function Wheel(onBack: () => void): HTMLElement {
     }
 
     spinButton.addEventListener("click", () => {
-        spinWheel(wheelElement);
+        spinWheel(wheelElement, wheelPage);
+    });
+
+    const resultOverlay =
+        wheelPage.querySelector<HTMLElement>(".spin-result-overlay");
+
+    const resultReward =
+        wheelPage.querySelector<HTMLElement>(".spin-result-reward");
+
+    const resultChance =
+        wheelPage.querySelector<HTMLElement>(".spin-result-chance");
+
+    const resultClose =
+        wheelPage.querySelector<HTMLButtonElement>(".spin-result-close");
+
+    if (!resultOverlay || !resultReward || !resultChance || !resultClose) {
+        throw new Error("Nie znaleziono elementów komunikatu wyniku");
+    }
+
+    resultClose.addEventListener("click", () => {
+        resultOverlay.classList.remove("show");
     });
 
     const addRewardButton =
@@ -412,7 +441,7 @@ function updateRewards(wheelElement: HTMLElement): void {
     updateRewardTotal();
 }
 
-function spinWheel(wheel: HTMLElement): void {
+function spinWheel(wheel: HTMLElement, wheelPage: HTMLElement): void {
     const svg = wheel.querySelector<SVGElement>(".wheel-svg");
 
     if (!svg || rewards.length === 0) {
@@ -482,4 +511,25 @@ function spinWheel(wheel: HTMLElement): void {
         `rotate(${wheelRotation}deg)`;
 
     console.log("Wylosowano:", winningReward.name);
+
+    setTimeout(() => {
+        const resultOverlay =
+            wheelPage.querySelector<HTMLElement>(".spin-result-overlay");
+
+        const resultReward =
+            wheelPage.querySelector<HTMLElement>(".spin-result-reward");
+
+        const resultChance =
+            wheelPage.querySelector<HTMLElement>(".spin-result-chance");
+
+        if (!resultOverlay || !resultReward || !resultChance) {
+            return;
+        }
+
+        resultReward.textContent = winningReward.name;
+        resultChance.textContent =
+            `Szansa: ${winningReward.chance}%`;
+
+        resultOverlay.classList.add("show");
+    }, 4000);
 }
