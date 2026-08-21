@@ -5,6 +5,7 @@ import { createBananas } from "../../utils/createBananas";
 let rewardContainer: HTMLElement;
 let rewardTotal: HTMLElement;
 
+
 interface Reward {
     name: string;
     chance: number;
@@ -35,6 +36,7 @@ const rewards: Reward[] = [
 ];
 
 
+
 export function Wheel(onBack: () => void): HTMLElement {
     const wheelPage = document.createElement("main");
     
@@ -50,7 +52,7 @@ export function Wheel(onBack: () => void): HTMLElement {
 
                 <div class="wheel-placeholder">
                     <svg class="wheel-svg" viewBox="0 0 400 400"></svg>
-                    <div class="wheel-tooltip"></div
+                    <div class="wheel-tooltip"></div>
                 </div>
                 <button class="spin-button">
                     ZAKRĘĆ

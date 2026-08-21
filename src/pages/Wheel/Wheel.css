@@ -73,14 +73,24 @@
 .wheel-section {
     display: flex;
     flex-direction: column;
-
     align-items: center;
-
     gap: 30px;
 }
 
 .wheel-placeholder {
+    width: 400px;
+    height: 400px;
+    box-sizing: border-box;
     position: relative;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 8px solid rgb(172, 172, 170);
+    box-shadow:
+        0 0 20px rgba(141, 139, 130, 0.5),
+        0 0 60px rgba(0, 0, 0, 0.2);
+    overflow: visible;
 }
 
 .wheel-tooltip {
