@@ -4,6 +4,7 @@ import { createBananas } from "../../utils/createBananas";
 
 let rewardContainer: HTMLElement;
 let rewardTotal: HTMLElement;
+let wheelRotation = 0;
 
 
 interface Reward {
@@ -58,6 +59,7 @@ export function Wheel(onBack: () => void): HTMLElement {
                 <button class="spin-button">
                     ZAKRĘĆ
                 </button>
+                <div class="spin-result"></div>
 
             </section>
 
@@ -93,6 +95,17 @@ export function Wheel(onBack: () => void): HTMLElement {
 
     updateRewards(wheelElement);
     updateWheel(wheelElement);
+
+    const spinButton =
+        wheelPage.querySelector<HTMLButtonElement>(".spin-button");
+
+    if (!spinButton) {
+        throw new Error("Nie znaleziono przycisku kręcenia");
+    }
+
+    spinButton.addEventListener("click", () => {
+        spinWheel(wheelElement);
+    });
 
     const addRewardButton =
         wheelPage.querySelector<HTMLButtonElement>(".add-reward-button");
@@ -143,6 +156,22 @@ function getRandomColor(): string {
     return `hsl(${hue}, 60%, 40%)`;
 }
 
+function getRandomReward(): Reward {
+    const totalChance = getTotalChance();
+
+    let random = Math.random() * totalChance;
+
+    for (const reward of rewards) {
+        if (random < reward.chance) {
+            return reward;
+        }
+
+        random -= reward.chance;
+    }
+
+    return rewards[rewards.length - 1];
+}
+
 function updateWheel(wheel: HTMLElement): void {
     const svg = wheel.querySelector<SVGElement>(".wheel-svg");
 
@@ -154,12 +183,14 @@ function updateWheel(wheel: HTMLElement): void {
 
     let currentAngle = -90;
 
+    const totalChance = getTotalChance();
+
     rewards.forEach((reward) => {
         if (reward.chance <= 0) {
             return;
         }
 
-        const angle = (reward.chance / 100) * 360;
+        const angle = (reward.chance / totalChance) * 360;
 
         const startAngle = currentAngle;
         const endAngle = currentAngle + angle;
@@ -379,4 +410,76 @@ function updateRewards(wheelElement: HTMLElement): void {
     );
 
     updateRewardTotal();
+}
+
+function spinWheel(wheel: HTMLElement): void {
+    const svg = wheel.querySelector<SVGElement>(".wheel-svg");
+
+    if (!svg || rewards.length === 0) {
+        return;
+    }
+
+    const totalChance = getTotalChance();
+
+    if (totalChance <= 0) {
+        return;
+    }
+
+    // Losujemy nagrodę
+    const winningReward = getRandomReward();
+
+    // Szukamy kąta środka wylosowanego segmentu
+    let currentAngle = -90;
+    let winningStartAngle = 0;
+    let winningEndAngle = 0;
+
+    for (const reward of rewards) {
+        if (reward.chance <= 0) {
+            continue;
+        }
+
+        const angle = (reward.chance / totalChance) * 360;
+
+        const startAngle = currentAngle;
+        const endAngle = currentAngle + angle;
+
+        if (reward === winningReward) {
+            winningStartAngle = startAngle;
+            winningEndAngle = endAngle;
+            break;
+        }
+
+        currentAngle = endAngle;
+    }
+
+    const winningAngle =
+        (winningStartAngle + winningEndAngle) / 2;
+
+    // Normalizujemy aktualny obrót koła
+    const currentRotation =
+        ((wheelRotation % 360) + 360) % 360;
+
+    // Kąt, który musi pokonać koło,
+    // żeby środek wygranego segmentu trafił pod strzałkę
+    let targetRotation =
+        -winningAngle - currentRotation;
+
+    // Normalizujemy do 0-360
+    targetRotation =
+        ((targetRotation % 360) + 360) % 360;
+
+    // Dodajemy pełne obroty
+    const extraSpins = 5 * 360;
+
+    // Aktualizujemy całkowity obrót
+    wheelRotation += extraSpins + targetRotation;
+
+    // Obracamy koło
+    svg.style.transition =
+        "transform 4s cubic-bezier(0.15, 0.85, 0.25, 1)";
+
+    svg.style.transform =
+        `rotate(${wheelRotation}deg)`;
+
+    console.log("Wylosowano:", winningReward.name);
 }
