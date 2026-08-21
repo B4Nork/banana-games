@@ -51,6 +51,7 @@ export function Wheel(onBack: () => void): HTMLElement {
             <section class="wheel-section">
 
                 <div class="wheel-placeholder">
+                    <div class="wheel-pointer"></div>
                     <svg class="wheel-svg" viewBox="0 0 400 400"></svg>
                     <div class="wheel-tooltip"></div>
                 </div>
