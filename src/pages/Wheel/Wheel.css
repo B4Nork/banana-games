@@ -90,17 +90,15 @@
     justify-content: center;
 
     background: conic-gradient(
-        rgb(249, 208, 2) 0deg 144deg,
-        rgb(34, 197, 94) 144deg 252deg,
-        rgb(139, 92, 246) 252deg 324deg,
-        rgb(249, 208, 2) 324deg 360deg
+        rgba(10, 10, 10, 0.527) 0deg 144deg,
+        
     );
 
-    border: 8px solid rgb(249, 208, 2);
+    border: 8px solid rgb(172, 172, 170);
 
     box-shadow:
-        0 0 20px rgba(249, 208, 2, 0.5),
-        0 0 60px rgba(249, 208, 2, 0.2);
+        0 0 20px rgba(141, 139, 130, 0.5),
+        0 0 60px rgba(0, 0, 0, 0.2);
 
     font-size: 45px;
 

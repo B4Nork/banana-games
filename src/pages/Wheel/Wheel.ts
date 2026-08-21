@@ -8,24 +8,29 @@ let rewardTotal: HTMLElement;
 interface Reward {
     name: string;
     chance: number;
+    color: string;
 }
 
 const rewards: Reward[] = [
     {
         name: "100 PUNKTÓW",
-        chance: 40
+        chance: 50,
+        color: getRandomColor()
     },
     {
         name: "VIP",
-        chance: 23
+        chance: 25,
+        color: getRandomColor()
     },
     {
         name: "BAN",
-        chance: 20
+        chance: 20,
+        color: getRandomColor()
     },
     {
         name: "???",
-        chance: 10
+        chance: 5,
+        color: getRandomColor()
     }
 ];
 
@@ -76,9 +81,15 @@ export function Wheel(onBack: () => void): HTMLElement {
     rewardTotal =
         wheelPage.querySelector<HTMLDivElement>(".reward-total")!;
 
-    if (!rewardContainer || !rewardTotal) {
-        throw new Error("Nie znaleziono elementów panelu nagród");
+    const wheelElement =
+        wheelPage.querySelector<HTMLElement>(".wheel-placeholder");
+
+    if (!rewardContainer || !rewardTotal || !wheelElement) {
+        throw new Error("Nie znaleziono elementów koła lub panelu nagród");
     }
+
+    updateRewards(wheelElement);
+    updateWheel(wheelElement);
 
     const addRewardButton =
         wheelPage.querySelector<HTMLButtonElement>(".add-reward-button");
@@ -90,10 +101,12 @@ export function Wheel(onBack: () => void): HTMLElement {
     addRewardButton.addEventListener("click", () => {
         rewards.push({
             name: "NOWA NAGRODA",
-            chance: 0
+            chance: 0,
+            color: getRandomColor()
         });
 
-        updateRewards();
+        updateRewards(wheelElement);
+        updateWheel(wheelElement);
     });
 
     const backButton = document.createElement("button");
@@ -121,8 +134,38 @@ function getTotalChance(): number {
     );
 }
 
+function getRandomColor(): string {
+    const hue = Math.floor(Math.random() * 360);
 
-function createRewardList(): HTMLElement {
+    return `hsl(${hue}, 60%, 40%)`;
+}
+
+function createWheelGradient(): string {
+    let currentAngle = 0;
+
+    const segments: string[] = [];
+
+    rewards.forEach((reward) => {
+        const angle = (reward.chance / 100) * 360;
+
+        const startAngle = currentAngle;
+        const endAngle = currentAngle + angle;
+
+        segments.push(
+            `${reward.color} ${startAngle}deg ${endAngle}deg`
+        );
+
+        currentAngle = endAngle;
+    });
+
+    return `conic-gradient(${segments.join(", ")})`;
+}
+
+function updateWheel(wheel: HTMLElement): void {
+    wheel.style.background = createWheelGradient();
+}
+
+function createRewardList(wheelElement: HTMLElement): HTMLElement {
     const list = document.createElement("div");
 
     list.className = "reward-list";
@@ -173,12 +216,14 @@ function createRewardList(): HTMLElement {
             reward.chance = Number(chanceInput.value);
 
             updateRewardTotal();
+            updateWheel(wheelElement);
         });
 
         removeButton.addEventListener("click", () => {
             rewards.splice(index, 1);
 
-            updateRewards();
+            updateRewards(wheelElement);
+            updateWheel(wheelElement);
         });
 
         list.appendChild(row);
@@ -192,11 +237,11 @@ function updateRewardTotal(): void {
         `SUMA: ${getTotalChance()}%`;
 }
 
-function updateRewards(): void {
+function updateRewards(wheelElement: HTMLElement): void {
     rewardContainer.innerHTML = "";
 
     rewardContainer.appendChild(
-        createRewardList()
+        createRewardList(wheelElement)
     );
 
     updateRewardTotal();
