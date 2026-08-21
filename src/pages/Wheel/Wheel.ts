@@ -49,9 +49,8 @@ export function Wheel(onBack: () => void): HTMLElement {
             <section class="wheel-section">
 
                 <div class="wheel-placeholder">
-                    <span>KOŁO</span>
+                    <svg class="wheel-svg" viewBox="0 0 400 400"></svg>
                 </div>
-
                 <button class="spin-button">
                     ZAKRĘĆ
                 </button>
@@ -140,29 +139,106 @@ function getRandomColor(): string {
     return `hsl(${hue}, 60%, 40%)`;
 }
 
-function createWheelGradient(): string {
-    let currentAngle = 0;
+function updateWheel(wheel: HTMLElement): void {
+    const svg = wheel.querySelector<SVGElement>(".wheel-svg");
 
-    const segments: string[] = [];
+    if (!svg) {
+        return;
+    }
+
+    svg.innerHTML = "";
+
+    let currentAngle = -90;
 
     rewards.forEach((reward) => {
+        if (reward.chance <= 0) {
+            return;
+        }
+
         const angle = (reward.chance / 100) * 360;
 
         const startAngle = currentAngle;
         const endAngle = currentAngle + angle;
 
-        segments.push(
-            `${reward.color} ${startAngle}deg ${endAngle}deg`
+        const startPoint = polarToCartesian(
+            200,
+            200,
+            190,
+            endAngle
         );
+
+        const endPoint = polarToCartesian(
+            200,
+            200,
+            190,
+            startAngle
+        );
+
+        const largeArcFlag = angle > 180 ? 1 : 0;
+
+        const pathData = [
+            "M 200 200",
+            `L ${startPoint.x} ${startPoint.y}`,
+            `A 190 190 0 ${largeArcFlag} 0 ${endPoint.x} ${endPoint.y}`,
+            "Z"
+        ].join(" ");
+
+        const segment = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "path"
+        );
+
+        segment.setAttribute("d", pathData);
+        segment.setAttribute("fill", reward.color);
+        segment.setAttribute("stroke", "#000");
+        segment.setAttribute("stroke-width", "3");
+
+        svg.appendChild(segment);
 
         currentAngle = endAngle;
     });
 
-    return `conic-gradient(${segments.join(", ")})`;
+    const centerRing = document.createElementNS(
+        "http://www.w3.org/2000/svg",
+        "circle"
+    );
+
+    centerRing.setAttribute("cx", "200");
+    centerRing.setAttribute("cy", "200");
+    centerRing.setAttribute("r", "31");
+    centerRing.setAttribute("fill", "#111");
+    centerRing.setAttribute("stroke", "#888");
+    centerRing.setAttribute("stroke-width", "4");
+
+    svg.appendChild(centerRing);
+
+    const centerCircle = document.createElementNS(
+        "http://www.w3.org/2000/svg",
+        "circle"
+    );
+
+    centerCircle.setAttribute("cx", "200");
+    centerCircle.setAttribute("cy", "200");
+    centerCircle.setAttribute("r", "24");
+    centerCircle.setAttribute("fill", "#000");
+
+    svg.appendChild(centerCircle);
 }
 
-function updateWheel(wheel: HTMLElement): void {
-    wheel.style.background = createWheelGradient();
+function polarToCartesian(
+    centerX: number,
+    centerY: number,
+    radius: number,
+    angleInDegrees: number
+): { x: number; y: number } {
+
+    const angleInRadians =
+        (angleInDegrees * Math.PI) / 180;
+
+    return {
+        x: centerX + radius * Math.cos(angleInRadians),
+        y: centerY + radius * Math.sin(angleInRadians)
+    };
 }
 
 function createRewardList(wheelElement: HTMLElement): HTMLElement {
