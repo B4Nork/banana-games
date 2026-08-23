@@ -204,7 +204,7 @@
 .transition-board{
     position: relative;
 
-    width: 900px;
+    width: 1000px;
     height: 140vh;
 
     margin-top: -20vh;
@@ -221,7 +221,7 @@
     overflow: hidden;
 
     clip-path: inset(0 50% 0 50%);
-    animation: boardOpen 1.5s ease-out forwards;
+    animation: boardOpen 1s ease-out forwards;
 }
 
 /* =========================
@@ -269,32 +269,32 @@
    ========================= */
 
 .pin-1 {
-    left: 50%;
+    left: 500px;
     top: 30%;
 }
 
 .pin-2 {
-    left: 35%;
+    left: 350px;
     top: 50%;
 }
 
 .pin-3 {
-    left: 65%;
+    left: 650px;
     top: 50%;
 }
 
 .pin-4 {
-    left: 20%;
+    left: 200px;
     top: 70%;
 }
 
 .pin-5 {
-    left: 50%;
+    left: 500px;
     top: 70%;
 }
 
 .pin-6 {
-    left: 80%;
+    left: 800px;
     top: 70%;
 }
 
@@ -319,41 +319,4 @@
     left: 50%;
 
     transform: translate(-50%, -50%);
-    animation: ballDrop 5s linear forwards;
-}
-
-
-
-/* =========================
-   KULKA SPADA
-   ========================= */
-
-@keyframes ballDrop {
-
-    /* start nad ekranem */
-    0% {
-        left: 50%;
-        top: 5%;
-    }
-
-    25% {
-        left: 41%;
-        top: 25.5%;
-    }
-
-    50% {
-        left: 25px;
-        top: 60%;
-    }
-
-    75% {
-        left: 9.7%;
-        top: 73%;
-    }
-
-    100% {
-        left: 25px;
-        top: 100%;
-    }
-
 }

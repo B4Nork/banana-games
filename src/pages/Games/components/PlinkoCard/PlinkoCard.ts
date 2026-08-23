@@ -67,23 +67,92 @@ function createPlinkoTransition(onComplete: () => void): void {
     requestAnimationFrame(() => {
         transition.classList.add("show");
     });
-/*
+
+    // Kulka startuje po 1 sekundzie
+    setTimeout(() => {
+        animateBall();
+    }, 1000);
+
+    // W połowie animacji zmieniamy stronę
     setTimeout(() => {
         onComplete();
+    }, 3900);
+
+    // Kończymy przejście po zakończeniu kulki
+    setTimeout(() => {
+        transition.classList.add("hide");
 
         setTimeout(() => {
-            transition.classList.add("hide");
+            transition.remove();
+        }, 300);
+    }, 4500);
+    
+    
 
-            setTimeout(() => {
-                transition.remove();
-            }, 300);
-        }, 100);
-    }, 4100);
-*/
+}
 
-// TESTY - nie przechodzimy na stronę Plinko
-    // Po 10 sekundach usuwamy animację
-    setTimeout(() => {
-        transition.remove();
-    }, 5000);
+function animateBall(): void {
+    const ball =
+        document.querySelector<HTMLElement>(".transition-ball");
+
+    const board =
+        document.querySelector<HTMLElement>(".transition-board");
+
+    if (!ball || !board) {
+        return;
+    }
+
+    const duration = 3000;
+
+    const points = [
+        { x: 500, y: 0.05 },
+        { x: 435, y: 0.27 },
+        { x: 25, y: 0.60 },
+        { x: 130, y: 0.73 },
+        { x: 25, y: 1.00 }
+    ];
+
+    const boardWidth = board.clientWidth;
+    const boardHeight = board.clientHeight;
+
+    const convertedPoints = points.map((point) => ({
+        x: point.x < 1
+            ? boardWidth * point.x
+            : point.x,
+
+        y: point.y * boardHeight
+    }));
+
+    const distances = [0];
+    let totalDistance = 0;
+
+    for (let i = 1; i < convertedPoints.length; i++) {
+        const previous = convertedPoints[i - 1];
+        const current = convertedPoints[i];
+
+        const dx = current.x - previous.x;
+        const dy = current.y - previous.y;
+
+        const distance = Math.sqrt(
+            dx * dx + dy * dy
+        );
+
+        totalDistance += distance;
+        distances.push(totalDistance);
+    }
+
+    const keyframes = convertedPoints.map((point, index) => ({
+        left: `${point.x}px`,
+        top: `${point.y}px`,
+        offset: distances[index] / totalDistance
+    }));
+
+    ball.animate(
+        keyframes,
+        {
+            duration,
+            easing: "linear",
+            fill: "forwards"
+        }
+    );
 }
