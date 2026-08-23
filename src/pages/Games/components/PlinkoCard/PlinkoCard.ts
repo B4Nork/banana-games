@@ -45,6 +45,8 @@ export function PlinkoCard(onClick: () => void): HTMLElement {
 }
 
 function createPlinkoTransition(onComplete: () => void): void {
+    
+
     const transition = document.createElement("div");
 
     transition.className = "plinko-transition";
@@ -76,7 +78,15 @@ function createPlinkoTransition(onComplete: () => void): void {
     // W połowie animacji zmieniamy stronę
     setTimeout(() => {
         onComplete();
-    }, 3900);
+    }, 3500);
+
+    // Pod koniec zamykamy planszę
+    setTimeout(() => {
+        const board =
+            transition.querySelector<HTMLElement>(".transition-board");
+
+        board?.classList.add("close");
+    }, 4000);
 
     // Kończymy przejście po zakończeniu kulki
     setTimeout(() => {
@@ -85,7 +95,7 @@ function createPlinkoTransition(onComplete: () => void): void {
         setTimeout(() => {
             transition.remove();
         }, 300);
-    }, 4500);
+    }, 5000);
     
     
 

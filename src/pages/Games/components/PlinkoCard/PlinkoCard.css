@@ -222,6 +222,11 @@
 
     clip-path: inset(0 50% 0 50%);
     animation: boardOpen 1s ease-out forwards;
+    
+}
+
+.transition-board.close {
+    animation: boardClose 1s ease-in forwards;
 }
 
 /* =========================
@@ -235,6 +240,16 @@
 
     100% {
         clip-path: inset(0 0 0 0);
+    }
+}
+
+@keyframes boardClose {
+    0% {
+        clip-path: inset(0 0 0 0);
+    }
+
+    100% {
+        clip-path: inset(0 50% 0 50%);
     }
 }
 
