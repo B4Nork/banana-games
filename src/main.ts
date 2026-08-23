@@ -3,6 +3,7 @@ import "./styles/global.css";
 import { Home } from "./pages/Home/Home";
 import { Games } from "./pages/Games/Games";
 import { Wheel } from "./pages/Wheel/Wheel";
+import { Plinko } from "./pages/Plinko/Plinko";
 
 const app = document.querySelector<HTMLDivElement>("#app");
 
@@ -26,6 +27,11 @@ function showGame(game: string): void {
     if (game === "wheel") {
         root.innerHTML = "";
         root.appendChild(Wheel(showGames));
+    }
+
+    if (game === "plinko") {
+        root.innerHTML = "";
+        root.appendChild(Plinko(showGames));
     }
 }
 

@@ -30,7 +30,9 @@ export function Games(onGameClick: (game: string) => void): HTMLElement {
         WheelCard(() => onGameClick("wheel"))
     );
 
-    gamesGrid.appendChild(PlinkoCard());
+    gamesGrid.appendChild(
+        PlinkoCard(() => onGameClick("plinko"))
+    );
 
     gamesGrid.appendChild(RandomCard());
 
