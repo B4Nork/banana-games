@@ -16,10 +16,10 @@ export function Plinko(onBack: () => void): HTMLElement {
 
     const engine = Matter.Engine.create();
 
-    engine.gravity.y = 1;
+    engine.gravity.y = 0.6;
 
     const ball = Matter.Bodies.circle(
-        300, // szerokość
+        350, // szerokość
         10, // wysokiść
         9, // promień
         {
@@ -29,9 +29,9 @@ export function Plinko(onBack: () => void): HTMLElement {
     );
 
     const pins = createPins(
-        11, // liczba rzędów: 4 → 14
+        12, // liczba rzędów: 4 → 14
         4, // pierwszy rząd ma 4 kołki
-        300, // środek planszy
+        350, // środek planszy
         100, // wysokość pierwszego rzędu
         45, // odstęp poziomy
         45 // odstęp pionowy
@@ -68,10 +68,30 @@ export function Plinko(onBack: () => void): HTMLElement {
     });
 
     const ground = Matter.Bodies.rectangle(
-        300,
-        600,
-        600,
-        40,
+        350, // środek postokąta gdzie jest na x
+        700, // środek prostokąta gdzie jest na y
+        700, // szerokość x
+        20, // wysokość y
+        {
+            isStatic: true
+        }
+    );
+
+    const leftWall = Matter.Bodies.rectangle(
+        0,
+        350,
+        1,
+        700,
+        {
+            isStatic: true
+        }
+    );
+
+    const rightWall = Matter.Bodies.rectangle(
+        699,
+        350,
+        15,
+        700,
         {
             isStatic: true
         }
@@ -79,6 +99,8 @@ export function Plinko(onBack: () => void): HTMLElement {
 
     Matter.Composite.add(engine.world, [
         ball,
+        leftWall,
+        rightWall,
         ground,
         ... pins
     ]);
@@ -87,8 +109,8 @@ export function Plinko(onBack: () => void): HTMLElement {
         element: physicsContainer,
         engine: engine,
         options: {
-            width: 600,
-            height: 600,
+            width: 800,
+            height: 1000,
             wireframes: false,
             background: "#111"
         }

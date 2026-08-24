@@ -1,0 +1,25 @@
+.plinko-page {
+    min-height: 100vh;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.plinko-physics {
+    position: relative;
+
+    width: 700px;
+    height: 700px;
+    
+    border-left: 4px solid rgb(139, 92, 246);
+    border-right: 4px solid rgb(139, 92, 246);
+
+    background: rgba(10, 10, 10, 0.9);
+
+    box-shadow:
+        0 0 15px rgba(139, 92, 246, 0.5),
+        0 0 40px rgba(139, 92, 246, 0.2);
+
+    overflow: hidden;
+}
