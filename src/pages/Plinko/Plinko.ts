@@ -28,6 +28,8 @@ export function Plinko(onBack: () => void): HTMLElement {
         }
     );
 
+    let rewardGiven = false;
+
     const pins = createPins(
         12, // liczba rzędów: 4 → 14
         4, // pierwszy rząd ma 4 kołki
@@ -117,7 +119,52 @@ export function Plinko(onBack: () => void): HTMLElement {
         }
     );
 
+    const slotRewards = [
+        10,
+        20,
+        50,
+        100,
+        200,
+        500,
+        1000,
+        2000,
+        5000,
+        2000,
+        1000,
+        500,
+        200,
+        100,
+        50,
+        20,
+        10
+    ];
+
     const slotWalls = createSlotWalls();
+
+    Matter.Events.on(engine, "afterUpdate", () => {
+
+        if (rewardGiven) {
+            return;
+        }
+
+        if (ball.position.y < 650) {
+            return;
+        }
+
+        const slotIndex = getBallSlot(ball, slotWalls);
+
+        if (slotIndex === -1) {
+            return;
+        }
+
+        const reward = slotRewards[slotIndex];
+
+        rewardGiven = true;
+
+        console.log(
+            `Kulka wpadła do slotu ${slotIndex + 1}! Nagroda: ${reward}`
+        );
+    });
 
     Matter.Composite.add(engine.world, [
         ball,
@@ -283,4 +330,24 @@ function createSlotWalls(): Matter.Body[] {
     }
 
     return walls;
+}
+
+function getBallSlot(
+    ball: Matter.Body,
+    slotWalls: Matter.Body[]
+): number {
+
+    const ballX = ball.position.x;
+
+    for (let i = 0; i < slotWalls.length - 1; i++) {
+
+        const leftWall = slotWalls[i].position.x;
+        const rightWall = slotWalls[i + 1].position.x;
+
+        if (ballX >= leftWall && ballX < rightWall) {
+            return i;
+        }
+    }
+
+    return -1;
 }
