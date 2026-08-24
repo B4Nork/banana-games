@@ -18,17 +18,9 @@ export function Plinko(onBack: () => void): HTMLElement {
 
     engine.gravity.y = 1;
 
-    const ball = Matter.Bodies.circle(
-        350, // szerokość
-        30, // wysokiść
-        9, // promień
-        {
-            restitution: 0.9,
-            friction: 0
-        }
-    );
+    const balls: Matter.Body[] = [];
 
-    let rewardGiven = false;
+    const rewardedBalls = new Set<number>();
 
     const pins = createPins(
         12, // liczba rzędów: 4 → 14
@@ -39,25 +31,49 @@ export function Plinko(onBack: () => void): HTMLElement {
         45 // odstęp pionowy
     );
 
-    let firstCollision = true;
+    const firstCollisions = new Set<number>();
 
     Matter.Events.on(engine, "collisionStart", (event) => {
 
         for (const pair of event.pairs) {
 
+            const ball = balls.find(
+                ball =>
+                    ball === pair.bodyA ||
+                    ball === pair.bodyB
+            );
+
+            if (!ball) {
+                continue;
+            }
+
+            const hitGround =
+                pair.bodyA === ground ||
+                pair.bodyB === ground;
+
+            if (hitGround) {
+
+                Matter.Body.setVelocity(ball, {
+                    x: ball.velocity.x,
+                    y: 0
+                });
+
+                continue;
+            }
+
             const hitPin =
                 pins.includes(pair.bodyA) ||
                 pins.includes(pair.bodyB);
 
-            const isBallAndPin =
-                (pair.bodyA === ball || pair.bodyB === ball) &&
-                hitPin;
-
-            if (!isBallAndPin || !firstCollision) {
+            if (!hitPin) {
                 continue;
             }
 
-            firstCollision = false;
+            if (firstCollisions.has(ball.id)) {
+                continue;
+            }
+
+            firstCollisions.add(ball.id);
 
             const randomOffset =
                 (Math.random() * 2 - 1) * 0.5;
@@ -75,21 +91,27 @@ export function Plinko(onBack: () => void): HTMLElement {
         700, // szerokość x
         20, // wysokość y
         {
-            isStatic: true
+            isStatic: true,
+            restitution: 0,
+            friction: 1,
+            
+            collisionFilter: {
+                category: 0x0004
+            }
         }
     );
 
     const leftWallTriangle = createWall(
         150,
         350,
-        580,
+        700,
         -63.5 * Math.PI / 180
     );
 
     const rightWallTriangle = createWall(
         550,
         350,
-        580,
+        700,
         63.5 * Math.PI / 180
     );
 
@@ -143,31 +165,36 @@ export function Plinko(onBack: () => void): HTMLElement {
 
     Matter.Events.on(engine, "afterUpdate", () => {
 
-        if (rewardGiven) {
-            return;
+        for (const ball of balls) {
+
+            if (rewardedBalls.has(ball.id)) {
+                continue;
+            }
+
+            if (ball.position.y < 650) {
+                continue;
+            }
+
+            const slotIndex = getBallSlot(
+                ball,
+                slotWalls
+            );
+
+            if (slotIndex === -1) {
+                continue;
+            }
+
+            const reward = slotRewards[slotIndex];
+
+            rewardedBalls.add(ball.id);
+
+            console.log(
+                `Kulka ${ball.id} → slot ${slotIndex + 1} → nagroda ${reward}`
+            );
         }
-
-        if (ball.position.y < 650) {
-            return;
-        }
-
-        const slotIndex = getBallSlot(ball, slotWalls);
-
-        if (slotIndex === -1) {
-            return;
-        }
-
-        const reward = slotRewards[slotIndex];
-
-        rewardGiven = true;
-
-        console.log(
-            `Kulka wpadła do slotu ${slotIndex + 1}! Nagroda: ${reward}`
-        );
     });
 
     Matter.Composite.add(engine.world, [
-        ball,
         leftWall,
         rightWall,
         leftWallTriangle ,
@@ -193,6 +220,8 @@ export function Plinko(onBack: () => void): HTMLElement {
     const runner = Matter.Runner.create();
 
     Matter.Runner.run(runner, engine);
+
+    dropBalls(2, engine, balls);
 
     const backButton = document.createElement("button");
 
@@ -274,7 +303,7 @@ function createWall(
         x,
         y,
         length,
-        1,
+        5,
         {
             isStatic: true,
             angle,
@@ -316,9 +345,9 @@ function createSlotWalls(): Matter.Body[] {
 
         const wall = Matter.Bodies.rectangle(
             x,
-            665,
+            675,
             2,
-            50,
+            70,
             {
                 isStatic: true
             }
@@ -350,4 +379,54 @@ function getBallSlot(
     }
 
     return -1;
+}
+
+function createBall(x: number, y: number): Matter.Body {
+
+    return Matter.Bodies.circle(
+        x,
+        y,
+        9,
+        {
+            restitution: 0.9,
+            friction: 0,
+
+            collisionFilter: {
+                category: 0x0002,
+                mask: 0x0001 | 0x0004
+            }
+        }
+    );
+}
+
+function dropBalls(
+    count: number,
+    engine: Matter.Engine,
+    balls: Matter.Body[]
+): void {
+
+    const minX = 320;
+    const maxX = 380;
+
+    for (let i = 0; i < count; i++) {
+
+        setTimeout(() => {
+
+            const randomX =
+                minX + Math.random() * (maxX - minX);
+
+            const ball = createBall(
+                randomX,
+                60
+            );
+
+            balls.push(ball);
+
+            Matter.Composite.add(
+                engine.world,
+                ball
+            );
+
+        }, i * 150);
+    }
 }
