@@ -15,7 +15,7 @@ const root = app;
 
 function showHome(): void {
     root.innerHTML = "";
-    root.appendChild(Home(showGames));
+    root.appendChild(Plinko(showGames));
 }
 
 function showGames(): void {
