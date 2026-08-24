@@ -16,7 +16,7 @@ export function Plinko(onBack: () => void): HTMLElement {
 
     const engine = Matter.Engine.create();
 
-    engine.gravity.y = 0.6;
+    engine.gravity.y = 1;
 
     const ball = Matter.Bodies.circle(
         350, // szerokość
@@ -77,6 +77,20 @@ export function Plinko(onBack: () => void): HTMLElement {
         }
     );
 
+    const leftWallTriangle = createWall(
+        150,
+        350,
+        580,
+        -63.5 * Math.PI / 180
+    );
+
+    const rightWallTriangle = createWall(
+        550,
+        350,
+        580,
+        63.5 * Math.PI / 180
+    );
+
     const leftWall = Matter.Bodies.rectangle(
         0,
         350,
@@ -101,6 +115,8 @@ export function Plinko(onBack: () => void): HTMLElement {
         ball,
         leftWall,
         rightWall,
+        leftWallTriangle ,
+        rightWallTriangle,
         ground,
         ... pins
     ]);
@@ -189,4 +205,26 @@ function createPins(
     }
 
     return pins;
+}
+
+function createWall(
+    x: number,
+    y: number,
+    length: number,
+    angle: number
+): Matter.Body {
+
+    return Matter.Bodies.rectangle(
+        x,
+        y,
+        length,
+        1,
+        {
+            isStatic: true,
+            angle,
+            render:{
+                visible: false
+            }
+        }
+    );
 }
