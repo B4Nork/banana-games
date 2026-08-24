@@ -19,20 +19,53 @@ export function Plinko(onBack: () => void): HTMLElement {
     engine.gravity.y = 1;
 
     const ball = Matter.Bodies.circle(
-        300,
-        100,
-        25
-    );
-
-    const pin = Matter.Bodies.circle(
-        300,
-        350,
-        15,
+        300, // szerokość
+        10, // wysokiść
+        9, // promień
         {
-            isStatic: true,
-            restitution: 1
+            restitution: 0.9,
+            friction: 0
         }
     );
+
+    const pins = createPins(
+        11, // liczba rzędów: 4 → 14
+        4, // pierwszy rząd ma 4 kołki
+        300, // środek planszy
+        100, // wysokość pierwszego rzędu
+        45, // odstęp poziomy
+        45 // odstęp pionowy
+    );
+
+    let firstCollision = true;
+
+    Matter.Events.on(engine, "collisionStart", (event) => {
+
+        for (const pair of event.pairs) {
+
+            const hitPin =
+                pins.includes(pair.bodyA) ||
+                pins.includes(pair.bodyB);
+
+            const isBallAndPin =
+                (pair.bodyA === ball || pair.bodyB === ball) &&
+                hitPin;
+
+            if (!isBallAndPin || !firstCollision) {
+                continue;
+            }
+
+            firstCollision = false;
+
+            const randomOffset =
+                (Math.random() * 2 - 1) * 0.5;
+
+            Matter.Body.setVelocity(ball, {
+                x: randomOffset,
+                y: ball.velocity.y
+            });
+        }
+    });
 
     const ground = Matter.Bodies.rectangle(
         300,
@@ -46,8 +79,8 @@ export function Plinko(onBack: () => void): HTMLElement {
 
     Matter.Composite.add(engine.world, [
         ball,
-        pin,
-        ground
+        ground,
+        ... pins
     ]);
 
     const render = Matter.Render.create({
@@ -83,4 +116,55 @@ export function Plinko(onBack: () => void): HTMLElement {
     plinkoPage.appendChild(backButton);
 
     return plinkoPage;
+}
+
+function createPin(x: number, y: number): Matter.Body {
+    return Matter.Bodies.circle(
+        x,
+        y,
+        7,
+        {
+            isStatic: true,
+            restitution: 0.9,
+            friction: 0
+        }
+    );
+}
+
+function createPins(
+    rows: number,
+    firstRowPins: number,
+    centerX: number,
+    startY: number,
+    horizontalSpacing: number,
+    verticalSpacing: number
+): Matter.Body[] {
+
+    const pins: Matter.Body[] = [];
+
+    for (let row = 0; row < rows; row++) {
+
+        const pinsInRow = firstRowPins + row;
+
+        const rowWidth =
+            (pinsInRow - 1) * horizontalSpacing;
+
+        const startX =
+            centerX - rowWidth / 2;
+
+        for (let column = 0; column < pinsInRow; column++) {
+
+            const x =
+                startX + column * horizontalSpacing;
+
+            const y =
+                startY + row * verticalSpacing;
+
+            pins.push(
+                createPin(x, y)
+            );
+        }
+    }
+
+    return pins;
 }
