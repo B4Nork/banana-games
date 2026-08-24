@@ -20,7 +20,7 @@ export function Plinko(onBack: () => void): HTMLElement {
 
     const ball = Matter.Bodies.circle(
         350, // szerokość
-        10, // wysokiść
+        30, // wysokiść
         9, // promień
         {
             restitution: 0.9,
@@ -97,7 +97,10 @@ export function Plinko(onBack: () => void): HTMLElement {
         1,
         700,
         {
-            isStatic: true
+            isStatic: true,
+            render:{
+                visible: false
+            }
         }
     );
 
@@ -107,9 +110,14 @@ export function Plinko(onBack: () => void): HTMLElement {
         15,
         700,
         {
-            isStatic: true
+            isStatic: true,
+            render:{
+                visible: false
+            }
         }
     );
+
+    const slotWalls = createSlotWalls();
 
     Matter.Composite.add(engine.world, [
         ball,
@@ -118,15 +126,16 @@ export function Plinko(onBack: () => void): HTMLElement {
         leftWallTriangle ,
         rightWallTriangle,
         ground,
-        ... pins
+        ... pins,
+        ... slotWalls
     ]);
 
     const render = Matter.Render.create({
         element: physicsContainer,
         engine: engine,
         options: {
-            width: 800,
-            height: 1000,
+            width: 700,
+            height: 800,
             wireframes: false,
             background: "#111"
         }
@@ -227,4 +236,51 @@ function createWall(
             }
         }
     );
+}
+
+function createSlotWalls(): Matter.Body[] {
+
+    const walls: Matter.Body[] = [];
+
+    const slotWidths = [
+        40,
+        20,
+        60,
+        45,
+        65,
+        35,
+        25,
+        50,
+        20,
+        50,
+        25,
+        35,
+        65,
+        45,
+        60,
+        20,
+        40,
+        0
+    ];
+
+    let x = 0;
+
+    for (const width of slotWidths) {
+
+        const wall = Matter.Bodies.rectangle(
+            x,
+            665,
+            2,
+            50,
+            {
+                isStatic: true
+            }
+        );
+
+        walls.push(wall);
+
+        x += width;
+    }
+
+    return walls;
 }
