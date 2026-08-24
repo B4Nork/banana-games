@@ -23,7 +23,7 @@ export function Plinko(onBack: () => void): HTMLElement {
     const ballsInput = document.createElement("input");
     ballsInput.type = "number";
     ballsInput.min = "1";
-    ballsInput.max = "50";
+    ballsInput.max = "25";
     ballsInput.value = "1";
 
     const dropButton = document.createElement("button");
@@ -32,6 +32,21 @@ export function Plinko(onBack: () => void): HTMLElement {
     controls.appendChild(ballsLabel);
     controls.appendChild(ballsInput);
     controls.appendChild(dropButton);
+
+    const result = document.createElement("div");
+
+    result.className = "plinko-result";
+
+    result.innerHTML = `
+        <span>WYGRANA</span>
+        <strong>100</strong>
+        <small>PKT</small>
+    `;
+
+    controls.appendChild(result);
+
+    const resultValue =
+        result.querySelector("strong") as HTMLElement;
 
     plinkoPage.appendChild(controls);
 
@@ -43,10 +58,19 @@ export function Plinko(onBack: () => void): HTMLElement {
 
     const rewardedBalls = new Set<number>();
 
+    const BASE_POINTS = 100;
+
+    let totalPoints = BASE_POINTS;
+    let completedBalls = 0;
+    let currentDropCount = 0;
+
+    resultValue.textContent =
+        totalPoints.toString();
+
     const pins = createPins(
-        12, // liczba rzędów: 4 → 14
-        4, // pierwszy rząd ma 4 kołki
-        350, // środek planszy
+        11, // liczba rzędów: 4 → 14
+        3, // pierwszy rząd ma 4 kołki
+        325, // środek planszy
         100, // wysokość pierwszego rzędu
         45, // odstęp poziomy
         45 // odstęp pionowy
@@ -107,8 +131,8 @@ export function Plinko(onBack: () => void): HTMLElement {
     });
 
     const ground = Matter.Bodies.rectangle(
-        350, // środek postokąta gdzie jest na x
-        700, // środek prostokąta gdzie jest na y
+        325, // środek postokąta gdzie jest na x
+        660, // środek prostokąta gdzie jest na y
         700, // szerokość x
         20, // wysokość y
         {
@@ -124,21 +148,21 @@ export function Plinko(onBack: () => void): HTMLElement {
 
     const leftWallTriangle = createWall(
         150,
-        350,
+        325,
         700,
-        -63.5 * Math.PI / 180
+        -63.4 * Math.PI / 180
     );
 
     const rightWallTriangle = createWall(
-        550,
-        350,
+        500,
+        325,
         700,
-        63.5 * Math.PI / 180
+        63.4 * Math.PI / 180
     );
 
     const leftWall = Matter.Bodies.rectangle(
         0,
-        350,
+        325,
         1,
         700,
         {
@@ -151,7 +175,7 @@ export function Plinko(onBack: () => void): HTMLElement {
 
     const rightWall = Matter.Bodies.rectangle(
         699,
-        350,
+        325,
         15,
         700,
         {
@@ -163,26 +187,30 @@ export function Plinko(onBack: () => void): HTMLElement {
     );
 
     const slotRewards = [
-        10,
+        0,
         20,
-        50,
-        100,
-        200,
-        500,
-        1000,
-        2000,
-        5000,
-        2000,
-        1000,
-        500,
-        200,
-        100,
-        50,
+        5,
+        2,
+        1,
+        0.75,
+        0.5,
+        0.5,
+        0.75,
+        1,
+        2,
+        5,
         20,
-        10
+        0,
     ];
 
     const slotWalls = createSlotWalls();
+
+    const slotLabels = createSlotLabels(
+        slotWalls,
+        slotRewards
+    );
+
+    physicsContainer.appendChild(slotLabels);
 
     Matter.Events.on(engine, "afterUpdate", () => {
 
@@ -192,7 +220,7 @@ export function Plinko(onBack: () => void): HTMLElement {
                 continue;
             }
 
-            if (ball.position.y < 650) {
+            if (ball.position.y < 600) {
                 continue;
             }
 
@@ -207,10 +235,17 @@ export function Plinko(onBack: () => void): HTMLElement {
 
             const reward = slotRewards[slotIndex];
 
+            totalPoints *= reward;
+
+            completedBalls++;
+
             rewardedBalls.add(ball.id);
 
+            resultValue.textContent =
+                Math.ceil(totalPoints).toLocaleString("pl-PL");
+
             console.log(
-                `Kulka ${ball.id} → slot ${slotIndex + 1} → nagroda ${reward}`
+                `Kulka ${ball.id} → slot ${slotIndex + 1} → x${reward} → aktualnie ${totalPoints} pkt`
             );
         }
     });
@@ -249,6 +284,20 @@ export function Plinko(onBack: () => void): HTMLElement {
         if (count < 1 || count > 50) {
             return;
         }
+
+        clearBalls(
+            engine,
+            balls,
+            rewardedBalls,
+            firstCollisions
+        );
+
+        totalPoints = BASE_POINTS;
+        completedBalls = 0;
+        currentDropCount = count;
+
+        resultValue.textContent =
+            totalPoints.toString();
 
         dropBalls(
             count,
@@ -337,7 +386,7 @@ function createWall(
         x,
         y,
         length,
-        5,
+        10,
         {
             isStatic: true,
             angle,
@@ -352,34 +401,31 @@ function createSlotWalls(): Matter.Body[] {
 
     const walls: Matter.Body[] = [];
 
-    const slotWidths = [
-        40,
+    const slotWidths = [ 
         20,
-        60,
-        45,
-        65,
-        35,
-        25,
+        30,
         50,
-        20,
         50,
-        25,
-        35,
-        65,
-        45,
-        60,
+        50,
+        50,
+        50,
+        50,
+        50,
+        50,
+        50,
+        50,
+        30,
         20,
-        40,
         0
     ];
 
-    let x = 0;
+    let x = 25;
 
     for (const width of slotWidths) {
 
         const wall = Matter.Bodies.rectangle(
             x,
-            675,
+            635,
             2,
             70,
             {
@@ -439,8 +485,8 @@ function dropBalls(
     balls: Matter.Body[]
 ): void {
 
-    const minX = 320;
-    const maxX = 380;
+    const minX = 300;
+    const maxX = 350;
 
     for (let i = 0; i < count; i++) {
 
@@ -463,4 +509,59 @@ function dropBalls(
 
         }, i * 150);
     }
+}
+
+function clearBalls(
+    engine: Matter.Engine,
+    balls: Matter.Body[],
+    rewardedBalls: Set<number>,
+    firstCollisions: Set<number>
+): void {
+
+    for (const ball of balls) {
+        Matter.Composite.remove(engine.world, ball);
+    }
+
+    balls.length = 0;
+    rewardedBalls.clear();
+    firstCollisions.clear();
+}
+
+function createSlotLabels(
+    slotWalls: Matter.Body[],
+    slotRewards: number[]
+): HTMLElement {
+
+    const container = document.createElement("div");
+
+    container.className = "plinko-slot-labels";
+
+    for (let i = 0; i < slotWalls.length - 1; i++) {
+
+        const leftX =
+            slotWalls[i].position.x;
+
+        const rightX =
+            slotWalls[i + 1].position.x;
+
+        const width =
+            rightX - leftX;
+
+        const reward =
+            slotRewards[i];
+
+        const label =
+            document.createElement("div");
+
+        label.className = "plinko-slot-label";
+
+        label.textContent = `×${reward}`;
+
+        label.style.left = `${leftX}px`;
+        label.style.width = `${width}px`;
+
+        container.appendChild(label);
+    }
+
+    return container;
 }

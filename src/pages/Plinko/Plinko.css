@@ -12,8 +12,8 @@
 .plinko-physics {
     position: relative;
 
-    width: 700px;
-    height: 800px;
+    width: 650px;
+    height: 700px;
 
     margin-top: 100px;
 
@@ -33,7 +33,7 @@
    ========================= */
 
 .plinko-controls {
-    width: 220px;
+    width: 400px;
 
     margin-top: 100px;
     margin-left: 40px;
@@ -170,4 +170,107 @@
 
 .plinko-controls button:active {
     transform: scale(0.95);
+}
+
+/* =========================
+   WYNIK
+   ========================= */
+
+.plinko-result {
+    width: 300px;
+
+    padding: 15px 10px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    box-sizing: border-box;
+
+    background: rgba(20, 10, 10, 0.95);
+
+    border: 2px solid rgb(166, 36, 36);
+    border-radius: 12px;
+
+    box-shadow:
+        0 0 10px rgba(166, 36, 36, 0.4),
+        inset 0 0 15px rgba(100, 20, 20, 0.2);
+}
+
+.plinko-result span {
+    font-size: 18px;
+
+    color: rgb(180, 70, 70);
+
+    letter-spacing: 2px;
+
+    text-shadow:
+        0 0 5px rgba(0, 0, 0, 0.8);
+}
+
+.plinko-result strong {
+    margin-top: 5px;
+
+    font-size: 42px;
+    line-height: 1;
+
+    color: rgb(246, 92, 92);
+
+    text-shadow:
+        0 0 5px rgba(246, 92, 92, 0.5),
+        0 0 15px rgba(166, 36, 36, 0.4);
+
+    font-family: "Karma", serif;
+}
+
+.plinko-result small {
+    margin-top: 5px;
+
+    font-size: 16px;
+
+    color: rgb(180, 70, 70);
+
+    letter-spacing: 2px;
+}
+
+/* =========================
+   MNOŻNIKI SLOTÓW
+   ========================= */
+
+.plinko-slot-labels {
+    position: absolute;
+
+    left: 0;
+    top: 650px;
+
+    width: 700px;
+    height: 50px;
+
+    z-index: 10;
+
+    pointer-events: none;
+}
+
+.plinko-slot-label {
+    position: absolute;
+
+    height: 1;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    box-sizing: border-box;
+
+    font-family: "Karma", serif;
+    font-size: 15px;
+
+    color: rgb(230, 212, 212);
+    
+    text-shadow:
+        0 0 5px rgba(222, 209, 209, 0.5);
+
+    white-space: nowrap;
+
 }
