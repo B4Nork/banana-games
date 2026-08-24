@@ -1,9 +1,12 @@
 .plinko-page {
     min-height: 100vh;
 
+    font-family: "Karma", serif;
+
     display: flex;
-    flex-direction: column;
-    align-items: center;
+    flex-direction: row;
+    justify-content: center;
+    align-items: flex-start;
 }
 
 .plinko-physics {
@@ -23,4 +26,148 @@
         0 0 40px rgba(139, 92, 246, 0.2);
 
     overflow: hidden;
+}
+
+/* =========================
+   PANEL PLINKO
+   ========================= */
+
+.plinko-controls {
+    width: 220px;
+
+    margin-top: 100px;
+    margin-left: 40px;
+    padding: 25px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+
+    font-family: "Karma", sans-serif;
+
+    background: rgba(10, 10, 10, 0.9);
+
+    border: 2px solid rgb(166, 36, 36);
+    border-radius: 15px;
+
+    box-shadow:
+        0 0 15px rgba(67, 16, 24, 0.5),
+        0 0 35px rgba(63, 8, 12, 0.2);
+}
+
+/* =========================
+   NAPIS
+   ========================= */
+
+.plinko-controls span {
+    font-size: 20px;
+    font-weight: bold;
+    font-family: "Karma", sans-serif;
+
+    font-family: "Karma", serif;
+
+    color: rgb(109, 37, 37);
+
+    text-shadow:
+        0 0 5px rgba(0, 0, 0, 0.7);
+
+    letter-spacing: 1px;
+}
+
+/* =========================
+   WYBÓR KULEK
+   ========================= */
+
+.plinko-controls input {
+    width: 100px;
+    height: 45px;
+
+    box-sizing: border-box;
+
+    text-align: center;
+
+    font-size: 30px;
+    font-weight: bold;
+
+    font-family: "Karma", serif;
+
+    color: rgb(211, 98, 98);
+
+    text-shadow:
+        0 0 5px rgba(79, 59, 59, 0.7);
+
+    background: rgba(30, 30, 30, 0.9);
+
+    border: 2px solid rgb(246, 92, 92);
+    border-radius: 10px;
+
+    outline: none;
+
+    transition:
+        box-shadow 0.2s,
+        transform 0.2s;
+}
+
+.plinko-controls input:focus {
+    box-shadow:
+        0 0 10px rgba(139, 92, 246, 0.7);
+
+    transform: scale(1.05);
+}
+
+/* =========================
+   USUNIĘCIE STRZAŁEK INPUTA
+   ========================= */
+
+.plinko-controls input::-webkit-inner-spin-button,
+.plinko-controls input::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* =========================
+   DROP
+   ========================= */
+
+.plinko-controls button {
+    width: 160px;
+    height: 50px;
+
+    border: none;
+    border-radius: 10px;
+
+    font-family: "Karma", serif;
+
+    background: rgb(255, 4, 0);
+
+    color: rgb(123, 2, 2);
+
+    text-shadow:
+        0 0 5px rgba(255, 255, 255, 0.7);
+
+    font-size: 40px;
+    font-weight: bold;
+
+    letter-spacing: 2px;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 0 10px rgba(0, 0, 0, 0.5);
+
+    transition:
+        transform 0.15s,
+        box-shadow 0.15s;
+}
+
+.plinko-controls button:hover {
+    transform: scale(1.05);
+
+    box-shadow:
+        0 0 20px rgba(246, 244, 244, 0.8);
+}
+
+.plinko-controls button:active {
+    transform: scale(0.95);
 }

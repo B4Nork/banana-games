@@ -14,6 +14,27 @@ export function Plinko(onBack: () => void): HTMLElement {
 
     plinkoPage.appendChild(physicsContainer);
 
+    const controls = document.createElement("div");
+    controls.className = "plinko-controls";
+
+    const ballsLabel = document.createElement("span");
+    ballsLabel.textContent = "LICZBA KULEK";
+
+    const ballsInput = document.createElement("input");
+    ballsInput.type = "number";
+    ballsInput.min = "1";
+    ballsInput.max = "50";
+    ballsInput.value = "1";
+
+    const dropButton = document.createElement("button");
+    dropButton.textContent = "DROP";
+
+    controls.appendChild(ballsLabel);
+    controls.appendChild(ballsInput);
+    controls.appendChild(dropButton);
+
+    plinkoPage.appendChild(controls);
+
     const engine = Matter.Engine.create();
 
     engine.gravity.y = 1;
@@ -221,7 +242,20 @@ export function Plinko(onBack: () => void): HTMLElement {
 
     Matter.Runner.run(runner, engine);
 
-    dropBalls(2, engine, balls);
+    dropButton.addEventListener("click", () => {
+
+        const count = Number(ballsInput.value);
+
+        if (count < 1 || count > 50) {
+            return;
+        }
+
+        dropBalls(
+            count,
+            engine,
+            balls
+        );
+    });
 
     const backButton = document.createElement("button");
 
