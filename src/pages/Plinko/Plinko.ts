@@ -247,6 +247,10 @@ export function Plinko(onBack: () => void): HTMLElement {
             console.log(
                 `Kulka ${ball.id} → slot ${slotIndex + 1} → x${reward} → aktualnie ${totalPoints} pkt`
             );
+
+            if (completedBalls === currentDropCount) {
+                console.log(`Koniec rundy! Wygrana: ${Math.ceil(totalPoints)} pkt`);
+            }
         }
     });
 
