@@ -4,9 +4,32 @@
     font-family: "Karma", serif;
 
     display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.plinko-game {
+    display: flex;
     flex-direction: row;
-    justify-content: center;
     align-items: flex-start;
+    justify-content: center;
+}
+
+.plinko-game-title {
+    margin: 35px 0 0;
+
+    font-family: "Karma", serif;
+    font-size: 80px;
+    line-height: 1;
+
+    letter-spacing: 20px;
+
+    color: rgb(211, 98, 98);
+
+    text-shadow:
+        0 0 8px rgba(255, 0, 0, 0.7),
+        0 0 20px rgba(166, 36, 36, 0.5),
+        0 0 40px rgba(100, 20, 20, 0.3);
 }
 
 .plinko-physics {
@@ -15,15 +38,15 @@
     width: 650px;
     height: 700px;
 
-    margin-top: 100px;
+    margin-top: 30px;
 
     
 
     background: rgba(10, 10, 10, 0.9);
 
     box-shadow:
-        0 0 15px rgba(139, 92, 246, 0.5),
-        0 0 40px rgba(139, 92, 246, 0.2);
+        0 0 15px rgba(246, 92, 118, 0.5),
+        0 0 40px rgba(246, 92, 136, 0.2);
 
     overflow: hidden;
 }
@@ -35,7 +58,7 @@
 .plinko-controls {
     width: 400px;
 
-    margin-top: 100px;
+    margin-top: 30px;
     margin-left: 40px;
     padding: 25px;
 
@@ -273,4 +296,118 @@
 
     white-space: nowrap;
 
+}
+
+/* =========================
+   POSTĘP RUNDY
+   ========================= */
+
+.plinko-progress {
+    font-family: "Karma", serif;
+
+    font-size: 20px;
+
+    color: rgb(211, 98, 98);
+
+    letter-spacing: 1px;
+
+    text-shadow:
+        0 0 5px rgba(166, 36, 36, 0.5);
+}
+
+/* =========================
+   KOŃCOWY WYNIK
+   ========================= */
+
+.plinko-final-overlay {
+    position: fixed;
+    inset: 0;
+
+    z-index: 10000;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: rgba(0, 0, 0, 0.8);
+}
+
+.plinko-final-result {
+    width: 500px;
+
+    padding: 40px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+
+    font-family: "Karma", serif;
+
+    background: rgba(20, 10, 10, 0.98);
+
+    border: 3px solid rgb(166, 36, 36);
+    border-radius: 18px;
+
+    box-shadow:
+        0 0 25px rgba(166, 36, 36, 0.7),
+        0 0 60px rgba(100, 20, 20, 0.35);
+}
+
+.plinko-final-result span {
+    font-size: 28px;
+
+    color: rgb(180, 70, 70);
+
+    letter-spacing: 3px;
+}
+
+.plinko-final-result strong {
+    font-size: 70px;
+    line-height: 1;
+
+    color: rgb(246, 92, 92);
+
+    text-shadow:
+        0 0 10px rgba(246, 92, 92, 0.6),
+        0 0 25px rgba(166, 36, 36, 0.5);
+}
+
+.plinko-final-result small {
+    font-size: 22px;
+
+    color: rgb(180, 70, 70);
+
+    letter-spacing: 3px;
+}
+
+.plinko-final-result button {
+    margin-top: 15px;
+
+    padding: 12px 45px;
+
+    border: none;
+    border-radius: 10px;
+
+    font-family: "Karma", serif;
+    font-size: 28px;
+
+    background: rgb(255, 4, 0);
+    color: rgb(123, 2, 2);
+
+    cursor: pointer;
+
+    box-shadow:
+        0 0 15px rgba(255, 0, 0, 0.4);
+
+    transition:
+        transform 0.15s,
+        box-shadow 0.15s;
+}
+
+.plinko-final-result button:hover {
+    transform: scale(1.05);
+
+    box-shadow:
+        0 0 25px rgba(255, 80, 80, 0.7);
 }

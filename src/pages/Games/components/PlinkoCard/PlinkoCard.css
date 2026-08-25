@@ -226,7 +226,7 @@
 }
 
 .transition-board.close {
-    animation: boardClose 1s ease-in forwards;
+    animation: boardClose 0.5s ease-in forwards;
 }
 
 /* =========================

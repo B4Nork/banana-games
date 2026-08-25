@@ -8,11 +8,24 @@ export function Plinko(onBack: () => void): HTMLElement {
 
     plinkoPage.className = "plinko-page";
 
+    const title = document.createElement("h1");
+
+    title.className = "plinko-game-title";
+    title.textContent = "PLINKO";
+
+    plinkoPage.appendChild(title);
+
+    const gameContainer = document.createElement("div");
+
+    gameContainer.className = "plinko-game";
+
+    plinkoPage.appendChild(gameContainer);
+
     const physicsContainer = document.createElement("div");
 
     physicsContainer.className = "plinko-physics";
 
-    plinkoPage.appendChild(physicsContainer);
+    gameContainer.appendChild(physicsContainer);
 
     const controls = document.createElement("div");
     controls.className = "plinko-controls";
@@ -23,7 +36,7 @@ export function Plinko(onBack: () => void): HTMLElement {
     const ballsInput = document.createElement("input");
     ballsInput.type = "number";
     ballsInput.min = "1";
-    ballsInput.max = "25";
+    ballsInput.max = "50";
     ballsInput.value = "1";
 
     const dropButton = document.createElement("button");
@@ -39,7 +52,7 @@ export function Plinko(onBack: () => void): HTMLElement {
 
     result.innerHTML = `
         <span>WYGRANA</span>
-        <strong>100</strong>
+        <strong>1000</strong>
         <small>PKT</small>
     `;
 
@@ -47,8 +60,15 @@ export function Plinko(onBack: () => void): HTMLElement {
 
     const resultValue =
         result.querySelector("strong") as HTMLElement;
+    
+    const progress = document.createElement("div");
 
-    plinkoPage.appendChild(controls);
+    progress.className = "plinko-progress";
+    progress.textContent = "KULKI: 0 / 0";
+
+    controls.appendChild(progress);
+
+    gameContainer.appendChild(controls);
 
     const engine = Matter.Engine.create();
 
@@ -58,7 +78,7 @@ export function Plinko(onBack: () => void): HTMLElement {
 
     const rewardedBalls = new Set<number>();
 
-    const BASE_POINTS = 100;
+    const BASE_POINTS = 1000;
 
     let totalPoints = BASE_POINTS;
     let completedBalls = 0;
@@ -188,18 +208,18 @@ export function Plinko(onBack: () => void): HTMLElement {
 
     const slotRewards = [
         0,
-        20,
-        5,
-        2,
+        8,
+        3,
+        1.5,
         1,
         0.75,
         0.5,
         0.5,
         0.75,
         1,
-        2,
-        5,
-        20,
+        1.5,
+        3,
+        8,
         0,
     ];
 
@@ -239,6 +259,9 @@ export function Plinko(onBack: () => void): HTMLElement {
 
             completedBalls++;
 
+            progress.textContent =
+                `KULKI: ${completedBalls} / ${currentDropCount}`;
+
             rewardedBalls.add(ball.id);
 
             resultValue.textContent =
@@ -250,6 +273,8 @@ export function Plinko(onBack: () => void): HTMLElement {
 
             if (completedBalls === currentDropCount) {
                 console.log(`Koniec rundy! Wygrana: ${Math.ceil(totalPoints)} pkt`);
+
+                showFinalResult(totalPoints);
             }
         }
     });
@@ -302,6 +327,9 @@ export function Plinko(onBack: () => void): HTMLElement {
 
         resultValue.textContent =
             totalPoints.toString();
+        
+        progress.textContent =
+            `KULKI: 0 / ${currentDropCount}`;
 
         dropBalls(
             count,
@@ -568,4 +596,40 @@ function createSlotLabels(
     }
 
     return container;
+}
+
+function showFinalResult(
+    points: number
+): void {
+
+    const overlay = document.createElement("div");
+
+    overlay.className = "plinko-final-overlay";
+
+    overlay.innerHTML = `
+        <div class="plinko-final-result">
+
+            <span>KONIEC RUNDY</span>
+
+            <strong>
+                ${Math.ceil(points).toLocaleString("pl-PL")}
+            </strong>
+
+            <small>PKT</small>
+
+            <button>
+                DALEJ
+            </button>
+
+        </div>
+    `;
+
+    document.body.appendChild(overlay);
+
+    const button =
+        overlay.querySelector<HTMLButtonElement>("button");
+
+    button?.addEventListener("click", () => {
+        overlay.remove();
+    });
 }
