@@ -17,12 +17,14 @@
 
     font-size: 34px;
 
-    color: rgb(7, 6, 1);
+    color: rgb(29, 26, 10);
 
     letter-spacing: 0.1em;
 
     text-shadow:
         0 0 5px rgba(226, 226, 223, 0.7);
+
+    cursor: pointer;
 }
 
 .wheel {

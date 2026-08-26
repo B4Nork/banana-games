@@ -4,6 +4,7 @@ import { Background } from "../../components/Background/Background";
 import { WheelCard } from "./components/WheelCard/WheelCard";
 import { PlinkoCard } from "./components/PlinkoCard/PlinkoCard";
 import { RandomCard } from "./components/RandomCard/RandomCard";
+import { ThimblerigCard } from "./components/ThimblerigCard/ThimblerigCard";
 
 export function Games(onGameClick: (game: string) => void): HTMLElement {
     const gamesPage = document.createElement("main");
@@ -32,6 +33,10 @@ export function Games(onGameClick: (game: string) => void): HTMLElement {
 
     gamesGrid.appendChild(
         PlinkoCard(() => onGameClick("plinko"))
+    );
+
+    gamesGrid.appendChild(
+        ThimblerigCard(() => onGameClick("thimblerig"))
     );
 
     gamesGrid.appendChild(RandomCard());
