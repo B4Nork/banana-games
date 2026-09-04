@@ -4,6 +4,7 @@ import { Home } from "./pages/Home/Home";
 import { Games } from "./pages/Games/Games";
 import { Wheel } from "./pages/Wheel/Wheel";
 import { Plinko } from "./pages/Plinko/Plinko";
+import { Thimblerig } from "./pages/Thimblerig/Thimblerig";
 
 const app = document.querySelector<HTMLDivElement>("#app");
 
@@ -32,6 +33,11 @@ function showGame(game: string): void {
     if (game === "plinko") {
         root.innerHTML = "";
         root.appendChild(Plinko(showGames));
+    }
+
+    if (game === "thimblerig") {
+        root.innerHTML = "";
+        root.appendChild(Thimblerig(showGames));
     }
 }
 
