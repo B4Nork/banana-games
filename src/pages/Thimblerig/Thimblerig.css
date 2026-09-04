@@ -1,5 +1,6 @@
 .thimblerig-page {
     min-height: 100vh;
+
     display: flex;
     justify-content: center;
     align-items: center;
@@ -13,6 +14,7 @@
         );
 
     color: #e8dfce;
+
     font-family: "Karma", serif;
 }
 
@@ -20,7 +22,8 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 38px;
+
+    gap: 32px;
 }
 
 .thimblerig-game h1 {
@@ -34,6 +37,17 @@
     text-shadow:
         0 3px 0 #5e3b0c,
         0 0 18px rgba(240, 195, 106, 0.25);
+}
+
+/* =========================
+   GŁÓWNY UKŁAD
+========================= */
+
+.thimblerig-layout {
+    display: flex;
+    align-items: stretch;
+
+    gap: 28px;
 }
 
 /* =========================
@@ -64,14 +78,15 @@
     box-shadow:
         0 18px 40px rgba(0, 0, 0, 0.5),
         inset 0 0 35px rgba(0, 0, 0, 0.4);
-}
 
-/* delikatna linia/stół pod kubkami */
+    overflow: hidden;
+}
 
 .thimblerig-game-board::after {
     content: "";
 
     position: absolute;
+
     left: 45px;
     right: 45px;
     bottom: 54px;
@@ -102,12 +117,13 @@
     bottom: 60px;
 
     width: 140px;
-    height: 200px;
+    height: 170px;
 
     margin-left: -70px;
 
     transition:
-        transform 0.6s cubic-bezier(0.45, 0, 0.55, 1);
+        transform 0.6s
+        cubic-bezier(0.45, 0, 0.55, 1);
 
     z-index: 3;
 }
@@ -118,6 +134,7 @@
 
 .game-cup {
     position: absolute;
+
     left: 5px;
     bottom: 0;
 
@@ -147,17 +164,24 @@
         rotateX(-2deg)
         scaleX(1.08);
 
-    transform-origin: bottom center;
+    transform-origin:
+        bottom center;
 
     filter:
-        drop-shadow(0 10px 7px rgba(0, 0, 0, 0.45));
+        drop-shadow(
+            0 10px 7px
+            rgba(0, 0, 0, 0.45)
+        );
 
     z-index: 2;
 
     transition:
-        transform 0.5s cubic-bezier(0.34, 1.3, 0.64, 1),
+        transform 0.5s
+        cubic-bezier(0.34, 1.3, 0.64, 1),
         filter 0.2s ease;
 }
+
+/* GÓRNY RANT */
 
 .game-cup::before {
     content: "";
@@ -183,11 +207,13 @@
         );
 
     box-shadow:
-        inset 0 -4px 4px rgba(0, 0, 0, 0.55),
-        0 2px 2px rgba(255, 215, 120, 0.15);
+        inset 0 -4px 4px
+        rgba(0, 0, 0, 0.55);
 
     z-index: 3;
 }
+
+/* REFLEKS */
 
 .game-cup::after {
     content: "";
@@ -209,15 +235,14 @@
             rgba(255, 255, 255, 0.02)
         );
 
-    transform: rotate(6deg);
+    transform:
+        rotate(6deg);
 
     opacity: 0.75;
 }
 
-
-
 /* =========================
-   SYMBOL NA KUBKU
+   B NA KUBKU
 ========================= */
 
 .cup-logo {
@@ -226,9 +251,9 @@
     left: 50%;
     top: 55px;
 
-    transform: translateX(-50%);
+    transform:
+        translateX(-50%);
 
-    font-family: "Karma", serif;
     font-size: 34px;
     font-weight: bold;
 
@@ -255,11 +280,14 @@
         rotate(-3deg);
 
     filter:
-        drop-shadow(0 18px 12px rgba(0, 0, 0, 0.45));
+        drop-shadow(
+            0 18px 12px
+            rgba(0, 0, 0, 0.45)
+        );
 }
 
 /* =========================
-   NAGRODA / KULKA
+   KULKA
 ========================= */
 
 .game-ball {
@@ -271,7 +299,8 @@
     width: 48px;
     height: 48px;
 
-    transform: translateX(-50%);
+    transform:
+        translateX(-50%);
 
     display: flex;
     justify-content: center;
@@ -287,21 +316,37 @@
             #a86e05 100%
         );
 
-    border: 2px solid #ffe890;
+    border:
+        2px solid #ffe890;
 
     color: #3b2700;
 
     font-family: Arial, sans-serif;
     font-size: 25px;
 
+    box-shadow:
+        0 0 10px
+        rgba(244, 211, 94, 0.8),
+
+        0 0 25px
+        rgba(244, 211, 94, 0.35);
+
     z-index: 1;
 }
 
 /* =========================
-   WYBIERANIE
+   HOVER KUBKA
 ========================= */
 
-.thimblerig-game-board.choosing .cup-container:hover .game-cup {
+.thimblerig-game-board.choosing
+.cup-container {
+    cursor: pointer;
+}
+
+.thimblerig-game-board.choosing
+.cup-container:hover
+.game-cup {
+
     transform:
         perspective(300px)
         rotateX(-2deg)
@@ -310,24 +355,206 @@
 
     filter:
         brightness(1.15)
-        drop-shadow(0 0 13px rgba(240, 195, 106, 0.45));
+        drop-shadow(
+            0 0 13px
+            rgba(240, 195, 106, 0.45)
+        );
 }
 
 /* =========================
-   STATUS
+   PANEL STAWKI
 ========================= */
 
-.thimblerig-status {
-    min-height: 42px;
-    margin: 0;
+.thimblerig-bet-panel {
+    width: 270px;
 
-    font-size: 32px;
-    letter-spacing: 0.08em;
+    padding: 24px;
 
-    color: #f0c36a;
+    display: flex;
+    flex-direction: column;
 
-    text-shadow:
-        0 2px 5px rgba(0, 0, 0, 0.6);
+    border:
+        2px solid #625b4d;
+
+    border-radius:
+        18px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(37, 41, 42, 0.98),
+            rgba(20, 23, 24, 0.98)
+        );
+
+    box-shadow:
+        0 18px 40px
+        rgba(0, 0, 0, 0.45),
+
+        inset 0 0 25px
+        rgba(255, 255, 255, 0.015);
+}
+
+.bet-panel-header {
+    margin-bottom: 18px;
+
+    text-align: center;
+
+    font-size: 30px;
+
+    letter-spacing:
+        0.1em;
+
+    color:
+        #f0c36a;
+}
+
+/* INPUT */
+
+.bet-input-wrapper {
+    position: relative;
+
+    width: 100%;
+
+    margin-bottom: 22px;
+}
+
+.thimblerig-bet-input {
+    width: 100%;
+
+    box-sizing: border-box;
+
+    padding:
+        14px 55px 14px 15px;
+
+    border:
+        2px solid #5d574c;
+
+    border-radius:
+        10px;
+
+    outline: none;
+
+    background:
+        #111415;
+
+    color:
+        #fff4dc;
+
+    font-family:
+        "Karma", serif;
+
+    font-size:
+        27px;
+
+    text-align:
+        right;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.thimblerig-bet-input:focus {
+    border-color:
+        #f0c36a;
+
+    box-shadow:
+        0 0 12px
+        rgba(240, 195, 106, 0.22);
+}
+
+.thimblerig-bet-input:disabled {
+    opacity: 0.5;
+}
+
+.bet-currency {
+    position: absolute;
+
+    right: 13px;
+    top: 50%;
+
+    transform:
+        translateY(-50%);
+
+    color:
+        #a69a7d;
+
+    font-size:
+        20px;
+
+    pointer-events:
+        none;
+}
+
+/* =========================
+   INFORMACJE
+========================= */
+
+.bet-info {
+    display: flex;
+    flex-direction: column;
+
+    border-top:
+        1px solid #49463e;
+
+    border-bottom:
+        1px solid #49463e;
+}
+
+.bet-info-row {
+    display: flex;
+
+    justify-content:
+        space-between;
+
+    align-items:
+        center;
+
+    padding:
+        12px 2px;
+
+    font-size:
+        18px;
+}
+
+.bet-info-row span {
+    color:
+        #989181;
+}
+
+.bet-info-row strong {
+    color:
+        #e8dfce;
+}
+
+.bet-win-row strong {
+    color:
+        #f0c36a;
+
+    font-size:
+        21px;
+}
+
+/* INFO */
+
+.bet-risk-info {
+    margin:
+        18px 0;
+
+    min-height:
+        42px;
+
+    text-align:
+        center;
+
+    font-size:
+        15px;
+
+    line-height:
+        1.35;
+
+    color:
+        #8e897f;
 }
 
 /* =========================
@@ -335,10 +562,17 @@
 ========================= */
 
 .thimblerig-start {
-    padding: 14px 45px;
+    margin-top:
+        auto;
 
-    border: 2px solid #f0c36a;
-    border-radius: 8px;
+    padding:
+        14px 25px;
+
+    border:
+        2px solid #f0c36a;
+
+    border-radius:
+        9px;
 
     background:
         linear-gradient(
@@ -347,43 +581,81 @@
             #5d3b12
         );
 
-    color: #fff4dc;
+    color:
+        #fff4dc;
 
-    font-family: "Karma", serif;
-    font-size: 28px;
-    letter-spacing: 0.06em;
+    font-family:
+        "Karma", serif;
 
-    cursor: pointer;
+    font-size:
+        25px;
+
+    letter-spacing:
+        0.06em;
+
+    cursor:
+        pointer;
 
     box-shadow:
-        0 5px 12px rgba(0, 0, 0, 0.35),
-        inset 0 1px 0 rgba(255, 255, 255, 0.12);
+        0 5px 12px
+        rgba(0, 0, 0, 0.35);
 
     transition:
-        background 0.2s ease,
         transform 0.2s ease,
-        box-shadow 0.2s ease;
+        box-shadow 0.2s ease,
+        filter 0.2s ease;
 }
 
 .thimblerig-start:hover:not(:disabled) {
-    background:
-        linear-gradient(
-            180deg,
-            #ac762b,
-            #704816
-        );
+    transform:
+        translateY(-2px);
 
-    transform: translateY(-2px);
+    filter:
+        brightness(1.12);
 
     box-shadow:
-        0 8px 18px rgba(0, 0, 0, 0.45),
-        0 0 12px rgba(240, 195, 106, 0.18);
+        0 8px 18px
+        rgba(0, 0, 0, 0.45),
+
+        0 0 12px
+        rgba(240, 195, 106, 0.18);
 }
 
 .thimblerig-start:disabled {
-    opacity: 0.45;
-    cursor: default;
+    opacity:
+        0.45;
 
-    transform: none;
-    box-shadow: none;
+    cursor:
+        default;
+
+    transform:
+        none;
+
+    box-shadow:
+        none;
+}
+
+/* =========================
+   STATUS
+========================= */
+
+.thimblerig-status {
+    min-height:
+        42px;
+
+    margin:
+        0;
+
+    font-size:
+        30px;
+
+    letter-spacing:
+        0.06em;
+
+    color:
+        #f0c36a;
+
+    text-shadow:
+        0 2px 5px
+        rgba(0, 0, 0, 0.6);
 }

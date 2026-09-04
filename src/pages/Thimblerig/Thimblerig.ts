@@ -10,6 +10,13 @@ type CupData = {
 
 type SwapPair = [number, number];
 
+type DifficultyConfig = {
+    name: string;
+    moves: number;
+    swapDuration: number;
+    pauseDuration: number;
+};
+
 export function Thimblerig(onBack: () => void): HTMLElement {
     const pageThimblerig = document.createElement("div");
 
@@ -20,39 +27,96 @@ export function Thimblerig(onBack: () => void): HTMLElement {
 
             <h1>THIMBLERIG</h1>
 
-            <div class="thimblerig-game-board">
+            <div class="thimblerig-layout">
 
-                <div class="cup-container" data-cup="1">
-                    <div class="game-cup">
-                        <div class="cup-logo">B</div>
+                <div class="thimblerig-game-board">
+
+                    <div class="cup-container" data-cup="1">
+                        <div class="game-cup">
+                            <div class="cup-logo">B</div>
+                        </div>
                     </div>
+
+                    <div class="cup-container" data-cup="2">
+
+                        <div class="game-ball">
+                            ★
+                        </div>
+
+                        <div class="game-cup">
+                            <div class="cup-logo">B</div>
+                        </div>
+
+                    </div>
+
+                    <div class="cup-container" data-cup="3">
+                        <div class="game-cup">
+                            <div class="cup-logo">B</div>
+                        </div>
+                    </div>
+
                 </div>
 
-                <div class="cup-container" data-cup="2">
+                <div class="thimblerig-bet-panel">
 
-                    <div class="game-ball">
-                        ★
+                    <div class="bet-panel-header">
+                        STAWKA
                     </div>
 
-                    <div class="game-cup">
-                        <div class="cup-logo">B</div>
+                    <div class="bet-input-wrapper">
+
+                        <input
+                            class="thimblerig-bet-input"
+                            type="number"
+                            min="1"
+                            step="1"
+                            value="1000"
+                        />
+
+                        <span class="bet-currency">
+                            BP
+                        </span>
+
                     </div>
 
-                </div>
+                    <div class="bet-info">
 
-                <div class="cup-container" data-cup="3">
-                    <div class="game-cup">
-                        <div class="cup-logo">B</div>
+                        <div class="bet-info-row">
+                            <span>POZIOM</span>
+                            <strong class="difficulty-value">
+                                ŁATWY
+                            </strong>
+                        </div>
+
+                        <div class="bet-info-row">
+                            <span>MNOŻNIK</span>
+                            <strong>
+                                ×2
+                            </strong>
+                        </div>
+
+                        <div class="bet-info-row bet-win-row">
+                            <span>WYGRANA</span>
+                            <strong class="win-value">
+                                2 000 BP
+                            </strong>
+                        </div>
+
                     </div>
+
+                    <div class="bet-risk-info">
+                        Im większa stawka, tym trudniejsze mieszanie.
+                    </div>
+
+                    <button class="thimblerig-start">
+                        START
+                    </button>
+
                 </div>
 
             </div>
 
             <p class="thimblerig-status"></p>
-
-            <button class="thimblerig-start">
-                START
-            </button>
 
         </div>
     `;
@@ -60,41 +124,43 @@ export function Thimblerig(onBack: () => void): HTMLElement {
     const startButton =
         pageThimblerig.querySelector<HTMLButtonElement>(
             ".thimblerig-start"
-        );
+        )!;
+
+    const betInput =
+        pageThimblerig.querySelector<HTMLInputElement>(
+            ".thimblerig-bet-input"
+        )!;
+
+    const difficultyValue =
+        pageThimblerig.querySelector<HTMLElement>(
+            ".difficulty-value"
+        )!;
+
+    const winValue =
+        pageThimblerig.querySelector<HTMLElement>(
+            ".win-value"
+        )!;
 
     const cupElements =
         pageThimblerig.querySelectorAll<HTMLElement>(
             ".cup-container"
-        );
+        )!;
 
     const statusText =
         pageThimblerig.querySelector<HTMLElement>(
             ".thimblerig-status"
-        );
+        )!;
 
     const gameBoard =
         pageThimblerig.querySelector<HTMLElement>(
             ".thimblerig-game-board"
-        );
+        )!;
 
-    if (
-        !startButton ||
-        !statusText ||
-        !gameBoard ||
-        cupElements.length !== 3
-    ) {
+    if (cupElements.length !== 3) {
         throw new Error(
-            "Nie znaleziono elementów gry Thimblerig"
+            "Nie znaleziono 3 kubków gry Thimblerig"
         );
-    }
-
-    /*
-        position:
-
-        0 = lewa
-        1 = środek
-        2 = prawa
-    */
+}
 
     const cups: CupData[] =
         Array.from(cupElements).map(
@@ -112,36 +178,170 @@ export function Thimblerig(onBack: () => void): HTMLElement {
     ];
 
     /*
-        Nagroda należy do fizycznego kubka nr 2.
-
-        Jeżeli kubek 2 zostanie przesunięty,
-        nagroda przesuwa się razem z nim,
-        ponieważ znajduje się w jego kontenerze.
+        Fizyczny kubek numer 2
+        zawsze posiada kulkę.
     */
-
     const ballCupId = 2;
 
     let canChoose = false;
 
-    function wait(ms: number): Promise<void> {
-        return new Promise((resolve) => {
-            setTimeout(resolve, ms);
-        });
+    /*
+        Stawka używana podczas aktualnej rundy.
+
+        Nie używamy bezpośrednio wartości inputa,
+        bo gracz nie powinien jej zmienić
+        podczas mieszania.
+    */
+    let currentBet = 1000;
+
+    /*
+        ===============================
+        PROGI TRUDNOŚCI
+        ===============================
+    */
+
+    function getDifficulty(
+        bet: number
+    ): DifficultyConfig {
+
+        if (bet < 1000) {
+            return {
+                name: "BARDZO ŁATWY",
+                moves: 3,
+                swapDuration: 800,
+                pauseDuration: 150
+            };
+        }
+
+        if (bet < 5000) {
+            return {
+                name: "ŁATWY",
+                moves: 8,
+                swapDuration: 650,
+                pauseDuration: 120
+            };
+        }
+
+        if (bet < 20000) {
+            return {
+                name: "NORMALNY",
+                moves: 10,
+                swapDuration: 200,
+                pauseDuration: 70
+            };
+        }
+
+        if (bet < 50000) {
+            return {
+                name: "TRUDNY",
+                moves: 20,
+                swapDuration: 150,
+                pauseDuration: 70
+            };
+        }
+
+        if (bet < 100000) {
+            return {
+                name: "BARDZO TRUDNY",
+                moves: 20,
+                swapDuration: 90,
+                pauseDuration: 30
+            };
+        }
+
+        return {
+            name: "EKSTREMALNY",
+            moves: 200,
+            swapDuration: 20,
+            pauseDuration: 10
+        };
+    }
+
+    function wait(
+        ms: number
+    ): Promise<void> {
+
+        return new Promise(
+            (resolve) => {
+                setTimeout(resolve, ms);
+            }
+        );
+    }
+
+    function formatBP(
+        value: number
+    ): string {
+
+        return `${value.toLocaleString("pl-PL")} BP`;
+    }
+
+    function getBetValue(): number {
+
+        const value =
+            Number(betInput.value);
+
+        if (
+            !Number.isFinite(value) ||
+            value < 1
+        ) {
+            return 1;
+        }
+
+        return Math.floor(value);
+    }
+
+    function updateBetPanel(): void {
+
+        const bet =
+            getBetValue();
+
+        const difficulty =
+            getDifficulty(bet);
+
+        const possibleWin =
+            bet * 2;
+
+        difficultyValue.textContent =
+            difficulty.name;
+
+        winValue.textContent =
+            formatBP(possibleWin);
     }
 
     function updateCupPositions(): void {
+
         cups.forEach((cup) => {
-            const x = POSITION_X[cup.position];
+
+            const x =
+                POSITION_X[cup.position];
 
             cup.element.style.transform =
                 `translateX(${x}px)`;
         });
     }
 
+    /*
+        CSS transition kubków jest ustawiany
+        dynamicznie zależnie od poziomu trudności.
+    */
+
+    function setCupTransitionSpeed(
+        duration: number
+    ): void {
+
+        cups.forEach((cup) => {
+
+            cup.element.style.transition =
+                `transform ${duration}ms cubic-bezier(0.45, 0, 0.55, 1)`;
+        });
+    }
+
     async function revealBall(): Promise<void> {
+
         const ballCup =
             cups.find(
-                (cup) => cup.id === ballCupId
+                (cup) =>
+                    cup.id === ballCupId
             );
 
         if (!ballCup) {
@@ -157,11 +357,15 @@ export function Thimblerig(onBack: () => void): HTMLElement {
             return;
         }
 
-        cupVisual.classList.add("revealed");
+        cupVisual.classList.add(
+            "revealed"
+        );
 
         await wait(1500);
 
-        cupVisual.classList.remove("revealed");
+        cupVisual.classList.remove(
+            "revealed"
+        );
 
         await wait(600);
     }
@@ -179,27 +383,35 @@ export function Thimblerig(onBack: () => void): HTMLElement {
             return;
         }
 
-        cupVisual.classList.add("revealed");
+        cupVisual.classList.add(
+            "revealed"
+        );
 
-        await wait(1500);
+        await wait(1300);
     }
 
     async function swapCups(
         firstCupId: number,
-        secondCupId: number
+        secondCupId: number,
+        difficulty: DifficultyConfig
     ): Promise<void> {
 
         const firstCup =
             cups.find(
-                (cup) => cup.id === firstCupId
+                (cup) =>
+                    cup.id === firstCupId
             );
 
         const secondCup =
             cups.find(
-                (cup) => cup.id === secondCupId
+                (cup) =>
+                    cup.id === secondCupId
             );
 
-        if (!firstCup || !secondCup) {
+        if (
+            !firstCup ||
+            !secondCup
+        ) {
             return;
         }
 
@@ -208,10 +420,6 @@ export function Thimblerig(onBack: () => void): HTMLElement {
 
         const secondOldPosition =
             secondCup.position;
-
-        /*
-            Zamiana logicznych miejsc.
-        */
 
         firstCup.position =
             secondOldPosition;
@@ -226,6 +434,15 @@ export function Thimblerig(onBack: () => void): HTMLElement {
             POSITION_X[secondCup.position];
 
         /*
+            Każda zamiana ma własną szybkość
+            zależną od stawki.
+        */
+
+        setCupTransitionSpeed(
+            difficulty.swapDuration
+        );
+
+        /*
             Jeden kubek przechodzi górą,
             drugi dołem.
         */
@@ -236,10 +453,12 @@ export function Thimblerig(onBack: () => void): HTMLElement {
         secondCup.element.style.transform =
             `translate(${secondX}px, 35px)`;
 
-        await wait(600);
+        await wait(
+            difficulty.swapDuration
+        );
 
         /*
-            Wracają na wspólną wysokość.
+            Wracamy na tę samą wysokość.
         */
 
         firstCup.element.style.transform =
@@ -248,7 +467,9 @@ export function Thimblerig(onBack: () => void): HTMLElement {
         secondCup.element.style.transform =
             `translate(${secondX}px, 0px)`;
 
-        await wait(200);
+        await wait(
+            difficulty.pauseDuration
+        );
     }
 
     function generateShuffleSequence(
@@ -271,13 +492,21 @@ export function Thimblerig(onBack: () => void): HTMLElement {
             i < movesCount;
             i++
         ) {
+
             let availablePairs =
                 possiblePairs;
 
+            /*
+                Nie wykonujemy tej samej
+                zamiany dwa razy pod rząd.
+            */
+
             if (previousPair) {
+
                 availablePairs =
                     possiblePairs.filter(
                         ([a, b]) => {
+
                             return !(
                                 a === previousPair![0] &&
                                 b === previousPair![1]
@@ -306,13 +535,23 @@ export function Thimblerig(onBack: () => void): HTMLElement {
         return sequence;
     }
 
-    async function shuffleCups(): Promise<void> {
+    async function shuffleCups(
+        difficulty: DifficultyConfig
+    ): Promise<void> {
+
         const sequence =
-            generateShuffleSequence(10);
+            generateShuffleSequence(
+                difficulty.moves
+            );
 
         console.log(
             "Sekwencja mieszania:",
             sequence
+        );
+
+        console.log(
+            "Poziom:",
+            difficulty
         );
 
         for (
@@ -321,12 +560,20 @@ export function Thimblerig(onBack: () => void): HTMLElement {
                 secondCup
             ] of sequence
         ) {
+
             await swapCups(
                 firstCup,
-                secondCup
+                secondCup,
+                difficulty
             );
         }
     }
+
+    /*
+        ===============================
+        WYBÓR KUBKA
+        ===============================
+    */
 
     cups.forEach((cup) => {
 
@@ -340,52 +587,107 @@ export function Thimblerig(onBack: () => void): HTMLElement {
 
                 canChoose = false;
 
-                /*
-                    Po kliknięciu od razu
-                    wyłączamy hover wyboru.
-                */
-
                 gameBoard.classList.remove(
                     "choosing"
                 );
 
-                await revealChosenCup(cup);
+                await revealChosenCup(
+                    cup
+                );
 
                 if (
                     cup.id === ballCupId
                 ) {
+
+                    const reward =
+                        currentBet * 2;
+
                     statusText.textContent =
-                        "WYGRANA!";
+                        `WYGRANA! ${formatBP(reward)}`;
+
                 } else {
+
                     statusText.textContent =
-                        "PRZEGRANA!";
+                        `PRZEGRANA! -${formatBP(currentBet)}`;
                 }
 
-                startButton.disabled = false;
+                /*
+                    Przywracamy panel.
+                */
+
+                startButton.disabled =
+                    false;
+
+                betInput.disabled =
+                    false;
 
                 startButton.textContent =
                     "ZAGRAJ PONOWNIE";
+
+                updateBetPanel();
             }
         );
     });
+
+    /*
+        ===============================
+        PANEL STAWKI
+        ===============================
+    */
+
+    betInput.addEventListener(
+        "input",
+        () => {
+
+            updateBetPanel();
+        }
+    );
+
+    /*
+        ===============================
+        START
+        ===============================
+    */
 
     startButton.addEventListener(
         "click",
         async () => {
 
-            startButton.disabled = true;
+            currentBet =
+                getBetValue();
 
-            canChoose = false;
+            if (currentBet < 1) {
+                return;
+            }
+
+            const difficulty =
+                getDifficulty(
+                    currentBet
+                );
+
+            /*
+                Blokujemy panel podczas rundy.
+            */
+
+            startButton.disabled =
+                true;
+
+            betInput.disabled =
+                true;
+
+            canChoose =
+                false;
 
             gameBoard.classList.remove(
                 "choosing"
             );
 
-            statusText.textContent = "";
+            statusText.textContent =
+                "";
 
             /*
-                Chowamy wszystkie odkryte
-                kubki z poprzedniej rundy.
+                Zamykamy kubki
+                z poprzedniej rundy.
             */
 
             cups.forEach((cup) => {
@@ -404,27 +706,33 @@ export function Thimblerig(onBack: () => void): HTMLElement {
             await wait(500);
 
             /*
-                Pokazujemy graczowi,
-                gdzie jest nagroda.
+                Pokazujemy kulkę.
             */
 
             statusText.textContent =
-                "ZAPAMIĘTAJ KUBEK";
+                `ZAPAMIĘTAJ KUBEK — GRA O ${formatBP(currentBet * 2)}`;
 
             await revealBall();
 
             /*
-                Start mieszania.
+                Mieszanie.
             */
 
             statusText.textContent =
-                "MIESZANIE...";
+                `MIESZANIE — ${difficulty.name}`;
 
-            await shuffleCups();
+            await shuffleCups(
+                difficulty
+            );
 
             /*
-                Gracz może wybierać.
+                Przywracamy wolniejszą
+                transition na moment wyboru.
             */
+
+            setCupTransitionSpeed(
+                500
+            );
 
             statusText.textContent =
                 "WYBIERZ KUBEK";
@@ -433,14 +741,29 @@ export function Thimblerig(onBack: () => void): HTMLElement {
                 "choosing"
             );
 
-            canChoose = true;
+            canChoose =
+                true;
         }
     );
 
+    /*
+        Pierwsze ustawienie panelu.
+    */
+
+    updateBetPanel();
+
     updateCupPositions();
 
+    /*
+        ===============================
+        BACK
+        ===============================
+    */
+
     const backButton =
-        document.createElement("button");
+        document.createElement(
+            "button"
+        );
 
     backButton.className =
         "back-button";
@@ -454,9 +777,12 @@ export function Thimblerig(onBack: () => void): HTMLElement {
 
             createBananas();
 
-            setTimeout(() => {
-                onBack();
-            }, 1400);
+            setTimeout(
+                () => {
+                    onBack();
+                },
+                1400
+            );
         }
     );
 
