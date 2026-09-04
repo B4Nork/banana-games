@@ -1,14 +1,18 @@
 .thimblerig-page {
     min-height: 100vh;
-
     display: flex;
     justify-content: center;
     align-items: center;
 
-    background: #080808;
+    background:
+        radial-gradient(
+            circle at center,
+            #202526 0%,
+            #111416 55%,
+            #090b0c 100%
+        );
 
-    color: rgb(34, 31, 31);
-
+    color: #e8dfce;
     font-family: "Karma", serif;
 }
 
@@ -16,8 +20,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-
-    gap: 50px;
+    gap: 38px;
 }
 
 .thimblerig-game h1 {
@@ -25,7 +28,17 @@
 
     font-size: 64px;
     letter-spacing: 0.08em;
+
+    color: #f0c36a;
+
+    text-shadow:
+        0 3px 0 #5e3b0c,
+        0 0 18px rgba(240, 195, 106, 0.25);
 }
+
+/* =========================
+   PLANSZA
+========================= */
 
 .thimblerig-game-board {
     position: relative;
@@ -33,102 +46,54 @@
     width: 700px;
     height: 350px;
 
-    border: 3px solid rgb(140, 30, 35);
-    border-radius: 20px;
+    border: 3px solid #55534b;
+    border-radius: 18px;
 
-    background: rgba(15, 15, 15, 0.95);
-}
-
-.game-cup {
-    position: absolute;
-
-    left: 0;
-    bottom: 0;
-
-    width: 120px;
-    height: 150px;
-
-    background: linear-gradient(
-        90deg,
-        rgb(90, 60, 15),
-        rgb(210, 160, 45),
-        rgb(100, 65, 15)
-    );
-
-    clip-path: polygon(
-        18% 0,
-        82% 0,
-        100% 100%,
-        0 100%
-    );
-
-    cursor: pointer;
-
-    z-index: 2;
-
-    transition: transform 0.5s ease;
-}
-
-.game-cup.revealed {
-    transform: translateY(-80px);
-}
-
-.cup-position {
-    position: relative;
-
-    width: 120px;
-    height: 180px;
-
-    display: flex;
-    justify-content: center;
-    align-items: flex-end;
-}
-
-.game-ball {
-    position: absolute;
-
-    left: 50%;
-    bottom: 5px;
-
-    width: 28px;
-    height: 28px;
-
-    transform: translateX(-50%);
-
-    border-radius: 50%;
-
-    background: white;
-
-    z-index: 1;
-}
-
-.thimblerig-start {
-    padding: 14px 45px;
-
-    border: 2px solid rgb(140, 30, 35);
-    border-radius: 10px;
-
-    background: #111;
-
-    color: white;
-
-    font-family: "Karma", serif;
-    font-size: 28px;
-
-    cursor: pointer;
-}
-
-.thimblerig-start:disabled {
-    opacity: 0.5;
-    cursor: default;
-}
-
-.thimblerig-start:hover {
-    transform: scale(1.05);
+    background:
+        radial-gradient(
+            circle at center,
+            rgba(255, 255, 255, 0.035),
+            transparent 55%
+        ),
+        linear-gradient(
+            145deg,
+            #232728,
+            #171a1b
+        );
 
     box-shadow:
-        0 0 15px rgba(140, 30, 35, 0.7);
+        0 18px 40px rgba(0, 0, 0, 0.5),
+        inset 0 0 35px rgba(0, 0, 0, 0.4);
 }
+
+/* delikatna linia/stół pod kubkami */
+
+.thimblerig-game-board::after {
+    content: "";
+
+    position: absolute;
+    left: 45px;
+    right: 45px;
+    bottom: 54px;
+
+    height: 3px;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            #665f50 15%,
+            #8d805f 50%,
+            #665f50 85%,
+            transparent
+        );
+
+    opacity: 0.6;
+}
+
+/* =========================
+   KONTENER KUBKA
+========================= */
 
 .cup-container {
     position: absolute;
@@ -136,33 +101,289 @@
     left: 50%;
     bottom: 60px;
 
-    width: 120px;
-    height: 180px;
+    width: 140px;
+    height: 200px;
 
-    margin-left: -60px;
+    margin-left: -70px;
 
-    transition: transform 0.6s ease-in-out;
+    transition:
+        transform 0.6s cubic-bezier(0.45, 0, 0.55, 1);
+
+    z-index: 3;
 }
+
+/* =========================
+   KUBEK
+========================= */
+
+.game-cup {
+    position: absolute;
+    left: 5px;
+    bottom: 0;
+
+    width: 130px;
+    height: 135px;
+
+    cursor: pointer;
+
+    background:
+        linear-gradient(
+            90deg,
+            #5a370a 0%,
+            #a86f18 12%,
+            #e4ad3f 32%,
+            #ffd878 50%,
+            #d99528 70%,
+            #8a5711 88%,
+            #4a2d08 100%
+        );
+
+    border-radius:
+        18px 18px
+        28px 28px;
+
+    transform:
+        perspective(300px)
+        rotateX(-2deg)
+        scaleX(1.08);
+
+    transform-origin: bottom center;
+
+    filter:
+        drop-shadow(0 10px 7px rgba(0, 0, 0, 0.45));
+
+    z-index: 2;
+
+    transition:
+        transform 0.5s cubic-bezier(0.34, 1.3, 0.64, 1),
+        filter 0.2s ease;
+}
+
+.game-cup::before {
+    content: "";
+
+    position: absolute;
+
+    top: 0;
+    left: 8px;
+
+    width: 114px;
+    height: 24px;
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            ellipse at center,
+            #16100a 0%,
+            #2b1d0b 45%,
+            #6a430e 62%,
+            #d99b31 78%,
+            #ffd16c 100%
+        );
+
+    box-shadow:
+        inset 0 -4px 4px rgba(0, 0, 0, 0.55),
+        0 2px 2px rgba(255, 215, 120, 0.15);
+
+    z-index: 3;
+}
+
+.game-cup::after {
+    content: "";
+
+    position: absolute;
+
+    top: 29px;
+    left: 25px;
+
+    width: 17px;
+    height: 75px;
+
+    border-radius: 50%;
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(255, 245, 190, 0.55),
+            rgba(255, 255, 255, 0.02)
+        );
+
+    transform: rotate(6deg);
+
+    opacity: 0.75;
+}
+
+
+
+/* =========================
+   SYMBOL NA KUBKU
+========================= */
+
+.cup-logo {
+    position: absolute;
+
+    left: 50%;
+    top: 55px;
+
+    transform: translateX(-50%);
+
+    font-family: "Karma", serif;
+    font-size: 34px;
+    font-weight: bold;
+
+    color: #322009;
+
+    text-shadow:
+        1px 1px 0 #e6b856;
+
+    pointer-events: none;
+
+    z-index: 4;
+}
+
+/* =========================
+   PODNOSZENIE
+========================= */
 
 .game-cup.revealed {
-    transform: translateY(-90px);
+    transform:
+        perspective(300px)
+        rotateX(-2deg)
+        scaleX(1.08)
+        translateY(-105px)
+        rotate(-3deg);
+
+    filter:
+        drop-shadow(0 18px 12px rgba(0, 0, 0, 0.45));
 }
 
-.thimblerig-status {
-    min-height: 40px;
+/* =========================
+   NAGRODA / KULKA
+========================= */
 
+.game-ball {
+    position: absolute;
+
+    left: 50%;
+    bottom: 8px;
+
+    width: 48px;
+    height: 48px;
+
+    transform: translateX(-50%);
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle at 35% 30%,
+            #fff7ad,
+            #f4d35e 40%,
+            #a86e05 100%
+        );
+
+    border: 2px solid #ffe890;
+
+    color: #3b2700;
+
+    font-family: Arial, sans-serif;
+    font-size: 25px;
+
+    z-index: 1;
+}
+
+/* =========================
+   WYBIERANIE
+========================= */
+
+.thimblerig-game-board.choosing .cup-container:hover .game-cup {
+    transform:
+        perspective(300px)
+        rotateX(-2deg)
+        scaleX(1.08)
+        translateY(-8px);
+
+    filter:
+        brightness(1.15)
+        drop-shadow(0 0 13px rgba(240, 195, 106, 0.45));
+}
+
+/* =========================
+   STATUS
+========================= */
+
+.thimblerig-status {
+    min-height: 42px;
     margin: 0;
 
     font-size: 32px;
     letter-spacing: 0.08em;
 
-    color: white;
+    color: #f0c36a;
+
+    text-shadow:
+        0 2px 5px rgba(0, 0, 0, 0.6);
 }
 
-.thimblerig-game-board.choosing .cup-container {
+/* =========================
+   START
+========================= */
+
+.thimblerig-start {
+    padding: 14px 45px;
+
+    border: 2px solid #f0c36a;
+    border-radius: 8px;
+
+    background:
+        linear-gradient(
+            180deg,
+            #8c5d20,
+            #5d3b12
+        );
+
+    color: #fff4dc;
+
+    font-family: "Karma", serif;
+    font-size: 28px;
+    letter-spacing: 0.06em;
+
     cursor: pointer;
+
+    box-shadow:
+        0 5px 12px rgba(0, 0, 0, 0.35),
+        inset 0 1px 0 rgba(255, 255, 255, 0.12);
+
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
 }
 
-.thimblerig-game-board.choosing .cup-container:hover .game-cup {
-    filter: brightness(1.25);
+.thimblerig-start:hover:not(:disabled) {
+    background:
+        linear-gradient(
+            180deg,
+            #ac762b,
+            #704816
+        );
+
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 8px 18px rgba(0, 0, 0, 0.45),
+        0 0 12px rgba(240, 195, 106, 0.18);
+}
+
+.thimblerig-start:disabled {
+    opacity: 0.45;
+    cursor: default;
+
+    transform: none;
+    box-shadow: none;
 }
