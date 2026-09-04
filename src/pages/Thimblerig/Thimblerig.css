@@ -28,16 +28,10 @@
 }
 
 .thimblerig-game-board {
-    display: flex;
-    align-items: flex-end;
-    justify-content: center;
-
-    gap: 70px;
+    position: relative;
 
     width: 700px;
     height: 350px;
-
-    padding: 40px;
 
     border: 3px solid rgb(140, 30, 35);
     border-radius: 20px;
@@ -46,7 +40,10 @@
 }
 
 .game-cup {
-    position: relative;
+    position: absolute;
+
+    left: 0;
+    bottom: 0;
 
     width: 120px;
     height: 150px;
@@ -69,7 +66,7 @@
 
     z-index: 2;
 
-    transition: transform 0.4s ease;
+    transition: transform 0.5s ease;
 }
 
 .game-cup.revealed {
@@ -90,8 +87,8 @@
 .game-ball {
     position: absolute;
 
-    bottom: 5px;
     left: 50%;
+    bottom: 5px;
 
     width: 28px;
     height: 28px;
@@ -101,10 +98,6 @@
     border-radius: 50%;
 
     background: white;
-
-    box-shadow:
-        0 0 8px white,
-        0 0 18px rgba(255, 255, 255, 0.6);
 
     z-index: 1;
 }
@@ -123,10 +116,11 @@
     font-size: 28px;
 
     cursor: pointer;
+}
 
-    transition:
-        transform 0.2s ease,
-        box-shadow 0.2s ease;
+.thimblerig-start:disabled {
+    opacity: 0.5;
+    cursor: default;
 }
 
 .thimblerig-start:hover {
@@ -134,4 +128,22 @@
 
     box-shadow:
         0 0 15px rgba(140, 30, 35, 0.7);
+}
+
+.cup-container {
+    position: absolute;
+
+    left: 50%;
+    bottom: 60px;
+
+    width: 120px;
+    height: 180px;
+
+    margin-left: -60px;
+
+    transition: transform 0.6s ease-in-out;
+}
+
+.game-cup.revealed {
+    transform: translateY(-90px);
 }
