@@ -147,3 +147,22 @@
 .game-cup.revealed {
     transform: translateY(-90px);
 }
+
+.thimblerig-status {
+    min-height: 40px;
+
+    margin: 0;
+
+    font-size: 32px;
+    letter-spacing: 0.08em;
+
+    color: white;
+}
+
+.thimblerig-game-board.choosing .cup-container {
+    cursor: pointer;
+}
+
+.thimblerig-game-board.choosing .cup-container:hover .game-cup {
+    filter: brightness(1.25);
+}

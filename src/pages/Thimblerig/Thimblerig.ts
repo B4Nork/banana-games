@@ -33,6 +33,8 @@ export function Thimblerig(onBack: () => void): HTMLElement {
                 </div>
 
             </div>
+            
+            <p class="thimblerig-status"></p>
 
             <button class="thimblerig-start">
                 START
@@ -46,7 +48,10 @@ export function Thimblerig(onBack: () => void): HTMLElement {
     const cupElements =
         pageThimblerig.querySelectorAll<HTMLElement>(".cup-container");
 
-    if (!startButton || cupElements.length !== 3) {
+    const statusText =
+        pageThimblerig.querySelector<HTMLElement>(".thimblerig-status");
+
+    if (!startButton || !statusText || cupElements.length !== 3) {
         throw new Error("Nie znaleziono elementów gry Thimblerig");
     }
 
@@ -76,6 +81,11 @@ export function Thimblerig(onBack: () => void): HTMLElement {
         kulka nadal jedzie razem z nim.
     */
     const ballCupId = 2;
+    let canChoose = false;
+
+    pageThimblerig
+        .querySelector(".thimblerig-game-board")
+        ?.classList.remove("choosing");
 
     function updateCupPositions(): void {
         cups.forEach((cup) => {
@@ -108,6 +118,17 @@ export function Thimblerig(onBack: () => void): HTMLElement {
         cup.classList.remove("revealed");
 
         await wait(600);
+    }
+
+    async function revealChosenCup(cup: CupData): Promise<void> {
+        const cupVisual =
+            cup.element.querySelector<HTMLElement>(".game-cup");
+
+        if (!cupVisual) return;
+
+        cupVisual.classList.add("revealed");
+
+        await wait(1500);
     }
 
     async function swapCups(
@@ -161,21 +182,109 @@ export function Thimblerig(onBack: () => void): HTMLElement {
 
     updateCupPositions();
 
+    type SwapPair = [number, number];
+
+    function generateShuffleSequence(
+        movesCount: number
+    ): SwapPair[] {
+        const possiblePairs: SwapPair[] = [
+            [1, 2],
+            [1, 3],
+            [2, 3]
+        ];
+
+        const sequence: SwapPair[] = [];
+
+        let previousPair: SwapPair | null = null;
+
+        for (let i = 0; i < movesCount; i++) {
+            let availablePairs = possiblePairs;
+
+            if (previousPair) {
+                availablePairs = possiblePairs.filter(([a, b]) => {
+                    return !(
+                        a === previousPair![0] &&
+                        b === previousPair![1]
+                    );
+                });
+            }
+
+            const randomIndex = Math.floor(
+                Math.random() * availablePairs.length
+            );
+
+            const selectedPair = availablePairs[randomIndex];
+
+            sequence.push(selectedPair);
+
+            previousPair = selectedPair;
+        }
+
+        return sequence;
+    }
+
+    async function shuffleCups(): Promise<void> {
+        const sequence = generateShuffleSequence(10);
+
+        console.log("Sekwencja mieszania:", sequence);
+
+        for (const [firstCup, secondCup] of sequence) {
+            await swapCups(firstCup, secondCup);
+        }
+    }
+
+    cups.forEach((cup) => {
+        cup.element.addEventListener("click", async () => {
+            if (!canChoose) {
+                return;
+            }
+
+            canChoose = false;
+
+            await revealChosenCup(cup);
+
+            if (cup.id === ballCupId) {
+                statusText.textContent = "WYGRANA!";
+            } else {
+                statusText.textContent = "PRZEGRANA!";
+            }
+
+            startButton.disabled = false;
+            startButton.textContent = "ZAGRAJ PONOWNIE";
+        });
+    });
+
     startButton.addEventListener("click", async () => {
         startButton.disabled = true;
 
-        await revealBall();
+        statusText.textContent = "";
 
         /*
-            Na razie testowa sekwencja.
-
-            Potem zastąpimy ją losowym generatorem.
+            Jeżeli poprzednio któryś kubek był odkryty,
+            zamykamy wszystkie.
         */
-        await swapCups(1, 2);
-        await swapCups(2, 3);
-        await swapCups(1, 3);
+        cups.forEach((cup) => {
+            const cupVisual =
+                cup.element.querySelector<HTMLElement>(".game-cup");
 
-        startButton.disabled = false;
+            cupVisual?.classList.remove("revealed");
+        });
+
+        await wait(500);
+
+        await revealBall();
+
+        statusText.textContent = "MIESZANIE...";
+
+        await shuffleCups();
+
+        statusText.textContent = "WYBIERZ KUBEK";
+
+        pageThimblerig
+            .querySelector(".thimblerig-game-board")
+            ?.classList.add("choosing");
+
+        canChoose = true;
     });
 
     const backButton = document.createElement("button");
