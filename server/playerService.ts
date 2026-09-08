@@ -202,3 +202,26 @@ export function getBPTransactions(
         ORDER BY id DESC
     `).all(playerId) as BPTransaction[];
 }
+
+export type PlayerWithBalance = {
+    id: number;
+    twitch_name: string;
+    display_name: string;
+    bp: number;
+    created_at: string;
+};
+
+export function getAllPlayers(): PlayerWithBalance[] {
+    return db.prepare(`
+        SELECT
+            players.id,
+            players.twitch_name,
+            players.display_name,
+            wallets.bp,
+            players.created_at
+        FROM players
+        INNER JOIN wallets
+            ON wallets.player_id = players.id
+        ORDER BY players.id ASC
+    `).all() as PlayerWithBalance[];
+}

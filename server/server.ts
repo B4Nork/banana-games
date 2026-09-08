@@ -6,7 +6,8 @@ import {
     getBalance,
     addBP,
     removeBP,
-    getBPTransactions
+    getBPTransactions,
+    getAllPlayers
 } from "./playerService.ts";
 
 const app = express();
@@ -14,6 +15,14 @@ const app = express();
 const PORT = 3001;
 
 app.use(express.json());
+
+app.get("/api/players", (_req, res) => {
+    const players = getAllPlayers();
+
+    return res.json({
+        players
+    });
+});
 
 app.get("/api/players/:name", (req, res) => {
     const player = getPlayer(req.params.name);
