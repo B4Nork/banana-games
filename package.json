@@ -9,11 +9,18 @@
     "preview": "vite preview"
   },
   "devDependencies": {
+    "@types/better-sqlite3": "^9.6.0",
+    "@types/express": "^5.0.6",
     "@types/matter-js": "^0.20.2",
     "typescript": "~6.0.2",
     "vite": "^8.2.0"
   },
   "dependencies": {
+    "better-sqlite3": "^13.0.3",
+    "express": "^5.2.1",
     "matter-js": "^0.20.0"
+  },
+  "allowScripts": {
+    "better-sqlite3@13.0.3": true
   }
 }

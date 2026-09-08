@@ -196,7 +196,7 @@ export function Thimblerig(onBack: () => void): HTMLElement {
 
     /*
         ===============================
-        PROGI TRUDNOŚCI
+        PROGI POZIOMY TRUDNOŚCI
         ===============================
     */
 
