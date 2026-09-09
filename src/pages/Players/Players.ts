@@ -48,6 +48,10 @@ export function Players(
                 <button class="players-search-button">
                     SZUKAJ
                 </button>
+
+                <button class="players-add-button">
+                    DODAJ GRACZA
+                </button>
             </div>
 
             <div class="players-result"></div>
@@ -73,6 +77,11 @@ export function Players(
         page.querySelector<HTMLButtonElement>(
             ".players-search-button"
         )!;
+
+    const addButton =
+        page.querySelector<HTMLButtonElement>(
+            ".players-add-button"
+    )!;
 
     const result =
         page.querySelector<HTMLElement>(
@@ -146,6 +155,81 @@ export function Players(
         }
     }
 
+    async function addPlayer(): Promise<void> {
+        const displayName =
+            input.value.trim();
+
+        if (!displayName) {
+            result.innerHTML = `
+                <div class="player-error">
+                    Wpisz nick gracza
+                </div>
+            `;
+
+            return;
+        }
+
+        result.innerHTML =
+            "Dodaję gracza...";
+
+        try {
+            const response = await fetch(
+                "/api/players",
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+
+                    body: JSON.stringify({
+                        displayName
+                    })
+                }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                result.innerHTML = `
+                    <div class="player-error">
+                        ${data.error ?? "Nie udało się dodać gracza"}
+                    </div>
+                `;
+
+                return;
+            }
+
+            result.innerHTML = `
+                <div class="player-card">
+                    <div class="player-name">
+                        ${data.player.display_name}
+                    </div>
+
+                    <div class="player-balance">
+                        ${data.balance.toLocaleString("pl-PL")} BP
+                    </div>
+
+                    <div class="player-id">
+                        ID: ${data.player.id}
+                    </div>
+                </div>
+            `;
+
+            input.value = "";
+
+            await loadPlayers();
+
+        } catch (error) {
+            console.error(error);
+
+            result.innerHTML = `
+                <div class="player-error">
+                    Błąd połączenia z API
+                </div>
+            `;
+        }
+    }
 
     async function searchPlayer(): Promise<void> {
         const name =
@@ -204,6 +288,11 @@ export function Players(
     searchButton.addEventListener(
         "click",
         searchPlayer
+    );
+
+    addButton.addEventListener(
+        "click",
+        addPlayer
     );
 
     input.addEventListener(
