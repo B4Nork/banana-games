@@ -143,3 +143,82 @@
 
     cursor: pointer;
 }
+
+.player-profile {
+    margin-top: 30px;
+
+    padding: 24px;
+
+    background: #181818;
+
+    border: 1px solid #444;
+
+    border-radius: 14px;
+}
+
+.player-profile h2 {
+    font-size: 32px;
+
+    margin: 20px 0;
+}
+
+.player-profile-info {
+    display: grid;
+
+    gap: 12px;
+}
+
+.player-profile-info > div {
+    display: flex;
+
+    justify-content: space-between;
+
+    padding: 12px;
+
+    border-bottom: 1px solid #333;
+}
+
+.player-profile-info span {
+    opacity: 0.6;
+}
+
+.player-profile-close {
+    padding: 10px 14px;
+
+    cursor: pointer;
+}
+
+.player-bp-controls {
+    display: flex;
+
+    gap: 10px;
+
+    margin-top: 25px;
+}
+
+.player-bp-input {
+    flex: 1;
+
+    padding: 12px;
+
+    background: #111;
+
+    border: 1px solid #555;
+
+    color: white;
+
+    font-size: 16px;
+}
+
+.player-bp-add,
+.player-bp-remove {
+    padding: 12px 16px;
+
+    cursor: pointer;
+}
+
+.player-bp-message {
+    margin-top: 15px;
+
+    min-height: 24px;
+}

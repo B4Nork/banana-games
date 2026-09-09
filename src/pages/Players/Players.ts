@@ -98,6 +98,225 @@ export function Players(
         onBack
     );
 
+    async function openPlayerProfile(
+        playerName: string
+    ): Promise<void> {
+        try {
+            const response = await fetch(
+                `/api/players/${encodeURIComponent(playerName)}`
+            );
+
+            if (!response.ok) {
+                result.innerHTML = `
+                    <div class="player-error">
+                        Nie udało się pobrać gracza
+                    </div>
+                `;
+
+                return;
+            }
+
+            const data =
+                await response.json() as PlayerResponse;
+
+            result.innerHTML = `
+                <div class="player-profile">
+
+                    <button class="player-profile-close">
+                        ← WRÓĆ DO LISTY
+                    </button>
+
+                    <h2>
+                        ${data.player.display_name}
+                    </h2>
+
+                    <div class="player-profile-info">
+                    s
+                        <div>
+                            <span>ID</span>
+                            <strong>
+                                ${data.player.id}
+                            </strong>
+                        </div>
+
+                        <div>
+                            <span>TWITCH</span>
+                            <strong>
+                                ${data.player.twitch_name}
+                            </strong>
+                        </div>
+
+                        <div>
+                            <span>BP</span>
+                            <strong class="player-profile-balance">
+                                ${data.balance.toLocaleString("pl-PL")} BP
+                            </strong>
+                        </div>
+
+                    </div>
+
+                    <div class="player-bp-controls">
+
+                        <input
+                            class="player-bp-input"
+                            type="number"
+                            min="1"
+                            step="1"
+                            placeholder="Ilość BP"
+                        />
+
+                        <button class="player-bp-add">
+                            + DODAJ BP
+                        </button>
+
+                        <button class="player-bp-remove">
+                            - ODEJMIJ BP
+                        </button>
+
+                    </div>
+
+                    <div class="player-bp-message"></div>
+
+                </div>
+            `;
+
+            playersList.style.display = "none";
+
+            const closeButton =
+                result.querySelector<HTMLButtonElement>(
+                    ".player-profile-close"
+                )!;
+            
+            const bpInput =
+                result.querySelector<HTMLInputElement>(
+                    ".player-bp-input"
+            )!;
+
+            const addBPButton =
+                result.querySelector<HTMLButtonElement>(
+                    ".player-bp-add"
+                )!;
+
+            const removeBPButton =
+                result.querySelector<HTMLButtonElement>(
+                    ".player-bp-remove"
+                )!;
+
+            const balanceElement =
+                result.querySelector<HTMLElement>(
+                    ".player-profile-balance"
+                )!;
+
+            const bpMessage =
+                result.querySelector<HTMLElement>(
+                    ".player-bp-message"
+                )!;
+
+            closeButton.addEventListener(
+                "click",
+                () => {
+                    result.innerHTML = "";
+                    playersList.style.display = "";
+                }
+            );
+
+            async function changePlayerBP(
+                type: "add" | "remove"
+            ): Promise<void> {
+                const amount =
+                    Number(bpInput.value);
+
+                if (
+                    !Number.isInteger(amount) ||
+                    amount <= 0
+                ) {
+                    bpMessage.textContent =
+                        "Wpisz poprawną liczbę BP";
+
+                    return;
+                }
+
+                try {
+                    const response = await fetch(
+                        `/api/players/${data.player.id}/bp/${type}`,
+                        {
+                            method: "POST",
+
+                            headers: {
+                                "Content-Type": "application/json"
+                            },
+
+                            body: JSON.stringify({
+                                amount,
+                                transactionType:
+                                    type === "add"
+                                        ? "manual_add"
+                                        : "manual_remove",
+
+                                description:
+                                    type === "add"
+                                        ? "Ręczne dodanie BP"
+                                        : "Ręczne odjęcie BP"
+                            })
+                        }
+                    );
+
+                    const responseData =
+                        await response.json();
+
+                    if (!response.ok) {
+                        bpMessage.textContent =
+                            responseData.error ??
+                            "Nie udało się zmienić BP";
+
+                        return;
+                    }
+
+                    balanceElement.textContent =
+                        `${responseData.balance.toLocaleString("pl-PL")} BP`;
+
+                    bpMessage.textContent =
+                        type === "add"
+                            ? `Dodano ${amount.toLocaleString("pl-PL")} BP`
+                            : `Odjęto ${amount.toLocaleString("pl-PL")} BP`;
+
+                    bpInput.value = "";
+
+                    await loadPlayers();
+
+                } catch (error) {
+                    console.error(error);
+
+                    bpMessage.textContent =
+                        "Błąd połączenia z API";
+                }
+            }
+
+            addBPButton.addEventListener(
+                "click",
+                () => {
+                    changePlayerBP("add");
+                }
+            );
+
+            removeBPButton.addEventListener(
+                "click",
+                () => {
+                    changePlayerBP("remove");
+                }
+            );
+
+        } catch (error) {
+            console.error(error);
+
+            result.innerHTML = `
+                <div class="player-error">
+                    Błąd połączenia z API
+                </div>
+            `;
+        }
+    }
+
     async function loadPlayers(): Promise<void> {
         try {
             const response = await fetch(
@@ -147,6 +366,28 @@ export function Players(
                     </div>
                 `).join("")}
             `;
+
+            const rows =
+                playersList.querySelectorAll<HTMLElement>(
+                    ".players-table-row"
+                );
+
+            rows.forEach(row => {
+                row.addEventListener(
+                    "click",
+                    () => {
+                        const playerName =
+                            row.dataset.player;
+
+                        if (!playerName) {
+                            return;
+                        }
+
+                        openPlayerProfile(playerName);
+                    }
+                );
+            });
+
         } catch (error) {
             console.error(error);
 
