@@ -636,6 +636,86 @@ export function Players(
         );
     }
 
+    async function confirmAddPlayer(): Promise<void> {
+        const displayName =
+            addPlayerName.value.trim();
+
+        const startingBP =
+            Number(addPlayerBP.value);
+
+        if (!displayName) {
+            addPlayerMessage.textContent =
+                "Wpisz nick gracza";
+
+            return;
+        }
+
+        if (
+            !Number.isSafeInteger(startingBP) ||
+            startingBP < 0
+        ) {
+            addPlayerMessage.textContent =
+                "Wpisz poprawną liczbę BP";
+
+            return;
+        }
+
+        addPlayerConfirm.disabled = true;
+
+        addPlayerMessage.textContent =
+            "Dodaję gracza...";
+
+        try {
+            const response = await fetch(
+                "/api/players",
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body: JSON.stringify({
+                        displayName,
+                        startingBP
+                    })
+                }
+            );
+
+            const data =
+                await response.json();
+
+            if (!response.ok) {
+                addPlayerMessage.textContent =
+                    data.error ??
+                    "Nie udało się dodać gracza";
+
+                return;
+            }
+
+            await loadPlayers();
+
+            closeAddPlayerModal();
+
+            input.value =
+                data.player.display_name;
+
+            await openPlayerProfile(
+                data.player.twitch_name
+            );
+
+        } catch (error) {
+            console.error(error);
+
+            addPlayerMessage.textContent =
+                "Błąd połączenia z API";
+
+        } finally {
+            addPlayerConfirm.disabled = false;
+        }
+    }
+
     searchButton.addEventListener(
         "click",
         searchPlayer
@@ -654,6 +734,29 @@ export function Players(
     addPlayerCancel.addEventListener(
         "click",
         closeAddPlayerModal
+    );
+
+    addPlayerConfirm.addEventListener(
+        "click",
+        confirmAddPlayer
+    );
+
+    addPlayerName.addEventListener(
+        "keydown",
+        event => {
+            if (event.key === "Enter") {
+                confirmAddPlayer();
+            }
+        }
+    );
+
+    addPlayerBP.addEventListener(
+        "keydown",
+        event => {
+            if (event.key === "Enter") {
+                confirmAddPlayer();
+            }
+        }
     );
 
     input.addEventListener(

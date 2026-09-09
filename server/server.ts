@@ -45,7 +45,10 @@ app.get("/api/players/:name", (req, res) => {
 });
 
 app.post("/api/players", (req, res) => {
-    const { displayName } = req.body;
+    const {
+        displayName,
+        startingBP = 0
+    } = req.body;
 
     if (
         typeof displayName !== "string" ||
@@ -56,14 +59,58 @@ app.post("/api/players", (req, res) => {
         });
     }
 
-    const player = createPlayer(displayName);
+    if (
+        typeof startingBP !== "number" ||
+        !Number.isSafeInteger(startingBP) ||
+        startingBP < 0
+    ) {
+        return res.status(400).json({
+            error: "Niepoprawna liczba początkowych BP"
+        });
+    }
 
-    const balance = getBalance(player.id);
+    try {
+        const existingPlayer =
+            getPlayer(displayName);
 
-    return res.json({
-        player,
-        balance
-    });
+        if (existingPlayer) {
+            return res.status(409).json({
+                error: "Gracz o takim nicku już istnieje"
+            });
+        }
+
+        const player =
+            createPlayer(displayName);
+
+        let balance =
+            getBalance(player.id);
+
+        if (startingBP > 0) {
+            balance = addBP(
+                player.id,
+                startingBP,
+                "starting_balance",
+                "Początkowe BP gracza"
+            );
+        }
+
+        const rank =
+            getPlayerRank(player.id);
+
+        return res.status(201).json({
+            player,
+            balance,
+            rank
+        });
+
+    } catch (error) {
+        return res.status(400).json({
+            error:
+                error instanceof Error
+                    ? error.message
+                    : "Nieznany błąd"
+        });
+    }
 });
 
 app.post("/api/players/:id/bp/add", (req, res) => {
