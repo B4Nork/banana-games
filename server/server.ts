@@ -7,7 +7,8 @@ import {
     addBP,
     removeBP,
     getBPTransactions,
-    getAllPlayers
+    getAllPlayers,
+    getPlayerRank
 } from "./playerService.ts";
 
 const app = express();
@@ -34,10 +35,12 @@ app.get("/api/players/:name", (req, res) => {
     }
 
     const balance = getBalance(player.id);
+    const rank = getPlayerRank(player.id);
 
     return res.json({
         player,
-        balance
+        balance,
+        rank
     });
 });
 

@@ -7,6 +7,7 @@ type PlayerResponse = {
         display_name: string;
     };
     balance: number;
+    rank: number;
 };
 
 type PlayerListItem = {
@@ -15,6 +16,7 @@ type PlayerListItem = {
     display_name: string;
     bp: number;
     created_at: string;
+    rank: number;
 };
 
 
@@ -30,34 +32,140 @@ export function Players(
     page.className = "players-page";
 
     page.innerHTML = `
-        <div class="players-panel">
+        <div class="players-layout">
 
-            <button class="players-back">
-                ← WRÓĆ
-            </button>
+            <section class="ranking-section">
 
-            <h1>GRACZE</h1>
+                <div class="ranking-header">
+                    <div>
+                        <div class="ranking-eyebrow">
+                            BANANA GAMES
+                        </div>
 
-            <div class="players-search">
-                <input
-                    class="players-search-input"
-                    type="text"
-                    placeholder="Nick Twitch"
-                />
+                        <h1>
+                            BANANA RANKING
+                        </h1>
 
-                <button class="players-search-button">
-                    SZUKAJ
-                </button>
+                        <p>
+                            Najbogatsi posiadacze Banana Points
+                        </p>
+                    </div>
+                </div>
+
+                <div class="ranking-podium">
+                    <div class="podium-slot podium-second"></div>
+
+                    <div class="podium-slot podium-first"></div>
+
+                    <div class="podium-slot podium-third"></div>
+                </div>
+
+                <div class="ranking-list">
+                    Ładowanie rankingu...
+                </div>
+
+            </section>
+
+            <aside class="player-side-panel">
+
+                <div class="player-panel-header">
+                    <div>
+                        <div class="player-panel-eyebrow">
+                            PANEL
+                        </div>
+
+                        <h2>
+                            GRACZ
+                        </h2>
+                    </div>
+                </div>
+
+                <div class="player-search-box">
+
+                    <input
+                        class="players-search-input"
+                        type="text"
+                        placeholder="Nick Twitch"
+                    />
+
+                    <button class="players-search-button">
+                        SZUKAJ
+                    </button>
+
+                </div>
+
+                <div class="player-panel-content">
+
+                    <div class="player-panel-empty">
+                        Wyszukaj gracza albo wybierz go z rankingu
+                    </div>
+
+                </div>
 
                 <button class="players-add-button">
-                    DODAJ GRACZA
+                    + DODAJ GRACZA
                 </button>
-            </div>
 
-            <div class="players-result"></div>
+            </aside>
 
-            <div class="players-list">
-                Ładowanie graczy...
+            <button class="players-back">
+                ← WRÓĆ DO GIER
+            </button>
+
+        </div>
+
+        <div class="add-player-modal hidden">
+
+            <div class="add-player-modal-card">
+
+                <button class="add-player-close">
+                    ×
+                </button>
+
+                <div class="modal-eyebrow">
+                    BANANA GAMES
+                </div>
+
+                <h2>
+                    DODAJ GRACZA
+                </h2>
+
+                <label>
+                    Nick Twitch
+
+                    <input
+                        class="add-player-name"
+                        type="text"
+                        placeholder="np. B4Nork"
+                    />
+                </label>
+
+                <label>
+                    Początkowe BP
+
+                    <input
+                        class="add-player-bp"
+                        type="number"
+                        min="0"
+                        step="1"
+                        value="0"
+                    />
+                </label>
+
+                <div class="add-player-message"></div>
+
+                <div class="add-player-actions">
+
+                    <button class="add-player-cancel">
+                        ANULUJ
+                    </button>
+
+                    <button class="add-player-confirm">
+                        DODAJ
+                    </button>
+
+                </div>
+
             </div>
 
         </div>
@@ -83,14 +191,54 @@ export function Players(
             ".players-add-button"
     )!;
 
-    const result =
+    const rankingPodium =
         page.querySelector<HTMLElement>(
-            ".players-result"
+            ".ranking-podium"
         )!;
-    
-    const playersList =
+
+    const rankingList =
         page.querySelector<HTMLElement>(
-            ".players-list"
+            ".ranking-list"
+        )!;
+
+    const playerPanelContent =
+        page.querySelector<HTMLElement>(
+            ".player-panel-content"
+        )!;
+
+    const addPlayerModal =
+        page.querySelector<HTMLElement>(
+            ".add-player-modal"
+        )!;
+
+    const addPlayerName =
+        page.querySelector<HTMLInputElement>(
+            ".add-player-name"
+        )!;
+
+    const addPlayerBP =
+        page.querySelector<HTMLInputElement>(
+            ".add-player-bp"
+        )!;
+
+    const addPlayerClose =
+        page.querySelector<HTMLButtonElement>(
+            ".add-player-close"
+        )!;
+
+    const addPlayerCancel =
+        page.querySelector<HTMLButtonElement>(
+            ".add-player-cancel"
+        )!;
+
+    const addPlayerConfirm =
+        page.querySelector<HTMLButtonElement>(
+            ".add-player-confirm"
+        )!;
+
+    const addPlayerMessage =
+        page.querySelector<HTMLElement>(
+            ".add-player-message"
         )!;
 
     backButton.addEventListener(
@@ -107,7 +255,7 @@ export function Players(
             );
 
             if (!response.ok) {
-                result.innerHTML = `
+                playerPanelContent.innerHTML = `
                     <div class="player-error">
                         Nie udało się pobrać gracza
                     </div>
@@ -119,43 +267,44 @@ export function Players(
             const data =
                 await response.json() as PlayerResponse;
 
-            result.innerHTML = `
+            playerPanelContent.innerHTML = `
                 <div class="player-profile">
 
-                    <button class="player-profile-close">
-                        ← WRÓĆ DO LISTY
-                    </button>
-
-                    <h2>
-                        ${data.player.display_name}
-                    </h2>
-
-                    <div class="player-profile-info">
-                    s
-                        <div>
-                            <span>ID</span>
-                            <strong>
-                                ${data.player.id}
-                            </strong>
-                        </div>
+                    <div class="player-profile-top">
 
                         <div>
-                            <span>TWITCH</span>
-                            <strong>
-                                ${data.player.twitch_name}
-                            </strong>
-                        </div>
+                            <div class="player-profile-rank">
+                                #${data.rank} W RANKINGU
+                            </div>
 
-                        <div>
-                            <span>BP</span>
-                            <strong class="player-profile-balance">
-                                ${data.balance.toLocaleString("pl-PL")} BP
-                            </strong>
+                            <div class="player-profile-name">
+                                ${data.player.display_name}
+                            </div>
+
+                            <div class="player-profile-twitch">
+                                @${data.player.twitch_name}
+                            </div>
                         </div>
 
                     </div>
 
-                    <div class="player-bp-controls">
+                    <div class="player-profile-balance-box">
+
+                        <div class="balance-label">
+                            BANANA POINTS
+                        </div>
+
+                        <div class="player-profile-balance">
+                            ${data.balance.toLocaleString("pl-PL")} BP
+                        </div>
+
+                    </div>
+
+                    <div class="player-bp-edit">
+
+                        <label>
+                            Zmień saldo
+                        </label>
 
                         <input
                             class="player-bp-input"
@@ -165,60 +314,50 @@ export function Players(
                             placeholder="Ilość BP"
                         />
 
-                        <button class="player-bp-add">
-                            + DODAJ BP
-                        </button>
+                        <div class="player-bp-buttons">
 
-                        <button class="player-bp-remove">
-                            - ODEJMIJ BP
-                        </button>
+                            <button class="player-bp-add">
+                                + DODAJ
+                            </button>
+
+                            <button class="player-bp-remove">
+                                − ODEJMIJ
+                            </button>
+
+                        </div>
+
+                        <div class="player-bp-message"></div>
 
                     </div>
 
-                    <div class="player-bp-message"></div>
-
                 </div>
             `;
-
-            playersList.style.display = "none";
-
-            const closeButton =
-                result.querySelector<HTMLButtonElement>(
-                    ".player-profile-close"
-                )!;
             
             const bpInput =
-                result.querySelector<HTMLInputElement>(
+                playerPanelContent.querySelector<HTMLInputElement>(
                     ".player-bp-input"
             )!;
 
             const addBPButton =
-                result.querySelector<HTMLButtonElement>(
+                playerPanelContent.querySelector<HTMLButtonElement>(
                     ".player-bp-add"
                 )!;
 
             const removeBPButton =
-                result.querySelector<HTMLButtonElement>(
+                playerPanelContent.querySelector<HTMLButtonElement>(
                     ".player-bp-remove"
                 )!;
 
             const balanceElement =
-                result.querySelector<HTMLElement>(
+                playerPanelContent.querySelector<HTMLElement>(
                     ".player-profile-balance"
                 )!;
 
             const bpMessage =
-                result.querySelector<HTMLElement>(
+                playerPanelContent.querySelector<HTMLElement>(
                     ".player-bp-message"
                 )!;
 
-            closeButton.addEventListener(
-                "click",
-                () => {
-                    result.innerHTML = "";
-                    playersList.style.display = "";
-                }
-            );
 
             async function changePlayerBP(
                 type: "add" | "remove"
@@ -283,6 +422,9 @@ export function Players(
                     bpInput.value = "";
 
                     await loadPlayers();
+                    await openPlayerProfile(
+                        data.player.twitch_name
+                    );
 
                 } catch (error) {
                     console.error(error);
@@ -309,7 +451,7 @@ export function Players(
         } catch (error) {
             console.error(error);
 
-            result.innerHTML = `
+            playerPanelContent.innerHTML = `
                 <div class="player-error">
                     Błąd połączenia z API
                 </div>
@@ -319,13 +461,13 @@ export function Players(
 
     async function loadPlayers(): Promise<void> {
         try {
-            const response = await fetch(
-                "/api/players"
-            );
+            const response = await fetch("/api/players");
 
             if (!response.ok) {
-                playersList.innerHTML =
-                    "Nie udało się pobrać graczy.";
+                rankingPodium.innerHTML =
+                    "Nie udało się pobrać rankingu.";
+
+                rankingList.innerHTML = "";
 
                 return;
             }
@@ -334,141 +476,131 @@ export function Players(
                 await response.json() as PlayersResponse;
 
             if (data.players.length === 0) {
-                playersList.innerHTML =
-                    "Brak graczy w bazie.";
+                rankingPodium.innerHTML =
+                    "Brak graczy w rankingu.";
+
+                rankingList.innerHTML = "";
 
                 return;
             }
 
-            playersList.innerHTML = `
-                <div class="players-table-header">
-                    <div>ID</div>
-                    <div>GRACZ</div>
-                    <div>BP</div>
-                </div>
+            const podiumPlayers =
+                data.players.slice(0, 3);
 
-                ${data.players.map(player => `
-                    <div
-                        class="players-table-row"
+            const listPlayers =
+                data.players.slice(3);
+
+            const first =
+                podiumPlayers.find(
+                    player => player.rank === 1
+                );
+
+            const second =
+                podiumPlayers.find(
+                    player => player.rank === 2
+                );
+
+            const third =
+                podiumPlayers.find(
+                    player => player.rank === 3
+                );
+
+            function podiumHTML(
+                player: PlayerListItem | undefined,
+                position: number
+            ): string {
+                if (!player) {
+                    return "";
+                }
+
+                return `
+                    <button
+                        class="podium-player podium-player-${position}"
                         data-player="${player.twitch_name}"
                     >
-                        <div>
-                            ${player.id}
+                        <div class="podium-position">
+                            #${position}
                         </div>
 
-                        <div class="table-player-name">
+                        <div class="podium-name">
                             ${player.display_name}
                         </div>
 
-                        <div class="table-player-bp">
+                        <div class="podium-bp">
                             ${player.bp.toLocaleString("pl-PL")} BP
                         </div>
-                    </div>
-                `).join("")}
-            `;
+                    </button>
+                `;
+            }
 
-            const rows =
-                playersList.querySelectorAll<HTMLElement>(
-                    ".players-table-row"
-                );
+            rankingPodium.innerHTML = `
+                <div class="podium-slot podium-second">
+                    ${podiumHTML(second, 2)}
+                </div>
 
-            rows.forEach(row => {
-                row.addEventListener(
-                    "click",
-                    () => {
-                        const playerName =
-                            row.dataset.player;
+                <div class="podium-slot podium-first">
+                    ${podiumHTML(first, 1)}
+                </div>
 
-                        if (!playerName) {
-                            return;
-                        }
-
-                        openPlayerProfile(playerName);
-                    }
-                );
-            });
-
-        } catch (error) {
-            console.error(error);
-
-            playersList.innerHTML =
-                "Błąd połączenia z API.";
-        }
-    }
-
-    async function addPlayer(): Promise<void> {
-        const displayName =
-            input.value.trim();
-
-        if (!displayName) {
-            result.innerHTML = `
-                <div class="player-error">
-                    Wpisz nick gracza
+                <div class="podium-slot podium-third">
+                    ${podiumHTML(third, 3)}
                 </div>
             `;
 
-            return;
-        }
+            rankingList.innerHTML =
+                listPlayers
+                    .map(player => `
+                        <button
+                            class="ranking-row"
+                            data-player="${player.twitch_name}"
+                        >
+                            <div class="ranking-position">
+                                #${player.rank}
+                            </div>
 
-        result.innerHTML =
-            "Dodaję gracza...";
+                            <div class="ranking-player-name">
+                                ${player.display_name}
+                            </div>
 
-        try {
-            const response = await fetch(
-                "/api/players",
-                {
-                    method: "POST",
+                            <div class="ranking-player-bp">
+                                ${player.bp.toLocaleString("pl-PL")} BP
+                            </div>
+                        </button>
+                    `)
+                    .join("");
 
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
+            const rankingPlayers =
+                page.querySelectorAll<HTMLElement>(
+                    "[data-player]"
+                );
 
-                    body: JSON.stringify({
-                        displayName
-                    })
+            rankingPlayers.forEach(
+                playerElement => {
+                    playerElement.addEventListener(
+                        "click",
+                        () => {
+                            const playerName =
+                                playerElement.dataset.player;
+
+                            if (!playerName) {
+                                return;
+                            }
+
+                            openPlayerProfile(
+                                playerName
+                            );
+                        }
+                    );
                 }
             );
 
-            const data = await response.json();
-
-            if (!response.ok) {
-                result.innerHTML = `
-                    <div class="player-error">
-                        ${data.error ?? "Nie udało się dodać gracza"}
-                    </div>
-                `;
-
-                return;
-            }
-
-            result.innerHTML = `
-                <div class="player-card">
-                    <div class="player-name">
-                        ${data.player.display_name}
-                    </div>
-
-                    <div class="player-balance">
-                        ${data.balance.toLocaleString("pl-PL")} BP
-                    </div>
-
-                    <div class="player-id">
-                        ID: ${data.player.id}
-                    </div>
-                </div>
-            `;
-
-            input.value = "";
-
-            await loadPlayers();
-
         } catch (error) {
             console.error(error);
 
-            result.innerHTML = `
-                <div class="player-error">
-                    Błąd połączenia z API
-                </div>
-            `;
+            rankingPodium.innerHTML =
+                "Błąd połączenia z API.";
+
+            rankingList.innerHTML = "";
         }
     }
 
@@ -480,50 +612,28 @@ export function Players(
             return;
         }
 
-        result.innerHTML =
+        playerPanelContent.innerHTML =
             "Szukam gracza...";
 
-        try {
-            const response = await fetch(
-                `/api/players/${encodeURIComponent(name)}`
-            );
+        await openPlayerProfile(name);
+    }
 
-            if (!response.ok) {
-                result.innerHTML = `
-                    <div class="player-not-found">
-                        Nie znaleziono gracza
-                    </div>
-                `;
+    function openAddPlayerModal(): void {
+        addPlayerName.value = "";
+        addPlayerBP.value = "0";
+        addPlayerMessage.textContent = "";
 
-                return;
-            }
+        addPlayerModal.classList.remove(
+            "hidden"
+        );
 
-            const data = await response.json() as PlayerResponse;
+        addPlayerName.focus();
+    }
 
-            result.innerHTML = `
-                <div class="player-card">
-                    <div class="player-name">
-                        ${data.player.display_name}
-                    </div>
-
-                    <div class="player-balance">
-                        ${data.balance.toLocaleString("pl-PL")} BP
-                    </div>
-
-                    <div class="player-id">
-                        ID: ${data.player.id}
-                    </div>
-                </div>
-            `;
-        } catch (error) {
-            console.error(error);
-
-            result.innerHTML = `
-                <div class="player-error">
-                    Błąd połączenia z API
-                </div>
-            `;
-        }
+    function closeAddPlayerModal(): void {
+        addPlayerModal.classList.add(
+            "hidden"
+        );
     }
 
     searchButton.addEventListener(
@@ -533,7 +643,17 @@ export function Players(
 
     addButton.addEventListener(
         "click",
-        addPlayer
+        openAddPlayerModal
+    );
+
+    addPlayerClose.addEventListener(
+        "click",
+        closeAddPlayerModal
+    );
+
+    addPlayerCancel.addEventListener(
+        "click",
+        closeAddPlayerModal
     );
 
     input.addEventListener(

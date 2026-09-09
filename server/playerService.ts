@@ -23,6 +23,19 @@ export type BPTransaction = {
     created_at: string;
 };
 
+export type PlayerWithBalance = {
+    id: number;
+    twitch_name: string;
+    display_name: string;
+    bp: number;
+    created_at: string;
+    rank: number;
+};
+
+export type PlayerRank = {
+    rank: number;
+};
+
 export function createPlayer(displayName: string): Player {
     const twitchName = displayName
         .trim()
@@ -203,25 +216,59 @@ export function getBPTransactions(
     `).all(playerId) as BPTransaction[];
 }
 
-export type PlayerWithBalance = {
-    id: number;
-    twitch_name: string;
-    display_name: string;
-    bp: number;
-    created_at: string;
-};
 
-export function getAllPlayers(): PlayerWithBalance[] {
+
+export function getAllPlayers(
+    limit = 15
+): PlayerWithBalance[] {
     return db.prepare(`
         SELECT
-            players.id,
-            players.twitch_name,
-            players.display_name,
-            wallets.bp,
-            players.created_at
-        FROM players
-        INNER JOIN wallets
-            ON wallets.player_id = players.id
-        ORDER BY players.id ASC
-    `).all() as PlayerWithBalance[];
+            id,
+            twitch_name,
+            display_name,
+            bp,
+            created_at,
+            rank
+        FROM (
+            SELECT
+                players.id,
+                players.twitch_name,
+                players.display_name,
+                wallets.bp,
+                players.created_at,
+                ROW_NUMBER() OVER (
+                    ORDER BY
+                        wallets.bp DESC,
+                        players.id ASC
+                ) AS rank
+            FROM players
+            INNER JOIN wallets
+                ON wallets.player_id = players.id
+        )
+        ORDER BY rank ASC
+        LIMIT ?
+    `).all(limit) as PlayerWithBalance[];
+}
+
+export function getPlayerRank(
+    playerId: number
+): number | undefined {
+    const result = db.prepare(`
+        SELECT rank
+        FROM (
+            SELECT
+                players.id,
+                ROW_NUMBER() OVER (
+                    ORDER BY
+                        wallets.bp DESC,
+                        players.id ASC
+                ) AS rank
+            FROM players
+            INNER JOIN wallets
+                ON wallets.player_id = players.id
+        )
+        WHERE id = ?
+    `).get(playerId) as PlayerRank | undefined;
+
+    return result?.rank;
 }
