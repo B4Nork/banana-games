@@ -13,6 +13,20 @@ export function Games(onGameClick: (game: string) => void): HTMLElement {
 
     gamesPage.appendChild(Background());
 
+    const rankingButton = document.createElement("button");
+
+    rankingButton.className = "games-ranking-button";
+    rankingButton.innerHTML = `
+        <span class="games-ranking-icon">🏆</span>
+        <span>RANKING</span>
+    `;
+
+    rankingButton.addEventListener("click", () => {
+        onGameClick("players");
+    });
+
+    gamesPage.appendChild(rankingButton);
+
     const title = document.createElement("h1");
 
     title.className = "games-title";

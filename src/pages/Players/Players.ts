@@ -107,11 +107,6 @@ export function Players(
                 </button>
 
             </aside>
-
-            <button class="players-back">
-                ← WRÓĆ DO GIER
-            </button>
-
         </div>
 
         <div class="add-player-modal hidden">
@@ -170,11 +165,15 @@ export function Players(
 
         </div>
     `;
+    
+    const backButton = document.createElement("button");
 
-    const backButton =
-        page.querySelector<HTMLButtonElement>(
-            ".players-back"
-        )!;
+    backButton.className = "back-button";
+    backButton.textContent = "← WRÓĆ DO GIER";
+
+    backButton.addEventListener("click", onBack);
+
+    page.appendChild(backButton);
 
     const input =
         page.querySelector<HTMLInputElement>(
@@ -240,11 +239,6 @@ export function Players(
         page.querySelector<HTMLElement>(
             ".add-player-message"
         )!;
-
-    backButton.addEventListener(
-        "click",
-        onBack
-    );
 
     async function openPlayerProfile(
         playerName: string

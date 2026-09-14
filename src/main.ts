@@ -49,6 +49,4 @@ function showGame(game: string): void {
     }
 }
 
-root.innerHTML = "";
-root.appendChild(Players(showGames));
-//showHome();
+showHome();
