@@ -1,0 +1,147 @@
+.active-player-panel {
+    position: fixed;
+    top: 25px;
+    left: 25px;
+
+    z-index: 100;
+
+    min-width: 280px;
+    padding: 20px;
+
+    font-family: "Karma", serif;
+
+    background: rgba(10, 10, 10, 0.92);
+
+    border: 1px solid rgba(139, 92, 246, 0.5);
+    border-radius: 12px;
+
+    color: white;
+}
+
+.active-player-label {
+    font-size: 15px;
+    letter-spacing: 2px;
+
+    color: #777;
+}
+
+.active-player-name {
+    font-size: 30px;
+}
+
+.active-player-stats {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    gap: 24px;
+    margin-top: 7px;
+}
+
+.active-player-stats span {
+    font-size: 20px;
+    color: #a98cff;
+}
+
+.active-player-stats strong {
+    font-size: 20px;
+    color: #c8ff67;
+}
+
+.active-player-empty {
+    display: flex;
+    flex-direction: column;
+
+    gap: 12px;
+
+    font-size: 20px;
+
+    color: #777;
+}
+
+.active-player-select {
+    margin-top: 10px;
+
+    padding: 9px 14px;
+
+    font-family: "Karma", serif;
+    font-size: 17px;
+
+    border: 1px solid #444;
+    border-radius: 7px;
+
+    background: #151515;
+
+    color: white;
+
+    cursor: pointer;
+}
+
+.active-player-select:hover {
+    border-color: #8b5cf6;
+}
+
+.active-player-search {
+    display: flex;
+    flex-direction: column;
+
+    gap: 10px;
+}
+
+.active-player-search-input {
+    width: 100%;
+
+    padding: 10px 12px;
+
+    font-family: "Karma", serif;
+    font-size: 18px;
+
+    color: white;
+
+    background: #0c0c0c;
+
+    border: 1px solid #444;
+    border-radius: 7px;
+
+    outline: none;
+}
+
+.active-player-search-input:focus {
+    border-color: #8b5cf6;
+}
+
+.active-player-search-button,
+.active-player-cancel {
+    padding: 8px 12px;
+
+    font-family: "Karma", serif;
+    font-size: 16px;
+
+    border-radius: 7px;
+
+    cursor: pointer;
+}
+
+.active-player-search-button {
+    color: #c8ff67;
+
+    background: #15230f;
+
+    border: 1px solid #4d7132;
+}
+
+.active-player-cancel {
+    color: #aaa;
+
+    background: #151515;
+
+    border: 1px solid #333;
+}
+
+.active-player-message {
+    min-height: 20px;
+
+    font-size: 15px;
+
+    color: #d98b8b;
+}

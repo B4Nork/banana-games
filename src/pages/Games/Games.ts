@@ -5,6 +5,7 @@ import { WheelCard } from "./components/WheelCard/WheelCard";
 import { PlinkoCard } from "./components/PlinkoCard/PlinkoCard";
 import { RandomCard } from "./components/RandomCard/RandomCard";
 import { ThimblerigCard } from "./components/ThimblerigCard/ThimblerigCard";
+import {ActivePlayerPanel} from "../../components/ActivePlayer/ActivePlayer";
 
 export function Games(onGameClick: (game: string) => void): HTMLElement {
     const gamesPage = document.createElement("main");
@@ -12,6 +13,8 @@ export function Games(onGameClick: (game: string) => void): HTMLElement {
     gamesPage.className = "games-page";
 
     gamesPage.appendChild(Background());
+
+    gamesPage.appendChild(ActivePlayerPanel());
 
     const rankingButton = document.createElement("button");
 
