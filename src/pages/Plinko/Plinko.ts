@@ -2,15 +2,23 @@ import "./Plinko.css";
 import Matter from "matter-js"
 
 import { createBananas } from "../../utils/createBananas";
-import {ActivePlayerPanel} from "../../components/ActivePlayer/ActivePlayer";
-import { getActivePlayer } from "../../state/activePlayer";
+import { ActivePlayerPanel } from "../../components/ActivePlayer/ActivePlayer";
+
+import {
+    getActivePlayer,
+    setActivePlayer
+} from "../../state/activePlayer";
 
 export function Plinko(onBack: () => void): HTMLElement {
     const plinkoPage = document.createElement("main");
 
     plinkoPage.className = "plinko-page";
 
-    plinkoPage.appendChild(ActivePlayerPanel());
+    let activePlayerPanel = ActivePlayerPanel();
+
+    plinkoPage.appendChild(
+        activePlayerPanel
+    );
 
     const title = document.createElement("h1");
 
@@ -116,6 +124,177 @@ export function Plinko(onBack: () => void): HTMLElement {
     let currentDropCount = 0;
 
     let roundRunning = false;
+
+    let currentSessionId: number | null =
+        null;
+
+    let bestMultiplier: number | null =
+        null;
+
+    function refreshActivePlayerPanel(): void {
+
+        const newPanel =
+            ActivePlayerPanel();
+
+        activePlayerPanel.replaceWith(
+            newPanel
+        );
+
+        activePlayerPanel =
+            newPanel;
+    }
+
+    
+    async function startRoundInDatabase(
+        playerId: number,
+        bet: number,
+        ballsCount: number
+    ): Promise<boolean> {
+
+        try {
+
+            const response =
+                await fetch(
+                    "/api/games/plinko/start",
+                    {
+                        method: "POST",
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
+                        body: JSON.stringify({
+                            playerId,
+                            bet,
+                            ballsCount
+                        })
+                    }
+                );
+
+            const data =
+                await response.json();
+
+            if (!response.ok) {
+
+                message.textContent =
+                    data.error ??
+                    "BŁĄD STARTU RUNDY";
+
+                return false;
+            }
+
+            currentSessionId =
+                data.sessionId;
+
+            const currentPlayer =
+                getActivePlayer();
+
+            if (
+                currentPlayer &&
+                currentPlayer.id === playerId
+            ) {
+
+                setActivePlayer({
+                    ...currentPlayer,
+                    balance: data.balance,
+                    rank:
+                        data.rank ??
+                        currentPlayer.rank
+                });
+
+                refreshActivePlayerPanel();
+            }
+
+            return true;
+
+        } catch (error) {
+
+            console.error(error);
+
+            message.textContent =
+                "BŁĄD POŁĄCZENIA Z API";
+
+            return false;
+        }
+    }
+
+    async function finishRoundInDatabase(
+        payout: number
+    ): Promise<boolean> {
+
+        if (currentSessionId === null) {
+
+            message.textContent =
+                "BRAK AKTYWNEJ RUNDY";
+
+            return false;
+        }
+
+        try {
+
+            const response =
+                await fetch(
+                    `/api/games/plinko/${currentSessionId}/finish`,
+                    {
+                        method: "POST",
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
+                        body: JSON.stringify({
+                            payout,
+                            bestMultiplier
+                        })
+                    }
+                );
+
+            const data =
+                await response.json();
+
+            if (!response.ok) {
+
+                message.textContent =
+                    data.error ??
+                    "BŁĄD ZAPISU RUNDY";
+
+                return false;
+            }
+
+            const currentPlayer =
+                getActivePlayer();
+
+            if (
+                currentPlayer &&
+                currentPlayer.id ===
+                    data.playerId
+            ) {
+
+                setActivePlayer({
+                    ...currentPlayer,
+                    balance:
+                        data.balance,
+                    rank:
+                        data.rank ??
+                        currentPlayer.rank
+                });
+
+                refreshActivePlayerPanel();
+            }
+
+            currentSessionId =
+                null;
+
+            return true;
+
+        } catch (error) {
+
+            console.error(error);
+
+            message.textContent =
+                "BŁĄD ZAPISU WYNIKU";
+
+            return false;
+        }
+    }
 
     resultValue.textContent =
         totalPoints.toString();
@@ -265,7 +444,7 @@ export function Plinko(onBack: () => void): HTMLElement {
 
     physicsContainer.appendChild(slotLabels);
 
-    Matter.Events.on(engine, "afterUpdate", () => {
+    Matter.Events.on(engine, "afterUpdate", async() => {
 
         for (const ball of balls) {
 
@@ -286,7 +465,16 @@ export function Plinko(onBack: () => void): HTMLElement {
                 continue;
             }
 
-            const reward = slotRewards[slotIndex];
+            const reward =
+                slotRewards[slotIndex];
+
+            if (
+                bestMultiplier === null ||
+                reward > bestMultiplier
+            ) {
+                bestMultiplier =
+                    reward;
+            }
 
             totalPoints *= reward;
 
@@ -304,13 +492,27 @@ export function Plinko(onBack: () => void): HTMLElement {
                 `Kulka ${ball.id} → slot ${slotIndex + 1} → x${reward} → aktualnie ${totalPoints} BP`
             );
 
-           if ( completedBalls === currentDropCount) {
+           if (completedBalls === currentDropCount) {
+
                 const finalPoints =
                     Math.ceil(totalPoints);
 
                 console.log(
                     `Koniec rundy! Wypłata: ${finalPoints} BP`
                 );
+
+                const saved =
+                    await finishRoundInDatabase(
+                        finalPoints
+                    );
+
+                if (!saved) {
+
+                    message.textContent =
+                        "BŁĄD ZAPISU RUNDY";
+
+                    return;
+                }
 
                 roundRunning = false;
 
@@ -360,7 +562,7 @@ export function Plinko(onBack: () => void): HTMLElement {
 
     dropButton.addEventListener(
         "click",
-        () => {
+        async() => {
 
             if (roundRunning) {
                 return;
@@ -421,6 +623,17 @@ export function Plinko(onBack: () => void): HTMLElement {
                 message.textContent =
                     "LICZBA KULEK: 1-50";
 
+                return;
+            }
+
+            const roundStarted =
+                await startRoundInDatabase(
+                    activePlayer.id,
+                    bet,
+                    count
+                );
+
+            if (!roundStarted) {
                 return;
             }
 

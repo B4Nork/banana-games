@@ -6,6 +6,11 @@ import {
 } from "./thimblerigService.ts";
 
 import {
+    startPlinko,
+    finishPlinko
+} from "./plinkoService.ts";
+
+import {
     createPlayer,
     getPlayer,
     getBalance,
@@ -347,6 +352,148 @@ app.post(
                 finishThimblerig(
                     sessionId,
                     won
+                );
+
+            const rank =
+                getPlayerRank(
+                    result.playerId
+                );
+
+            return res.json({
+                ...result,
+                rank
+            });
+
+        } catch (error) {
+
+            return res.status(400).json({
+                error:
+                    error instanceof Error
+                        ? error.message
+                        : "Nieznany błąd"
+            });
+        }
+    }
+);
+
+app.post(
+    "/api/games/plinko/start",
+    (req, res) => {
+
+        const {
+            playerId,
+            bet,
+            ballsCount
+        } = req.body;
+
+        if (
+            !Number.isSafeInteger(playerId) ||
+            playerId <= 0
+        ) {
+            return res.status(400).json({
+                error: "Niepoprawne ID gracza"
+            });
+        }
+
+        if (
+            !Number.isSafeInteger(bet) ||
+            bet <= 0
+        ) {
+            return res.status(400).json({
+                error: "Niepoprawna stawka"
+            });
+        }
+
+        if (
+            !Number.isSafeInteger(ballsCount) ||
+            ballsCount < 1 ||
+            ballsCount > 50
+        ) {
+            return res.status(400).json({
+                error: "Niepoprawna liczba kulek"
+            });
+        }
+
+        try {
+
+            const result =
+                startPlinko(
+                    playerId,
+                    bet,
+                    ballsCount
+                );
+
+            const rank =
+                getPlayerRank(playerId);
+
+            return res
+                .status(201)
+                .json({
+                    ...result,
+                    rank
+                });
+
+        } catch (error) {
+
+            return res.status(400).json({
+                error:
+                    error instanceof Error
+                        ? error.message
+                        : "Nieznany błąd"
+            });
+        }
+    }
+);
+
+app.post(
+    "/api/games/plinko/:sessionId/finish",
+    (req, res) => {
+
+        const sessionId =
+            Number(req.params.sessionId);
+
+        const {
+            payout,
+            bestMultiplier
+        } = req.body;
+
+        if (
+            !Number.isSafeInteger(sessionId) ||
+            sessionId <= 0
+        ) {
+            return res.status(400).json({
+                error: "Niepoprawne ID rundy"
+            });
+        }
+
+        if (
+            !Number.isSafeInteger(payout) ||
+            payout < 0
+        ) {
+            return res.status(400).json({
+                error: "Niepoprawna wypłata"
+            });
+        }
+
+        if (
+            bestMultiplier !== null &&
+            (
+                typeof bestMultiplier !== "number" ||
+                !Number.isFinite(bestMultiplier)
+            )
+        ) {
+            return res.status(400).json({
+                error: "Niepoprawny mnożnik"
+            });
+        }
+
+        try {
+
+            const result =
+                finishPlinko(
+                    sessionId,
+                    payout,
+                    bestMultiplier
                 );
 
             const rank =
