@@ -3,6 +3,7 @@ import Matter from "matter-js"
 
 import { createBananas } from "../../utils/createBananas";
 import {ActivePlayerPanel} from "../../components/ActivePlayer/ActivePlayer";
+import { getActivePlayer } from "../../state/activePlayer";
 
 export function Plinko(onBack: () => void): HTMLElement {
     const plinkoPage = document.createElement("main");
@@ -33,8 +34,18 @@ export function Plinko(onBack: () => void): HTMLElement {
     const controls = document.createElement("div");
     controls.className = "plinko-controls";
 
+    const betLabel = document.createElement("span");
+    betLabel.textContent = "STAWKA";
+
+    const betInput = document.createElement("input");
+    betInput.className = "plinko-bet-input";
+    betInput.type = "number";
+    betInput.min = "1";
+    betInput.step = "1";
+    betInput.value = "1000";
+
     const ballsLabel = document.createElement("span");
-    ballsLabel.textContent = "LICZBA KULEK";
+    ballsLabel.textContent = "LICZBA KULEK MAX 50";
 
     const ballsInput = document.createElement("input");
     ballsInput.type = "number";
@@ -45,18 +56,22 @@ export function Plinko(onBack: () => void): HTMLElement {
     const dropButton = document.createElement("button");
     dropButton.textContent = "DROP";
 
+    controls.appendChild(betLabel);
+    controls.appendChild(betInput);
+
     controls.appendChild(ballsLabel);
     controls.appendChild(ballsInput);
-    controls.appendChild(dropButton);
+
+    controls.appendChild(dropButton);   
 
     const result = document.createElement("div");
 
     result.className = "plinko-result";
 
     result.innerHTML = `
-        <span>WYGRANA</span>
+        <span>AKTUALNA PULA</span>
         <strong>1000</strong>
-        <small>PKT</small>
+        <small>BP</small>
     `;
 
     controls.appendChild(result);
@@ -71,6 +86,16 @@ export function Plinko(onBack: () => void): HTMLElement {
 
     controls.appendChild(progress);
 
+    const message =
+        document.createElement("div");
+
+    message.className =
+        "plinko-message";
+
+    controls.appendChild(
+        message
+    );
+
     gameContainer.appendChild(controls);
 
     const engine = Matter.Engine.create();
@@ -81,11 +106,16 @@ export function Plinko(onBack: () => void): HTMLElement {
 
     const rewardedBalls = new Set<number>();
 
-    const BASE_POINTS = 1000;
+    let currentBet = 1000;
 
-    let totalPoints = BASE_POINTS;
+    let totalPoints =
+        currentBet;
+
     let completedBalls = 0;
+
     let currentDropCount = 0;
+
+    let roundRunning = false;
 
     resultValue.textContent =
         totalPoints.toString();
@@ -211,7 +241,7 @@ export function Plinko(onBack: () => void): HTMLElement {
 
     const slotRewards = [
         0,
-        8,
+        5,
         3,
         1.5,
         1,
@@ -222,7 +252,7 @@ export function Plinko(onBack: () => void): HTMLElement {
         1,
         1.5,
         3,
-        8,
+        5,
         0,
     ];
 
@@ -271,13 +301,32 @@ export function Plinko(onBack: () => void): HTMLElement {
                 Math.ceil(totalPoints).toLocaleString("pl-PL");
 
             console.log(
-                `Kulka ${ball.id} → slot ${slotIndex + 1} → x${reward} → aktualnie ${totalPoints} pkt`
+                `Kulka ${ball.id} → slot ${slotIndex + 1} → x${reward} → aktualnie ${totalPoints} BP`
             );
 
-            if (completedBalls === currentDropCount) {
-                console.log(`Koniec rundy! Wygrana: ${Math.ceil(totalPoints)} pkt`);
+           if ( completedBalls === currentDropCount) {
+                const finalPoints =
+                    Math.ceil(totalPoints);
 
-                showFinalResult(totalPoints);
+                console.log(
+                    `Koniec rundy! Wypłata: ${finalPoints} BP`
+                );
+
+                roundRunning = false;
+
+                betInput.disabled =
+                    false;
+
+                ballsInput.disabled =
+                    false;
+
+                dropButton.disabled =
+                    false;
+
+                showFinalResult(
+                    finalPoints,
+                    currentBet
+                );
             }
         }
     });
@@ -309,37 +358,119 @@ export function Plinko(onBack: () => void): HTMLElement {
 
     Matter.Runner.run(runner, engine);
 
-    dropButton.addEventListener("click", () => {
+    dropButton.addEventListener(
+        "click",
+        () => {
 
-        const count = Number(ballsInput.value);
+            if (roundRunning) {
+                return;
+            }
 
-        if (count < 1 || count > 50) {
-            return;
+            message.textContent =
+                "";
+
+            const activePlayer =
+                getActivePlayer();
+
+            if (!activePlayer) {
+
+                message.textContent =
+                    "NAJPIERW WYBIERZ GRACZA";
+
+                return;
+            }
+
+            const bet =
+                Math.floor(
+                    Number(betInput.value)
+                );
+
+            if (
+                !Number.isFinite(bet) ||
+                bet < 1
+            ) {
+
+                message.textContent =
+                    "WPISZ POPRAWNĄ STAWKĘ";
+
+                return;
+            }
+
+            if (
+                bet >
+                activePlayer.balance
+            ) {
+
+                message.textContent =
+                    "GRACZ NIE MA TYLE BP";
+
+                return;
+            }
+
+            const count =
+                Math.floor(
+                    Number(ballsInput.value)
+                );
+
+            if (
+                !Number.isFinite(count) ||
+                count < 1 ||
+                count > 50
+            ) {
+
+                message.textContent =
+                    "LICZBA KULEK: 1-50";
+
+                return;
+            }
+
+            currentBet =
+                bet;
+
+            roundRunning =
+                true;
+
+            betInput.disabled =
+                true;
+
+            ballsInput.disabled =
+                true;
+
+            dropButton.disabled =
+                true;
+
+
+            clearBalls(
+                engine,
+                balls,
+                rewardedBalls,
+                firstCollisions
+            );
+
+            totalPoints =
+                currentBet;
+
+            completedBalls =
+                0;
+
+            currentDropCount =
+                count;
+
+            resultValue.textContent =
+                totalPoints.toLocaleString(
+                    "pl-PL"
+                );
+
+            progress.textContent =
+                `KULKI: 0 / ${currentDropCount}`;
+
+            dropBalls(
+                count,
+                engine,
+                balls
+            );
         }
-
-        clearBalls(
-            engine,
-            balls,
-            rewardedBalls,
-            firstCollisions
-        );
-
-        totalPoints = BASE_POINTS;
-        completedBalls = 0;
-        currentDropCount = count;
-
-        resultValue.textContent =
-            totalPoints.toString();
-        
-        progress.textContent =
-            `KULKI: 0 / ${currentDropCount}`;
-
-        dropBalls(
-            count,
-            engine,
-            balls
-        );
-    });
+    );
 
     const backButton = document.createElement("button");
 
@@ -602,23 +733,54 @@ function createSlotLabels(
 }
 
 function showFinalResult(
-    points: number
+    payout: number,
+    bet: number
 ): void {
 
-    const overlay = document.createElement("div");
+    const overlay =
+        document.createElement("div");
 
-    overlay.className = "plinko-final-overlay";
+    overlay.className =
+        "plinko-final-overlay";
+
+    const profit =
+        payout - bet;
+
+    const profitText =
+        profit > 0
+            ? `+${profit.toLocaleString("pl-PL")}`
+            : profit.toLocaleString("pl-PL");
 
     overlay.innerHTML = `
         <div class="plinko-final-result">
 
-            <span>KONIEC RUNDY</span>
+            <span>
+                KONIEC RUNDY
+            </span>
+
+            <small>
+                STAWKA
+            </small>
 
             <strong>
-                ${Math.ceil(points).toLocaleString("pl-PL")}
+                ${bet.toLocaleString("pl-PL")} BP
             </strong>
 
-            <small>PKT</small>
+            <small>
+                WYPŁATA
+            </small>
+
+            <strong>
+                ${payout.toLocaleString("pl-PL")} BP
+            </strong>
+
+            <small>
+                ZYSK / STRATA
+            </small>
+
+            <strong>
+                ${profitText} BP
+            </strong>
 
             <button>
                 DALEJ
@@ -627,12 +789,19 @@ function showFinalResult(
         </div>
     `;
 
-    document.body.appendChild(overlay);
+    document.body.appendChild(
+        overlay
+    );
 
     const button =
-        overlay.querySelector<HTMLButtonElement>("button");
+        overlay.querySelector<HTMLButtonElement>(
+            "button"
+        );
 
-    button?.addEventListener("click", () => {
-        overlay.remove();
-    });
+    button?.addEventListener(
+        "click",
+        () => {
+            overlay.remove();
+        }
+    );
 }
