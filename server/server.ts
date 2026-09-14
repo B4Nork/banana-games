@@ -11,6 +11,11 @@ import {
 } from "./plinkoService.ts";
 
 import {
+    startWheel,
+    finishWheel
+} from "./wheelService.ts";
+
+import {
     createPlayer,
     getPlayer,
     getBalance,
@@ -494,6 +499,139 @@ app.post(
                     sessionId,
                     payout,
                     bestMultiplier
+                );
+
+            const rank =
+                getPlayerRank(
+                    result.playerId
+                );
+
+            return res.json({
+                ...result,
+                rank
+            });
+
+        } catch (error) {
+
+            return res.status(400).json({
+                error:
+                    error instanceof Error
+                        ? error.message
+                        : "Nieznany błąd"
+            });
+        }
+    }
+);
+
+app.post(
+    "/api/games/wheel/start",
+    (req, res) => {
+
+        const { playerId } = req.body;
+
+        if (
+            !Number.isSafeInteger(playerId) ||
+            playerId <= 0
+        ) {
+            return res.status(400).json({
+                error: "Niepoprawne ID gracza"
+            });
+        }
+
+        try {
+            const result =
+                startWheel(playerId);
+
+            const rank =
+                getPlayerRank(playerId);
+
+            return res.status(201).json({
+                ...result,
+                rank
+            });
+
+        } catch (error) {
+
+            return res.status(400).json({
+                error:
+                    error instanceof Error
+                        ? error.message
+                        : "Nieznany błąd"
+            });
+        }
+    }
+);
+
+app.post(
+    "/api/games/wheel/:sessionId/finish",
+    (req, res) => {
+
+        const sessionId =
+            Number(req.params.sessionId);
+
+        const {
+            rewardName,
+            rewardType,
+            rewardValue,
+            rewardText
+        } = req.body;
+
+        if (
+            !Number.isSafeInteger(sessionId) ||
+            sessionId <= 0
+        ) {
+            return res.status(400).json({
+                error: "Niepoprawne ID rundy"
+            });
+        }
+
+        if (
+            typeof rewardName !== "string" ||
+            rewardName.trim() === ""
+        ) {
+            return res.status(400).json({
+                error: "Niepoprawna nazwa nagrody"
+            });
+        }
+
+        if (
+            typeof rewardType !== "string" ||
+            rewardType.trim() === ""
+        ) {
+            return res.status(400).json({
+                error: "Niepoprawny typ nagrody"
+            });
+        }
+
+        if (
+            rewardValue !== null &&
+            (
+                !Number.isSafeInteger(rewardValue) ||
+                rewardValue < 0
+            )
+        ) {
+            return res.status(400).json({
+                error: "Niepoprawna wartość nagrody"
+            });
+        }
+
+        if (
+            rewardText !== null &&
+            typeof rewardText !== "string"
+        ) {
+            return res.status(400).json({
+                error: "Niepoprawny opis nagrody"
+            });
+        }
+
+        try {
+            const result =
+                finishWheel(
+                    sessionId,
+                    rewardName.trim(),
+                    rewardType.trim(),
+                    rewardValue,
+                    rewardText
                 );
 
             const rank =

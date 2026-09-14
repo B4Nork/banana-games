@@ -2,16 +2,29 @@ import "./Wheel.css";
 import { createBananas } from "../../utils/createBananas";
 import { ActivePlayerPanel } from "../../components/ActivePlayer/ActivePlayer";
 
+import {
+    getActivePlayer,
+    setActivePlayer
+} from "../../state/activePlayer";
+
 let rewardContainer: HTMLElement;
 let rewardTotal: HTMLElement;
 
 let wheelRotation = 0;
 let isSpinning = false;
 
+const WHEEL_COST = 5000;
+
+let currentSessionId: number | null = null;
+
 interface Reward {
     name: string;
     chance: number;
     color: string;
+
+    type: string;
+    value: number | null;
+    text: string | null;
 }
 
 interface VisualReward extends Reward {
@@ -43,52 +56,92 @@ const rewards: Reward[] = [
     {
         name: "Bananowy Łup",
         chance: 0.25,
-        color: getWheelColor(0)
+        color: getWheelColor(0),
+
+        type: "physical",
+        value: null,
+        text: "Losowy fizyczny przedmiot"
     },
     {
         name: "Prezent dla czatu",
         chance: 25,
-        color: getWheelColor(1)
+        color: getWheelColor(1),
+
+        type: "stream",
+        value: null,
+        text: null
     },
     {
-        name: "100k BP",
+        name: "Diamond 100 000 BP",
         chance: 3,
-        color: getWheelColor(2)
+        color: getWheelColor(2),
+
+        type: "bp",
+        value: 100000,
+        text: null
     },
     {
         name: "Ukradnij 10 000 BP",
         chance: 5,
-        color: getWheelColor(3)
+        color: getWheelColor(3),
+
+        type: "steal_bp",
+        value: 10000,
+        text: null
     },
     {
         name: "Timeout challenge dla widza",
         chance: 15,
-        color: getWheelColor(4)
+        color: getWheelColor(4),
+
+        type: "challenge",
+        value: null,
+        text: "Timeout do wykonania wyzwania"
     },
     {
-        name: "Jackpot",
+        name: "Jackpot 10 000 000 BP",
         chance: 0.5,
-        color: getWheelColor(5)
+        color: getWheelColor(5),
+
+        type: "bp",
+        value: 10000000,
+        text: "Jackpot"
     },
     {
         name: "Timeout challenge dla streamera",
         chance: 15,
-        color: getWheelColor(6)
+        color: getWheelColor(6),
+
+        type: "challenge",
+        value: null,
+        text: null
     },
     {
         name: "Pompki 30",
         chance: 15,
-        color: getWheelColor(7)
+        color: getWheelColor(7),
+
+        type: "stream",
+        value: null,
+        text: "30 pompek"
     },
     {
         name: "Ściana Legend",
         chance: 1,
-        color: getWheelColor(8)
+        color: getWheelColor(8),
+
+        type: "legend",
+        value: null,
+        text: null
     },
     {
-        name: "Darmowa gra w banan games",
+        name: "Darmowa gra",
         chance: 20.25,
-        color: getWheelColor(9)
+        color: getWheelColor(9),
+
+        type: "free_game",
+        value: null,
+        text: "Gra bez wydawania Twitch Channel Points"
     }
 ];
 
@@ -129,7 +182,7 @@ export function Wheel(onBack: () => void): HTMLElement {
                 </div>
 
                 <button class="spin-button">
-                    ZAKRĘĆ
+                    ZAKRĘĆ — 5 000 BP
                 </button>
 
                 <div class="spin-status">
@@ -181,9 +234,24 @@ export function Wheel(onBack: () => void): HTMLElement {
         </div>
     `;
 
+    let activePlayerPanel =
+        ActivePlayerPanel();
+
     wheelPage.appendChild(
-        ActivePlayerPanel()
+        activePlayerPanel
     );
+
+    function refreshActivePlayerPanel(): void {
+        const newPanel =
+            ActivePlayerPanel();
+
+        activePlayerPanel.replaceWith(
+            newPanel
+        );
+
+        activePlayerPanel =
+            newPanel;
+    }
 
     rewardContainer =
         wheelPage.querySelector<HTMLElement>(
@@ -230,7 +298,8 @@ export function Wheel(onBack: () => void): HTMLElement {
             spinWheel(
                 wheelElement,
                 wheelPage,
-                spinButton
+                spinButton,
+                refreshActivePlayerPanel
             );
         }
     );
@@ -286,7 +355,11 @@ export function Wheel(onBack: () => void): HTMLElement {
                 chance: 0,
                 color: getWheelColor(
                     rewards.length
-                )
+                ),
+
+                type: "custom",
+                value: null,
+                text: null
             });
 
             updateRewards(
@@ -1458,17 +1531,21 @@ function updateRewards(
    SPIN
    ======================================== */
 
-function spinWheel(
+async function spinWheel(
     wheel: HTMLElement,
     wheelPage: HTMLElement,
-    spinButton: HTMLButtonElement
-): void {
+    spinButton: HTMLButtonElement,
+    refreshActivePlayerPanel: () => void
+): Promise<void> {
 
-    if (
-        isSpinning
-    ) {
+    if (isSpinning) {
         return;
     }
+
+    const status =
+        wheelPage.querySelector<HTMLElement>(
+            ".spin-status"
+        );
 
     const svg =
         wheel.querySelector<SVGSVGElement>(
@@ -1479,28 +1556,49 @@ function spinWheel(
         return;
     }
 
+    /* =========================
+       SPRAWDZENIE GRACZA
+       ========================= */
+
+    const activePlayer =
+        getActivePlayer();
+
+    if (!activePlayer) {
+        if (status) {
+            status.textContent =
+                "NAJPIERW WYBIERZ GRACZA";
+        }
+
+        return;
+    }
+
+    if (
+        activePlayer.balance <
+        WHEEL_COST
+    ) {
+        if (status) {
+            status.textContent =
+                `ZA MAŁO BP — POTRZEBA ${WHEEL_COST.toLocaleString("pl-PL")} BP`;
+        }
+
+        return;
+    }
+
+    /* =========================
+       SPRAWDZENIE %
+       ========================= */
+
     const totalChance =
         getTotalChance();
 
     if (
         Math.abs(
-            totalChance -
-            100
-        ) >
-        0.001
+            totalChance - 100
+        ) > 0.001
     ) {
-        const status =
-            wheelPage.querySelector<HTMLElement>(
-                ".spin-status"
-            );
-
         if (status) {
             status.textContent =
-                `Suma musi wynosić 100%. Teraz: ${
-                    formatChance(
-                        totalChance
-                    )
-                }%`;
+                `Suma musi wynosić 100%. Teraz: ${formatChance(totalChance)}%`;
         }
 
         return;
@@ -1515,6 +1613,114 @@ function spinWheel(
         return;
     }
 
+    /* =========================
+       START RUNDY W BAZIE
+       ========================= */
+
+    spinButton.disabled =
+        true;
+
+    spinButton.textContent =
+        "START...";
+
+    if (status) {
+        status.textContent =
+            "Pobieram 5 000 BP...";
+    }
+
+    let startData;
+
+    try {
+
+        const response =
+            await fetch(
+                "/api/games/wheel/start",
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body: JSON.stringify({
+                        playerId:
+                            activePlayer.id
+                    })
+                }
+            );
+
+        startData =
+            await response.json();
+
+        if (!response.ok) {
+
+            if (status) {
+                status.textContent =
+                    startData.error ??
+                    "BŁĄD STARTU KOŁA";
+            }
+
+            spinButton.disabled =
+                false;
+
+            spinButton.textContent =
+                "ZAKRĘĆ — 5 000 BP";
+
+            return;
+        }
+
+    } catch (error) {
+
+        console.error(error);
+
+        if (status) {
+            status.textContent =
+                "BŁĄD POŁĄCZENIA Z API";
+        }
+
+        spinButton.disabled =
+            false;
+
+        spinButton.textContent =
+            "ZAKRĘĆ — 5 000 BP";
+
+        return;
+    }
+
+    currentSessionId =
+        startData.sessionId;
+
+    /* =========================
+       AKTUALIZACJA SALDA
+       ========================= */
+
+    const currentPlayer =
+        getActivePlayer();
+
+    if (
+        currentPlayer &&
+        currentPlayer.id ===
+            activePlayer.id
+    ) {
+        setActivePlayer({
+            ...currentPlayer,
+
+            balance:
+                startData.balance,
+
+            rank:
+                startData.rank ??
+                currentPlayer.rank
+        });
+
+        refreshActivePlayerPanel();
+    }
+
+    /* =========================
+       LOSOWANIE NAGRODY
+       ========================= */
+
     const winningReward =
         getRandomReward();
 
@@ -1525,38 +1731,36 @@ function spinWheel(
                 winningReward.name
         );
 
-    if (
-        !visualWinner
-    ) {
+    if (!visualWinner) {
+
+        if (status) {
+            status.textContent =
+                "BŁĄD LOSOWANIA NAGRODY";
+        }
+
+        spinButton.disabled =
+            false;
+
+        spinButton.textContent =
+            "ZAKRĘĆ — 5 000 BP";
+
         return;
     }
 
     isSpinning =
         true;
 
-    spinButton.disabled =
-        true;
-
     spinButton.textContent =
         "KRĘCĘ...";
-
-    const status =
-        wheelPage.querySelector<HTMLElement>(
-            ".spin-status"
-        );
 
     if (status) {
         status.textContent =
             "Koło się kręci...";
     }
 
-    /*
-        Losujemy punkt WEWNĄTRZ
-        wybranego segmentu.
-
-        Dzięki temu koło nie zatrzymuje
-        się zawsze dokładnie na środku.
-    */
+    /* =========================
+       LOSOWE MIEJSCE W SEGMENCIE
+       ========================= */
 
     const segmentSize =
         visualWinner.endAngle -
@@ -1565,8 +1769,7 @@ function spinWheel(
     const safeMargin =
         Math.min(
             3,
-            segmentSize *
-            0.15
+            segmentSize * 0.15
         );
 
     const minAngle =
@@ -1615,13 +1818,10 @@ function spinWheel(
         currentNormalized;
 
     delta =
-        normalizeAngle(
-            delta
-        );
+        normalizeAngle(delta);
 
     const extraSpins =
-        6 *
-        360;
+        6 * 360;
 
     wheelRotation +=
         extraSpins +
@@ -1633,13 +1833,126 @@ function spinWheel(
     svg.style.transform =
         `rotate(${wheelRotation}deg)`;
 
-    setTimeout(
-        () => {
+    /* =========================
+       PO ZATRZYMANIU KOŁA
+       ========================= */
 
-            showResult(
-                wheelPage,
-                winningReward
-            );
+    setTimeout(
+        async () => {
+
+            if (
+                currentSessionId === null
+            ) {
+                if (status) {
+                    status.textContent =
+                        "BRAK AKTYWNEJ RUNDY";
+                }
+
+                isSpinning =
+                    false;
+
+                spinButton.disabled =
+                    false;
+
+                spinButton.textContent =
+                    "ZAKRĘĆ — 5 000 BP";
+
+                return;
+            }
+
+            /* =========================
+               ZAPIS WYNIKU
+               ========================= */
+
+            try {
+
+                const response =
+                    await fetch(
+                        `/api/games/wheel/${currentSessionId}/finish`,
+                        {
+                            method:
+                                "POST",
+
+                            headers: {
+                                "Content-Type":
+                                    "application/json"
+                            },
+
+                            body:
+                                JSON.stringify({
+                                    rewardName:
+                                        winningReward.name,
+
+                                    rewardType:
+                                        winningReward.type,
+
+                                    rewardValue:
+                                        winningReward.value,
+
+                                    rewardText:
+                                        winningReward.text
+                                })
+                        }
+                    );
+
+                const data =
+                    await response.json();
+
+                if (!response.ok) {
+
+                    console.error(
+                        "Błąd zapisu Wheel:",
+                        data
+                    );
+
+                    if (status) {
+                        status.textContent =
+                            `WYLOSOWANO: ${winningReward.name} — BŁĄD ZAPISU`;
+                    }
+
+                    isSpinning =
+                        false;
+
+                    spinButton.disabled =
+                        false;
+
+                    spinButton.textContent =
+                        "ZAKRĘĆ — 5 000 BP";
+
+                    return;
+                }
+
+                currentSessionId =
+                    null;
+
+                /* =========================
+                   POKAŻ WYNIK
+                   ========================= */
+
+                showResult(
+                    wheelPage,
+                    winningReward
+                );
+
+                if (status) {
+                    status.textContent =
+                        `Wynik: ${winningReward.name}`;
+                }
+
+            } catch (error) {
+
+                console.error(error);
+
+                if (status) {
+                    status.textContent =
+                        `WYLOSOWANO: ${winningReward.name} — BŁĄD POŁĄCZENIA Z BAZĄ`;
+                }
+
+                /*
+                    NIE zerujemy currentSessionId,
+                    bo wynik nie został zapisany.
+                */
+            }
 
             isSpinning =
                 false;
@@ -1648,15 +1961,7 @@ function spinWheel(
                 false;
 
             spinButton.textContent =
-                "ZAKRĘĆ";
-
-            if (status) {
-                status.textContent =
-                    `Wynik: ${
-                        winningReward.name
-                    }`;
-            }
-
+                "ZAKRĘĆ — 5 000 BP";
         },
         5000
     );
