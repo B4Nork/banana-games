@@ -1,5 +1,7 @@
 import express from "express";
 
+import { db } from "./database.ts";
+
 import {
     startThimblerig, 
     finishThimblerig
@@ -651,6 +653,70 @@ app.post(
                     error instanceof Error
                         ? error.message
                         : "Nieznany błąd"
+            });
+        }
+    }
+);
+
+app.get(
+    "/api/admin/history",
+    (_req, res) => {
+        try {
+            const rows = db.prepare(`
+                SELECT
+                    bt.id AS transaction_id,
+                    bt.player_id,
+                    p.twitch_name,
+                    p.display_name,
+
+                    bt.amount,
+                    bt.transaction_type,
+                    bt.description,
+                    bt.created_at,
+
+                    w.bp AS current_balance,
+
+                    gs.id AS game_session_id,
+                    gs.game_type,
+
+                    wr.reward_name,
+                    wr.reward_type,
+                    wr.reward_value,
+                    wr.reward_text
+
+                FROM bp_transactions bt
+
+                JOIN players p
+                    ON p.id = bt.player_id
+
+                JOIN wallets w
+                    ON w.player_id = bt.player_id
+
+                LEFT JOIN game_sessions gs
+                    ON (
+                        bt.transaction_type = 'wheel_spin'
+                        AND bt.description = 'Koło Fortuny - runda #' || gs.id
+                        AND gs.player_id = bt.player_id
+                        AND gs.game_type = 'wheel'
+                    )
+
+                LEFT JOIN wheel_results wr
+                    ON wr.session_id = gs.id
+
+                ORDER BY
+                    bt.created_at DESC,
+                    bt.id DESC
+
+                LIMIT 500
+            `).all();
+
+            return res.json(rows);
+
+        } catch (error) {
+            console.error(error);
+
+            return res.status(500).json({
+                error: "Nie udało się pobrać historii"
             });
         }
     }

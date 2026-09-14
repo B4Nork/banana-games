@@ -72,7 +72,7 @@ const rewards: Reward[] = [
         text: null
     },
     {
-        name: "Diamond 100 000 BP",
+        name: "100k BP",
         chance: 3,
         color: getWheelColor(2),
 
@@ -87,7 +87,7 @@ const rewards: Reward[] = [
 
         type: "steal_bp",
         value: 10000,
-        text: null
+        text: "Zabiera innemu graczowi 10k BP"
     },
     {
         name: "Timeout challenge dla widza",
@@ -114,7 +114,7 @@ const rewards: Reward[] = [
 
         type: "challenge",
         value: null,
-        text: null
+        text: "Przerwa w strimie do wykonania wyzwania"
     },
     {
         name: "Pompki 30",
@@ -132,7 +132,7 @@ const rewards: Reward[] = [
 
         type: "legend",
         value: null,
-        text: null
+        text: "Zapisać widza na ścianę legend"
     },
     {
         name: "Darmowa gra",

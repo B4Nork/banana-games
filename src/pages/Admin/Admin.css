@@ -1,0 +1,882 @@
+.admin-page {
+    min-height: 100vh;
+
+    padding:
+        40px
+        55px
+        100px;
+
+    box-sizing: border-box;
+
+    background:
+        radial-gradient(
+            circle at 15% 10%,
+            rgba(126, 34, 206, 0.12),
+            transparent 30%
+        ),
+        radial-gradient(
+            circle at 85% 20%,
+            rgba(34, 197, 94, 0.08),
+            transparent 25%
+        ),
+        #070707;
+
+    color: white;
+}
+
+
+/* ========================================
+   HEADER
+   ======================================== */
+
+.admin-header {
+    max-width: 1500px;
+
+    margin:
+        0 auto 35px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 30px;
+}
+
+.admin-kicker {
+    margin-bottom: 3px;
+
+    color: #22c55e;
+
+    font-family: Arial, sans-serif;
+    font-size: 13px;
+    font-weight: 800;
+
+    letter-spacing: 0.25em;
+}
+
+.admin-header h1 {
+    margin: 0;
+
+    font-family: "Karma", serif;
+
+    font-size: 72px;
+
+    letter-spacing: 0.08em;
+
+    color: #a78bfa;
+
+    text-shadow:
+        0 0 12px
+        rgba(139, 92, 246, 0.3);
+}
+
+.admin-header p {
+    margin:
+        5px 0 0;
+
+    color:
+        rgba(255, 255, 255, 0.5);
+
+    font-family: Arial, sans-serif;
+
+    font-size: 15px;
+}
+
+
+/* ========================================
+   REFRESH
+   ======================================== */
+
+.admin-refresh-button {
+    padding:
+        13px 28px;
+
+    border:
+        2px solid #22c55e;
+
+    border-radius:
+        8px;
+
+    background:
+        rgba(34, 197, 94, 0.08);
+
+    color:
+        #22c55e;
+
+    font-family:
+        "Karma",
+        serif;
+
+    font-size:
+        19px;
+
+    cursor:
+        pointer;
+}
+
+.admin-refresh-button:hover {
+    background:
+        rgba(34, 197, 94, 0.17);
+
+    box-shadow:
+        0 0 16px
+        rgba(34, 197, 94, 0.2);
+}
+
+
+/* ========================================
+   STATS
+   ======================================== */
+
+.admin-stats {
+    max-width:
+        1500px;
+
+    margin:
+        0 auto 28px;
+
+    display:
+        grid;
+
+    grid-template-columns:
+        repeat(4, 1fr);
+
+    gap:
+        14px;
+}
+
+.admin-stat-card {
+    padding:
+        18px 20px;
+
+    border:
+        1px solid
+        rgba(255, 255, 255, 0.08);
+
+    border-radius:
+        10px;
+
+    background:
+        rgba(255, 255, 255, 0.025);
+}
+
+.admin-stat-card span {
+    display:
+        block;
+
+    margin-bottom:
+        7px;
+
+    color:
+        rgba(255, 255, 255, 0.45);
+
+    font-family:
+        Arial,
+        sans-serif;
+
+    font-size:
+        12px;
+
+    font-weight:
+        bold;
+
+    letter-spacing:
+        0.1em;
+}
+
+.admin-stat-card strong {
+    color:
+        white;
+
+    font-family:
+        Arial,
+        sans-serif;
+
+    font-size:
+        25px;
+}
+
+
+/* ========================================
+   CONTROLS
+   ======================================== */
+
+.admin-controls {
+    max-width:
+        1500px;
+
+    margin:
+        0 auto 20px;
+
+    display:
+        flex;
+
+    gap:
+        20px;
+
+    padding:
+        18px;
+
+    border:
+        1px solid
+        rgba(139, 92, 246, 0.2);
+
+    border-radius:
+        10px;
+
+    background:
+        rgba(20, 20, 22, 0.8);
+}
+
+.admin-control-group {
+    display:
+        flex;
+
+    flex-direction:
+        column;
+
+    gap:
+        7px;
+}
+
+.admin-control-group:first-child {
+    flex:
+        1;
+}
+
+.admin-control-group label {
+    color:
+        rgba(255, 255, 255, 0.45);
+
+    font-family:
+        Arial,
+        sans-serif;
+
+    font-size:
+        11px;
+
+    font-weight:
+        bold;
+
+    letter-spacing:
+        0.12em;
+}
+
+.admin-search-input,
+.admin-filter-select {
+    height:
+        42px;
+
+    padding:
+        0 13px;
+
+    box-sizing:
+        border-box;
+
+    border:
+        1px solid
+        rgba(255, 255, 255, 0.12);
+
+    border-radius:
+        6px;
+
+    background:
+        #0d0d0f;
+
+    color:
+        white;
+
+    font-family:
+        Arial,
+        sans-serif;
+
+    font-size:
+        14px;
+}
+
+.admin-search-input {
+    width:
+        100%;
+}
+
+.admin-filter-select {
+    width:
+        190px;
+}
+
+.admin-search-input:focus,
+.admin-filter-select:focus {
+    outline:
+        none;
+
+    border-color:
+        #8b5cf6;
+}
+
+
+/* ========================================
+   HISTORY
+   ======================================== */
+
+.admin-history {
+    max-width:
+        1500px;
+
+    margin:
+        0 auto;
+
+    border:
+        1px solid
+        rgba(255, 255, 255, 0.08);
+
+    border-radius:
+        12px;
+
+    overflow:
+        hidden;
+
+    background:
+        rgba(12, 12, 14, 0.92);
+}
+
+.admin-history-header {
+    padding:
+        20px 22px;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        space-between;
+
+    border-bottom:
+        1px solid
+        rgba(255, 255, 255, 0.07);
+}
+
+.admin-history-header h2 {
+    margin:
+        0;
+
+    color:
+        #a78bfa;
+
+    font-family:
+        "Karma",
+        serif;
+
+    font-size:
+        30px;
+
+    letter-spacing:
+        0.06em;
+}
+
+.admin-history-count {
+    color:
+        rgba(255, 255, 255, 0.42);
+
+    font-family:
+        Arial,
+        sans-serif;
+
+    font-size:
+        13px;
+}
+
+
+/* ========================================
+   TABLE
+   ======================================== */
+
+.admin-table-wrapper {
+    overflow-x:
+        auto;
+
+    max-height:
+        650px;
+
+    overflow-y:
+        auto;
+}
+
+.admin-table {
+    width:
+        100%;
+
+    border-collapse:
+        collapse;
+
+    min-width:
+        1050px;
+
+    font-family:
+        Arial,
+        sans-serif;
+}
+
+.admin-table thead {
+    position:
+        sticky;
+
+    top:
+        0;
+
+    z-index:
+        5;
+
+    background:
+        #111114;
+}
+
+.admin-table th {
+    padding:
+        13px 16px;
+
+    text-align:
+        left;
+
+    color:
+        rgba(255, 255, 255, 0.45);
+
+    font-size:
+        11px;
+
+    letter-spacing:
+        0.1em;
+
+    border-bottom:
+        1px solid
+        rgba(255, 255, 255, 0.08);
+}
+
+.admin-table td {
+    padding:
+        15px 16px;
+
+    vertical-align:
+        middle;
+
+    border-bottom:
+        1px solid
+        rgba(255, 255, 255, 0.055);
+
+    font-size:
+        14px;
+}
+
+.admin-table tbody tr:hover {
+    background:
+        rgba(255, 255, 255, 0.025);
+}
+
+
+/* ========================================
+   WHEEL ROW
+   ======================================== */
+
+.admin-row-wheel {
+    background:
+        rgba(250, 204, 21, 0.018);
+}
+
+.admin-row-wheel:hover {
+    background:
+        rgba(250, 204, 21, 0.045) !important;
+}
+
+
+/* ========================================
+   PLAYER
+   ======================================== */
+
+.admin-player {
+    display:
+        flex;
+
+    flex-direction:
+        column;
+
+    gap:
+        3px;
+}
+
+.admin-player strong {
+    color:
+        white;
+
+    font-size:
+        15px;
+}
+
+.admin-player span {
+    color:
+        rgba(255, 255, 255, 0.4);
+
+    font-size:
+        12px;
+}
+
+
+/* ========================================
+   AMOUNTS
+   ======================================== */
+
+.admin-amount {
+    font-weight:
+        900;
+
+    white-space:
+        nowrap;
+}
+
+.admin-amount.positive {
+    color:
+        #22c55e;
+}
+
+.admin-amount.negative {
+    color:
+        #ef4444;
+}
+
+.admin-amount.neutral {
+    color:
+        #aaa;
+}
+
+.admin-balance {
+    color:
+        #facc15;
+
+    font-weight:
+        bold;
+
+    white-space:
+        nowrap;
+}
+
+
+/* ========================================
+   TYPES
+   ======================================== */
+
+.admin-type-badge {
+    display:
+        inline-block;
+
+    padding:
+        5px 8px;
+
+    border-radius:
+        5px;
+
+    font-size:
+        11px;
+
+    font-weight:
+        900;
+
+    letter-spacing:
+        0.06em;
+}
+
+.admin-type-badge.admin-type-wheel  {
+    color:
+        #facc15;
+
+    background:
+        rgba(250, 204, 21, 0.1);
+
+    border:
+        1px solid
+        rgba(250, 204, 21, 0.3);
+}
+
+.admin-type-badge.plinko {
+    color:
+        #22c55e;
+
+    background:
+        rgba(34, 197, 94, 0.1);
+
+    border:
+        1px solid
+        rgba(34, 197, 94, 0.25);
+}
+
+.admin-type-badge.thimblerig {
+    color:
+        #f59e0b;
+
+    background:
+        rgba(245, 158, 11, 0.1);
+
+    border:
+        1px solid
+        rgba(245, 158, 11, 0.25);
+}
+
+.admin-type-badge.manual {
+    color:
+        #60a5fa;
+
+    background:
+        rgba(96, 165, 250, 0.1);
+
+    border:
+        1px solid
+        rgba(96, 165, 250, 0.25);
+}
+
+.admin-type-badge.starting {
+    color:
+        #c084fc;
+
+    background:
+        rgba(192, 132, 252, 0.1);
+
+    border:
+        1px solid
+        rgba(192, 132, 252, 0.25);
+}
+
+.admin-type-badge.other {
+    color:
+        #aaa;
+
+    background:
+        rgba(255, 255, 255, 0.05);
+
+    border:
+        1px solid
+        rgba(255, 255, 255, 0.12);
+}
+
+
+/* ========================================
+   WHEEL RESULT
+   ======================================== */
+
+.admin-wheel-result {
+    display:
+        flex;
+
+    flex-direction:
+        column;
+
+    gap:
+        7px;
+}
+
+.admin-wheel-cost {
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    gap:
+        8px;
+
+    color:
+        rgba(255, 255, 255, 0.5);
+
+    font-size:
+        12px;
+
+    font-weight:
+        bold;
+}
+
+.admin-wheel-cost span {
+    color:
+        #ef4444;
+}
+
+.admin-wheel-win {
+    padding:
+        8px 10px;
+
+    border-left:
+        3px solid
+        #facc15;
+
+    border-radius:
+        3px;
+
+    background:
+        rgba(250, 204, 21, 0.06);
+}
+
+.admin-wheel-win-label {
+    display:
+        block;
+
+    margin-bottom:
+        2px;
+
+    color:
+        rgba(255, 255, 255, 0.42);
+
+    font-size:
+        10px;
+
+    font-weight:
+        bold;
+
+    letter-spacing:
+        0.08em;
+}
+
+.admin-wheel-win strong {
+    color:
+        #facc15;
+
+    font-size:
+        15px;
+}
+
+.admin-reward-value {
+    margin-top:
+        3px;
+
+    color:
+        #22c55e;
+
+    font-size:
+        13px;
+
+    font-weight:
+        bold;
+}
+
+.admin-reward-text {
+    margin-top:
+        3px;
+
+    color:
+        rgba(255, 255, 255, 0.48);
+
+    font-size:
+        12px;
+}
+
+.admin-wheel-pending {
+    color:
+        #f97316;
+
+    font-size:
+        12px;
+}
+
+
+/* ========================================
+   DESCRIPTION
+   ======================================== */
+
+.admin-description {
+    color:
+        rgba(255, 255, 255, 0.6);
+
+    line-height:
+        1.45;
+}
+
+
+/* ========================================
+   DATE
+   ======================================== */
+
+.admin-date-cell {
+    color:
+        rgba(255, 255, 255, 0.45);
+
+    white-space:
+        nowrap;
+
+    font-size:
+        12px !important;
+}
+
+
+/* ========================================
+   STATES
+   ======================================== */
+
+.admin-loading,
+.admin-error,
+.admin-empty {
+    height:
+        150px;
+
+    text-align:
+        center;
+
+    color:
+        rgba(255, 255, 255, 0.4);
+
+    font-size:
+        15px !important;
+}
+
+.admin-error {
+    color:
+        #ef4444;
+}
+
+
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+
+@media (
+    max-width: 1000px
+) {
+
+    .admin-page {
+        padding:
+            30px 20px 100px;
+    }
+
+    .admin-stats {
+        grid-template-columns:
+            repeat(2, 1fr);
+    }
+
+    .admin-header h1 {
+        font-size:
+            56px;
+    }
+}
+
+@media (
+    max-width: 650px
+) {
+
+    .admin-header {
+        align-items:
+            flex-start;
+
+        flex-direction:
+            column;
+    }
+
+    .admin-controls {
+        flex-direction:
+            column;
+    }
+
+    .admin-filter-select {
+        width:
+            100%;
+    }
+
+    .admin-stats {
+        grid-template-columns:
+            1fr;
+    }
+}

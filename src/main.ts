@@ -1,5 +1,6 @@
 import "./styles/global.css";
 
+import { Admin } from "./pages/Admin/Admin";
 import { Home } from "./pages/Home/Home";
 import { Games } from "./pages/Games/Games";
 import { Wheel } from "./pages/Wheel/Wheel";
@@ -45,6 +46,13 @@ function showGame(game: string): void {
         root.innerHTML = "";
         root.appendChild(
             Players(showGames)
+        );
+    }
+
+    if (game === "admin") {
+        root.innerHTML = "";
+        root.appendChild(
+            Admin(showGames)
         );
     }
 }
