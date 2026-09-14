@@ -1,7 +1,12 @@
 import "./Thimblerig.css";
 
 import { createBananas } from "../../utils/createBananas";
-import {ActivePlayerPanel} from "../../components/ActivePlayer/ActivePlayer";
+import { ActivePlayerPanel } from "../../components/ActivePlayer/ActivePlayer";
+
+import {
+    getActivePlayer,
+    setActivePlayer
+} from "../../state/activePlayer";
 
 type CupData = {
     id: number;
@@ -122,7 +127,9 @@ export function Thimblerig(onBack: () => void): HTMLElement {
         </div>
     `;
 
-    pageThimblerig.appendChild(ActivePlayerPanel());
+    let activePlayerPanel = ActivePlayerPanel();
+
+    pageThimblerig.appendChild(activePlayerPanel);
 
     const startButton =
         pageThimblerig.querySelector<HTMLButtonElement>(
@@ -196,6 +203,9 @@ export function Thimblerig(onBack: () => void): HTMLElement {
         podczas mieszania.
     */
     let currentBet = 1000;
+
+    let currentSessionId: 
+        number | null = null;
 
     /*
         ===============================
@@ -278,6 +288,19 @@ export function Thimblerig(onBack: () => void): HTMLElement {
         return `${value.toLocaleString("pl-PL")} BP`;
     }
 
+    function refreshActivePlayerPanel(): void {
+
+        const newPanel =
+            ActivePlayerPanel();
+
+        activePlayerPanel.replaceWith(
+            newPanel
+        );
+
+        activePlayerPanel =
+            newPanel;
+    }
+
     function getBetValue(): number {
 
         const value =
@@ -309,6 +332,153 @@ export function Thimblerig(onBack: () => void): HTMLElement {
 
         winValue.textContent =
             formatBP(possibleWin);
+    }
+
+    async function startRoundInDatabase(
+        playerId: number,
+        bet: number,
+        difficulty: string
+    ): Promise<boolean> {
+
+        try {
+            const response = await fetch(
+                "/api/games/thimblerig/start",
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body: JSON.stringify({
+                        playerId,
+                        bet,
+                        difficulty
+                    })
+                }
+            );
+
+            const data =
+                await response.json();
+
+            if (!response.ok) {
+                statusText.textContent =
+                    data.error ??
+                    "Nie udało się rozpocząć rundy";
+
+                return false;
+            }
+
+            currentSessionId =
+                data.sessionId;
+
+            const currentPlayer =
+                getActivePlayer();
+
+            if (
+                currentPlayer &&
+                currentPlayer.id === playerId
+            ) {
+                setActivePlayer({
+                    ...currentPlayer,
+
+                    balance:
+                        data.balance,
+
+                    rank:
+                        data.rank
+                });
+
+                refreshActivePlayerPanel();
+            }
+
+            return true;
+
+        } catch (error) {
+
+            console.error(error);
+
+            statusText.textContent =
+                "BŁĄD POŁĄCZENIA Z API";
+
+            return false;
+        }
+    }
+
+    async function finishRoundInDatabase(
+        won: boolean
+    ): Promise<boolean> {
+
+        if (currentSessionId === null) {
+            statusText.textContent =
+                "BRAK AKTYWNEJ RUNDY";
+
+            return false;
+        }
+
+        try {
+            const response = await fetch(
+                `/api/games/thimblerig/${currentSessionId}/finish`,
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body: JSON.stringify({
+                        won
+                    })
+                }
+            );
+
+            const data =
+                await response.json();
+
+            if (!response.ok) {
+                statusText.textContent =
+                    data.error ??
+                    "Nie udało się zapisać wyniku";
+
+                return false;
+            }
+
+            const currentPlayer =
+                getActivePlayer();
+
+            if (
+                currentPlayer &&
+                currentPlayer.id ===
+                    data.playerId
+            ) {
+                setActivePlayer({
+                    ...currentPlayer,
+
+                    balance:
+                        data.balance,
+
+                    rank:
+                        data.rank
+                });
+
+                refreshActivePlayerPanel();
+            }
+
+            currentSessionId = null;
+
+            return true;
+
+        } catch (error) {
+
+            console.error(error);
+
+            statusText.textContent =
+                "BŁĄD ZAPISU WYNIKU";
+
+            return false;
+        }
     }
 
     function updateCupPositions(): void {
@@ -598,9 +768,23 @@ export function Thimblerig(onBack: () => void): HTMLElement {
                     cup
                 );
 
-                if (
-                    cup.id === ballCupId
-                ) {
+                const won =
+                    cup.id === ballCupId;
+
+                const saved =
+                    await finishRoundInDatabase(
+                        won
+                    );
+
+                if (!saved) {
+
+                    statusText.textContent =
+                        "BŁĄD ZAPISU RUNDY";
+
+                    return;
+                }
+
+                if (won) {
 
                     const reward =
                         currentBet * 2;
@@ -668,6 +852,39 @@ export function Thimblerig(onBack: () => void): HTMLElement {
                     currentBet
                 );
 
+            const activePlayer =
+                getActivePlayer();
+
+            if (!activePlayer) {
+
+                statusText.textContent =
+                    "NAJPIERW WYBIERZ GRACZA";
+
+                return;
+            }
+
+            if (
+                currentBet >
+                activePlayer.balance
+            ) {
+
+                statusText.textContent =
+                    "GRACZ NIE MA TYLE BP";
+
+                return;
+            }
+
+            const roundStarted =
+                await startRoundInDatabase(
+                    activePlayer.id,
+                    currentBet,
+                    difficulty.name
+                );
+
+            if (!roundStarted) {
+                return;
+            }
+            
             /*
                 Blokujemy panel podczas rundy.
             */

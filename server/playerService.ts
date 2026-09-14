@@ -1,4 +1,4 @@
-import { db } from "./database.ts";
+import { db } from "./database.ts"
 
 export type Player = {
     id: number;

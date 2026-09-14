@@ -1,6 +1,11 @@
 import express from "express";
 
 import {
+    startThimblerig, 
+    finishThimblerig
+} from "./thimblerigService.ts";
+
+import {
     createPlayer,
     getPlayer,
     getBalance,
@@ -229,6 +234,140 @@ app.get(
         return res.json({
             transactions
         });
+    }
+);
+
+app.post(
+    "/api/games/thimblerig/start",
+    (req, res) => {
+
+        const {
+            playerId,
+            bet,
+            difficulty
+        } = req.body;
+
+        if (
+            !Number.isSafeInteger(playerId) ||
+            playerId <= 0
+        ) {
+            return res.status(400).json({
+                error:
+                    "Niepoprawne ID gracza"
+            });
+        }
+
+        if (
+            !Number.isSafeInteger(bet) ||
+            bet <= 0
+        ) {
+            return res.status(400).json({
+                error:
+                    "Niepoprawna stawka"
+            });
+        }
+
+        if (
+            bet > Number.MAX_SAFE_INTEGER / 2
+        ) {
+            return res.status(400).json({
+                error:
+                    "Stawka jest za duża"
+            });
+        }
+
+        if (
+            typeof difficulty !== "string" ||
+            difficulty.trim() === ""
+        ) {
+            return res.status(400).json({
+                error:
+                    "Niepoprawny poziom trudności"
+            });
+        }
+
+        try {
+            const result =
+                startThimblerig(
+                    playerId,
+                    bet,
+                    difficulty
+                );
+
+            const rank =
+                getPlayerRank(playerId);
+
+            return res.status(201).json({
+                ...result,
+                rank
+            });
+
+        } catch (error) {
+
+            return res.status(400).json({
+                error:
+                    error instanceof Error
+                        ? error.message
+                        : "Nieznany błąd"
+            });
+        }
+    }
+);
+
+app.post(
+    "/api/games/thimblerig/:sessionId/finish",
+    (req, res) => {
+
+        const sessionId =
+            Number(req.params.sessionId);
+
+        const {
+            won
+        } = req.body;
+
+        if (
+            !Number.isSafeInteger(sessionId) ||
+            sessionId <= 0
+        ) {
+            return res.status(400).json({
+                error:
+                    "Niepoprawne ID rundy"
+            });
+        }
+
+        if (typeof won !== "boolean") {
+            return res.status(400).json({
+                error:
+                    "Niepoprawny wynik rundy"
+            });
+        }
+
+        try {
+            const result =
+                finishThimblerig(
+                    sessionId,
+                    won
+                );
+
+            const rank =
+                getPlayerRank(
+                    result.playerId
+                );
+
+            return res.json({
+                ...result,
+                rank
+            });
+
+        } catch (error) {
+
+            return res.status(400).json({
+                error:
+                    error instanceof Error
+                        ? error.message
+                        : "Nieznany błąd"
+            });
+        }
     }
 );
 
