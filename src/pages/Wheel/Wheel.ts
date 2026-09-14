@@ -1,11 +1,12 @@
 import "./Wheel.css";
 import { createBananas } from "../../utils/createBananas";
-import {ActivePlayerPanel} from "../../components/ActivePlayer/ActivePlayer";
+import { ActivePlayerPanel } from "../../components/ActivePlayer/ActivePlayer";
 
 let rewardContainer: HTMLElement;
 let rewardTotal: HTMLElement;
-let wheelRotation = 0;
 
+let wheelRotation = 0;
+let isSpinning = false;
 
 interface Reward {
     name: string;
@@ -13,67 +14,159 @@ interface Reward {
     color: string;
 }
 
+interface VisualReward extends Reward {
+    visualWeight: number;
+    startAngle: number;
+    endAngle: number;
+    centerAngle: number;
+}
+
+const WHEEL_COLORS = [
+    "#7c3aed",
+    "#10b981",
+    "#ef4444",
+    "#2563eb",
+    "#f97316",
+    "#0891b2",
+    "#d946ef",
+    "#d97706",
+    "#4f46e5",
+    "#16a34a",
+    "#dc2626",
+    "#0284c7",
+    "#a855f7",
+    "#84cc16",
+    "#e11d48"
+];
+
 const rewards: Reward[] = [
     {
-        name: "100 PUNKTÓW",
-        chance: 50,
-        color: getRandomColor()
+        name: "Bananowy Łup",
+        chance: 0.25,
+        color: getWheelColor(0)
     },
     {
-        name: "VIP",
+        name: "Prezent dla czatu",
         chance: 25,
-        color: getRandomColor()
+        color: getWheelColor(1)
     },
     {
-        name: "BAN",
-        chance: 20,
-        color: getRandomColor()
+        name: "100k BP",
+        chance: 3,
+        color: getWheelColor(2)
     },
     {
-        name: "???",
+        name: "Ukradnij 10 000 BP",
         chance: 5,
-        color: getRandomColor()
+        color: getWheelColor(3)
+    },
+    {
+        name: "Timeout challenge dla widza",
+        chance: 15,
+        color: getWheelColor(4)
+    },
+    {
+        name: "Jackpot",
+        chance: 0.5,
+        color: getWheelColor(5)
+    },
+    {
+        name: "Timeout challenge dla streamera",
+        chance: 15,
+        color: getWheelColor(6)
+    },
+    {
+        name: "Pompki 30",
+        chance: 15,
+        color: getWheelColor(7)
+    },
+    {
+        name: "Ściana Legend",
+        chance: 1,
+        color: getWheelColor(8)
+    },
+    {
+        name: "Darmowa gra w banan games",
+        chance: 20.25,
+        color: getWheelColor(9)
     }
 ];
 
-
-
 export function Wheel(onBack: () => void): HTMLElement {
+    wheelRotation = 0;
+    isSpinning = false;
+
     const wheelPage = document.createElement("main");
 
     wheelPage.className = "wheel-page";
 
     wheelPage.innerHTML = `
-        <h1 class="wheel-page-title">KOŁO FORTUNY</h1>
+        <h1 class="wheel-page-title">
+            KOŁO FORTUNY
+        </h1>
 
         <div class="wheel-content">
 
             <section class="wheel-section">
 
-                <div class="wheel-placeholder">
-                    <div class="wheel-pointer"></div>
-                    <svg class="wheel-svg" viewBox="0 0 400 400"></svg>
-                    <div class="wheel-tooltip"></div>
+                <div class="wheel-wrapper">
+
+                    <div class="wheel-pointer">
+                        <div class="wheel-pointer-inner"></div>
+                    </div>
+
+                    <div class="wheel-placeholder">
+
+                        <svg
+                            class="wheel-svg"
+                            viewBox="0 0 500 500"
+                        ></svg>
+
+                        <div class="wheel-tooltip"></div>
+
+                    </div>
+
                 </div>
+
                 <button class="spin-button">
                     ZAKRĘĆ
                 </button>
-                <div class="spin-result"></div>
+
+                <div class="spin-status">
+                    Kliknij i sprawdź swoje szczęście
+                </div>
 
                 <div class="spin-result-overlay">
+
                     <div class="spin-result-modal">
-                        <h2>WYGRAŁEŚ!</h2>
+
+                        <div class="result-banana">
+                            🍌
+                        </div>
+
+                        <h2>
+                            WYGRAŁEŚ!
+                        </h2>
+
                         <div class="spin-result-reward"></div>
+
                         <div class="spin-result-chance"></div>
-                        <button class="spin-result-close">ZAMKNIJ</button>
+
+                        <button class="spin-result-close">
+                            ZAMKNIJ
+                        </button>
+
                     </div>
+
                 </div>
 
             </section>
 
             <section class="rewards-panel">
 
-                <h2>NAGRODY</h2>
+                <h2>
+                    NAGRODY
+                </h2>
 
                 <div class="reward-container"></div>
 
@@ -88,449 +181,1542 @@ export function Wheel(onBack: () => void): HTMLElement {
         </div>
     `;
 
-    wheelPage.appendChild(ActivePlayerPanel());
+    wheelPage.appendChild(
+        ActivePlayerPanel()
+    );
 
     rewardContainer =
-        wheelPage.querySelector<HTMLDivElement>(".reward-container")!;
+        wheelPage.querySelector<HTMLElement>(
+            ".reward-container"
+        )!;
 
     rewardTotal =
-        wheelPage.querySelector<HTMLDivElement>(".reward-total")!;
+        wheelPage.querySelector<HTMLElement>(
+            ".reward-total"
+        )!;
 
     const wheelElement =
-        wheelPage.querySelector<HTMLElement>(".wheel-placeholder");
-
-    if (!rewardContainer || !rewardTotal || !wheelElement) {
-        throw new Error("Nie znaleziono elementów koła lub panelu nagród");
-    }
-
-    updateRewards(wheelElement);
-    updateWheel(wheelElement);
+        wheelPage.querySelector<HTMLElement>(
+            ".wheel-placeholder"
+        );
 
     const spinButton =
-        wheelPage.querySelector<HTMLButtonElement>(".spin-button");
+        wheelPage.querySelector<HTMLButtonElement>(
+            ".spin-button"
+        );
 
-    if (!spinButton) {
-        throw new Error("Nie znaleziono przycisku kręcenia");
+    if (
+        !rewardContainer ||
+        !rewardTotal ||
+        !wheelElement ||
+        !spinButton
+    ) {
+        throw new Error(
+            "Nie znaleziono elementów Koła Fortuny"
+        );
     }
 
-    spinButton.addEventListener("click", () => {
-        spinWheel(wheelElement, wheelPage);
-    });
+    updateRewards(
+        wheelElement
+    );
+
+    updateWheel(
+        wheelElement
+    );
+
+    spinButton.addEventListener(
+        "click",
+        () => {
+            spinWheel(
+                wheelElement,
+                wheelPage,
+                spinButton
+            );
+        }
+    );
 
     const resultOverlay =
-        wheelPage.querySelector<HTMLElement>(".spin-result-overlay");
-
-    const resultReward =
-        wheelPage.querySelector<HTMLElement>(".spin-result-reward");
-
-    const resultChance =
-        wheelPage.querySelector<HTMLElement>(".spin-result-chance");
+        wheelPage.querySelector<HTMLElement>(
+            ".spin-result-overlay"
+        );
 
     const resultClose =
-        wheelPage.querySelector<HTMLButtonElement>(".spin-result-close");
+        wheelPage.querySelector<HTMLButtonElement>(
+            ".spin-result-close"
+        );
 
-    if (!resultOverlay || !resultReward || !resultChance || !resultClose) {
-        throw new Error("Nie znaleziono elementów komunikatu wyniku");
+    if (
+        !resultOverlay ||
+        !resultClose
+    ) {
+        throw new Error(
+            "Nie znaleziono okna wyniku"
+        );
     }
 
-    resultClose.addEventListener("click", () => {
-        resultOverlay.classList.remove("show");
-    });
+    resultClose.addEventListener(
+        "click",
+        () => {
+            resultOverlay.classList.remove(
+                "show"
+            );
+        }
+    );
 
     const addRewardButton =
-        wheelPage.querySelector<HTMLButtonElement>(".add-reward-button");
+        wheelPage.querySelector<HTMLButtonElement>(
+            ".add-reward-button"
+        );
 
     if (!addRewardButton) {
-        throw new Error("Nie znaleziono przycisku dodawania nagrody");
+        throw new Error(
+            "Nie znaleziono przycisku dodawania nagrody"
+        );
     }
 
-    addRewardButton.addEventListener("click", () => {
-        rewards.push({
-            name: "NOWA NAGRODA",
-            chance: 0,
-            color: getRandomColor()
-        });
+    addRewardButton.addEventListener(
+        "click",
+        () => {
+            if (isSpinning) {
+                return;
+            }
 
-        updateRewards(wheelElement);
-        updateWheel(wheelElement);
-    });
+            rewards.push({
+                name: "NOWA NAGRODA",
+                chance: 0,
+                color: getWheelColor(
+                    rewards.length
+                )
+            });
 
-    const backButton = document.createElement("button");
+            updateRewards(
+                wheelElement
+            );
 
-    backButton.className = "back-button";
-    backButton.textContent = "← WRÓĆ DO GIER";
+            updateWheel(
+                wheelElement
+            );
+        }
+    );
 
-    backButton.addEventListener("click", () => {
-        createBananas();
+    const backButton =
+        document.createElement(
+            "button"
+        );
 
-        setTimeout(() => {
-            onBack();
-        }, 1400);
-    });
+    backButton.className =
+        "back-button";
 
-    wheelPage.appendChild(backButton);
+    backButton.textContent =
+        "← WRÓĆ DO GIER";
+
+    backButton.addEventListener(
+        "click",
+        () => {
+            if (isSpinning) {
+                return;
+            }
+
+            createBananas();
+
+            setTimeout(
+                () => {
+                    onBack();
+                },
+                1400
+            );
+        }
+    );
+
+    wheelPage.appendChild(
+        backButton
+    );
 
     return wheelPage;
 }
 
+/* ========================================
+   CHANCE
+   ======================================== */
+
 function getTotalChance(): number {
     return rewards.reduce(
-        (total, reward) => total + reward.chance,
+        (total, reward) =>
+            total +
+            Math.max(
+                0,
+                reward.chance
+            ),
         0
     );
 }
 
-function getRandomColor(): string {
-    const hue = Math.floor(Math.random() * 360);
-
-    return `hsl(${hue}, 60%, 40%)`;
+function getWheelColor(
+    index: number
+): string {
+    return WHEEL_COLORS[
+        index %
+        WHEEL_COLORS.length
+    ];
 }
 
 function getRandomReward(): Reward {
-    const totalChance = getTotalChance();
+    const activeRewards =
+        rewards.filter(
+            (reward) =>
+                reward.chance > 0
+        );
 
-    let random = Math.random() * totalChance;
+    if (
+        activeRewards.length === 0
+    ) {
+        throw new Error(
+            "Brak aktywnych nagród"
+        );
+    }
 
-    for (const reward of rewards) {
-        if (random < reward.chance) {
+    const totalChance =
+        activeRewards.reduce(
+            (total, reward) =>
+                total +
+                reward.chance,
+            0
+        );
+
+    let random =
+        Math.random() *
+        totalChance;
+
+    for (
+        const reward
+        of activeRewards
+    ) {
+        if (
+            random <
+            reward.chance
+        ) {
             return reward;
         }
 
-        random -= reward.chance;
+        random -=
+            reward.chance;
     }
 
-    return rewards[rewards.length - 1];
+    return activeRewards[
+        activeRewards.length - 1
+    ];
 }
 
-function updateWheel(wheel: HTMLElement): void {
-    const svg = wheel.querySelector<SVGElement>(".wheel-svg");
+/* ========================================
+   VISUAL WEIGHTS
+
+   Nie pokazujemy procentów 1:1.
+
+   Używamy logarytmicznego skalowania:
+   - ultra rare jest małe
+   - common jest duże
+   - ale wszystko pozostaje czytelne
+   ======================================== */
+
+function getVisualWeight(
+    chance: number
+): number {
+    if (chance <= 0) {
+        return 0;
+    }
+
+    /*
+        SQRT daje dobre spłaszczenie.
+
+        Przykładowo:
+
+        0.25%  -> 0.50
+        0.50%  -> 0.71
+        1%     -> 1
+        3%     -> 1.73
+        5%     -> 2.23
+        15%    -> 3.87
+        25%    -> 5
+
+        Dzięki temu różnica jest widoczna,
+        ale Bananowy Łup nie staje się
+        niewidzialną kreską.
+    */
+
+    const sqrtWeight =
+        Math.sqrt(chance);
+
+    /*
+        Minimalna wizualna wartość.
+
+        Jeśli coś ma 0.01%,
+        nadal będzie widoczne.
+    */
+
+    return Math.max(
+        0.55,
+        sqrtWeight
+    );
+}
+
+function getVisualRewards(): VisualReward[] {
+    const activeRewards =
+        rewards.filter(
+            (reward) =>
+                reward.chance > 0
+        );
+
+    const weightedRewards =
+        activeRewards.map(
+            (reward) => ({
+                ...reward,
+                visualWeight:
+                    getVisualWeight(
+                        reward.chance
+                    )
+            })
+        );
+
+    const totalWeight =
+        weightedRewards.reduce(
+            (total, reward) =>
+                total +
+                reward.visualWeight,
+            0
+        );
+
+    let currentAngle =
+        -90;
+
+    return weightedRewards.map(
+        (reward) => {
+
+            const angle =
+                reward.visualWeight /
+                totalWeight *
+                360;
+
+            const startAngle =
+                currentAngle;
+
+            const endAngle =
+                currentAngle +
+                angle;
+
+            const centerAngle =
+                startAngle +
+                angle / 2;
+
+            currentAngle =
+                endAngle;
+
+            return {
+                ...reward,
+                startAngle,
+                endAngle,
+                centerAngle
+            };
+        }
+    );
+}
+
+/* ========================================
+   DRAW WHEEL
+   ======================================== */
+
+function updateWheel(
+    wheel: HTMLElement
+): void {
+    const svg =
+        wheel.querySelector<SVGSVGElement>(
+            ".wheel-svg"
+        );
 
     if (!svg) {
         return;
     }
 
-    svg.innerHTML = "";
+    svg.innerHTML =
+        "";
 
-    let currentAngle = -90;
+    const visualRewards =
+        getVisualRewards();
 
-    const totalChance = getTotalChance();
+    if (
+        visualRewards.length === 0
+    ) {
+        return;
+    }
 
-    rewards.forEach((reward) => {
-        if (reward.chance <= 0) {
-            return;
-        }
+    const centerX =
+        250;
 
-        const angle = (reward.chance / totalChance) * 360;
+    const centerY =
+        250;
 
-        const startAngle = currentAngle;
-        const endAngle = currentAngle + angle;
+    const radius =
+        235;
 
-        const startPoint = polarToCartesian(
-            200,
-            200,
-            190,
-            endAngle
-        );
+    for (
+        const reward
+        of visualRewards
+    ) {
 
-        const endPoint = polarToCartesian(
-            200,
-            200,
-            190,
-            startAngle
-        );
+        const angle =
+            reward.endAngle -
+            reward.startAngle;
 
-        const largeArcFlag = angle > 180 ? 1 : 0;
+        const startPoint =
+            polarToCartesian(
+                centerX,
+                centerY,
+                radius,
+                reward.endAngle
+            );
+
+        const endPoint =
+            polarToCartesian(
+                centerX,
+                centerY,
+                radius,
+                reward.startAngle
+            );
+
+        const largeArcFlag =
+            angle > 180
+                ? 1
+                : 0;
 
         const pathData = [
-            "M 200 200",
+            `M ${centerX} ${centerY}`,
             `L ${startPoint.x} ${startPoint.y}`,
-            `A 190 190 0 ${largeArcFlag} 0 ${endPoint.x} ${endPoint.y}`,
+            `A ${radius} ${radius} 0 ${largeArcFlag} 0 ${endPoint.x} ${endPoint.y}`,
             "Z"
         ].join(" ");
 
-        const segment = document.createElementNS(
-            "http://www.w3.org/2000/svg",
-            "path"
+        const segment =
+            document.createElementNS(
+                "http://www.w3.org/2000/svg",
+                "path"
+            );
+
+        segment.setAttribute(
+            "class",
+            "wheel-segment"
         );
 
-        segment.setAttribute("d", pathData);
-        segment.setAttribute("fill", reward.color);
-        segment.setAttribute("stroke", "#000");
-        segment.setAttribute("stroke-width", "3");
+        segment.setAttribute(
+            "d",
+            pathData
+        );
 
+        segment.setAttribute(
+            "fill",
+            reward.color
+        );
 
-        segment.addEventListener("mouseenter", () => {
+        segment.setAttribute(
+            "stroke",
+            "#111"
+        );
+
+        segment.setAttribute(
+            "stroke-width",
+            "4"
+        );
+
+        addSegmentTooltip(
+            wheel,
+            segment,
+            reward
+        );
+
+        svg.appendChild(
+            segment
+        );
+
+        createSegmentLabel(
+            svg,
+            reward
+        );
+    }
+
+    createWheelRings(
+        svg
+    );
+
+    createWheelCenter(
+        svg
+    );
+}
+
+/* ========================================
+   LABEL
+   ======================================== */
+
+function createSegmentLabel(
+    svg: SVGSVGElement,
+    reward: VisualReward
+): void {
+
+    const centerX =
+        250;
+
+    const centerY =
+        250;
+
+    const angleSize =
+        reward.endAngle -
+        reward.startAngle;
+
+    /*
+        Im węższy segment,
+        tym bliżej środka tekst.
+    */
+
+    let textRadius =
+        150;
+
+    if (
+        angleSize < 25
+    ) {
+        textRadius =
+            165;
+    }
+
+    if (
+        angleSize < 15
+    ) {
+        textRadius =
+            175;
+    }
+
+    const position =
+        polarToCartesian(
+            centerX,
+            centerY,
+            textRadius,
+            reward.centerAngle
+        );
+
+    const text =
+        document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "text"
+        );
+
+    text.setAttribute(
+        "class",
+        "wheel-label"
+    );
+
+    text.setAttribute(
+        "x",
+        String(position.x)
+    );
+
+    text.setAttribute(
+        "y",
+        String(position.y)
+    );
+
+    text.setAttribute(
+        "text-anchor",
+        "middle"
+    );
+
+    text.setAttribute(
+        "dominant-baseline",
+        "middle"
+    );
+
+    /*
+        Tekst promieniowo.
+
+        Czyli jest obrócony zgodnie
+        z kierunkiem segmentu.
+    */
+
+    let rotation =
+        reward.centerAngle;
+
+    const normalized =
+        normalizeAngle(
+            reward.centerAngle
+        );
+
+    /*
+        Jeśli tekst byłby do góry nogami,
+        obracamy go o 180 stopni.
+    */
+
+    if (
+        normalized > 90 &&
+        normalized < 270
+    ) {
+        rotation +=
+            180;
+    }
+
+    text.setAttribute(
+        "transform",
+        `rotate(${rotation} ${position.x} ${position.y})`
+    );
+
+    /*
+        Małe segmenty:
+        krótsza nazwa.
+    */
+
+    let lines =
+        splitRewardName(
+            reward.name
+        );
+
+    if (
+        angleSize < 18
+    ) {
+        lines =
+            lines.slice(
+                0,
+                2
+            );
+    }
+
+    lines.forEach(
+        (line, index) => {
+
+            const tspan =
+                document.createElementNS(
+                    "http://www.w3.org/2000/svg",
+                    "tspan"
+                );
+
+            tspan.setAttribute(
+                "x",
+                String(position.x)
+            );
+
+            tspan.setAttribute(
+                "dy",
+                index === 0
+                    ? String(
+                        -(
+                            lines.length -
+                            1
+                        ) *
+                        7
+                    )
+                    : "15"
+            );
+
+            tspan.textContent =
+                line;
+
+            text.appendChild(
+                tspan
+            );
+        }
+    );
+
+    svg.appendChild(
+        text
+    );
+}
+
+function splitRewardName(
+    name: string
+): string[] {
+
+    const maxLength =
+        16;
+
+    if (
+        name.length <=
+        maxLength
+    ) {
+        return [
+            name
+        ];
+    }
+
+    const words =
+        name.split(" ");
+
+    const lines: string[] =
+        [];
+
+    let currentLine =
+        "";
+
+    for (
+        const word
+        of words
+    ) {
+        const testLine =
+            currentLine
+                ? `${currentLine} ${word}`
+                : word;
+
+        if (
+            testLine.length >
+                maxLength &&
+            currentLine
+        ) {
+            lines.push(
+                currentLine
+            );
+
+            currentLine =
+                word;
+        } else {
+            currentLine =
+                testLine;
+        }
+    }
+
+    if (
+        currentLine
+    ) {
+        lines.push(
+            currentLine
+        );
+    }
+
+    return lines.slice(
+        0,
+        3
+    );
+}
+
+/* ========================================
+   RINGS
+   ======================================== */
+
+function createWheelRings(
+    svg: SVGSVGElement
+): void {
+
+    const outerRing =
+        document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "circle"
+        );
+
+    outerRing.setAttribute(
+        "cx",
+        "250"
+    );
+
+    outerRing.setAttribute(
+        "cy",
+        "250"
+    );
+
+    outerRing.setAttribute(
+        "r",
+        "238"
+    );
+
+    outerRing.setAttribute(
+        "fill",
+        "none"
+    );
+
+    outerRing.setAttribute(
+        "stroke",
+        "#dedede"
+    );
+
+    outerRing.setAttribute(
+        "stroke-width",
+        "9"
+    );
+
+    outerRing.setAttribute(
+        "pointer-events",
+        "none"
+    );
+
+    svg.appendChild(
+        outerRing
+    );
+
+    const centerRing =
+        document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "circle"
+        );
+
+    centerRing.setAttribute(
+        "cx",
+        "250"
+    );
+
+    centerRing.setAttribute(
+        "cy",
+        "250"
+    );
+
+    centerRing.setAttribute(
+        "r",
+        "55"
+    );
+
+    centerRing.setAttribute(
+        "fill",
+        "#111"
+    );
+
+    centerRing.setAttribute(
+        "stroke",
+        "#eeeeee"
+    );
+
+    centerRing.setAttribute(
+        "stroke-width",
+        "5"
+    );
+
+    centerRing.setAttribute(
+        "pointer-events",
+        "none"
+    );
+
+    svg.appendChild(
+        centerRing
+    );
+}
+
+function createWheelCenter(
+    svg: SVGSVGElement
+): void {
+
+    const center =
+        document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "circle"
+        );
+
+    center.setAttribute(
+        "cx",
+        "250"
+    );
+
+    center.setAttribute(
+        "cy",
+        "250"
+    );
+
+    center.setAttribute(
+        "r",
+        "34"
+    );
+
+    center.setAttribute(
+        "fill",
+        "#050505"
+    );
+
+    center.setAttribute(
+        "stroke",
+        "#facc15"
+    );
+
+    center.setAttribute(
+        "stroke-width",
+        "4"
+    );
+
+    center.setAttribute(
+        "pointer-events",
+        "none"
+    );
+
+    svg.appendChild(
+        center
+    );
+
+    const logo =
+        document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "text"
+        );
+
+    logo.setAttribute(
+        "x",
+        "250"
+    );
+
+    logo.setAttribute(
+        "y",
+        "253"
+    );
+
+    logo.setAttribute(
+        "class",
+        "wheel-center-logo"
+    );
+
+    logo.setAttribute(
+        "text-anchor",
+        "middle"
+    );
+
+    logo.setAttribute(
+        "dominant-baseline",
+        "middle"
+    );
+
+    logo.setAttribute(
+        "pointer-events",
+        "none"
+    );
+
+    logo.textContent =
+        "B";
+
+    svg.appendChild(
+        logo
+    );
+}
+
+/* ========================================
+   TOOLTIP
+   ======================================== */
+
+function addSegmentTooltip(
+    wheel: HTMLElement,
+    segment: SVGPathElement,
+    reward: Reward
+): void {
+
+    segment.addEventListener(
+        "mouseenter",
+        () => {
+
             const tooltip =
-                wheel.querySelector<HTMLElement>(".wheel-tooltip");
+                wheel.querySelector<HTMLElement>(
+                    ".wheel-tooltip"
+                );
 
             if (!tooltip) {
                 return;
             }
 
             tooltip.innerHTML = `
-                <strong>${reward.name}</strong><br>
-                Szansa: ${reward.chance}%
+                <strong>
+                    ${reward.name}
+                </strong>
+
+                <span>
+                    Szansa: ${reward.chance}%
+                </span>
             `;
 
-            tooltip.style.display = "block";
-        });
+            tooltip.style.display =
+                "flex";
+        }
+    );
 
-        segment.addEventListener("mousemove", (event) => {
+    segment.addEventListener(
+        "mousemove",
+        (event) => {
+
             const tooltip =
-                wheel.querySelector<HTMLElement>(".wheel-tooltip");
+                wheel.querySelector<HTMLElement>(
+                    ".wheel-tooltip"
+                );
 
             if (!tooltip) {
                 return;
             }
 
-            const rect = wheel.getBoundingClientRect();
+            const rect =
+                wheel.getBoundingClientRect();
 
             tooltip.style.left =
-                `${event.clientX - rect.left + 15}px`;
+                `${
+                    event.clientX -
+                    rect.left +
+                    18
+                }px`;
 
             tooltip.style.top =
-                `${event.clientY - rect.top + 15}px`;
-        });
+                `${
+                    event.clientY -
+                    rect.top +
+                    18
+                }px`;
+        }
+    );
 
-        segment.addEventListener("mouseleave", () => {
+    segment.addEventListener(
+        "mouseleave",
+        () => {
+
             const tooltip =
-                wheel.querySelector<HTMLElement>(".wheel-tooltip");
+                wheel.querySelector<HTMLElement>(
+                    ".wheel-tooltip"
+                );
 
             if (!tooltip) {
                 return;
             }
 
-            tooltip.style.display = "none";
-        });
-
-        svg.appendChild(segment);
-
-        currentAngle = endAngle;
-    });
-
-    const centerRing = document.createElementNS(
-        "http://www.w3.org/2000/svg",
-        "circle"
+            tooltip.style.display =
+                "none";
+        }
     );
-
-    centerRing.setAttribute("cx", "200");
-    centerRing.setAttribute("cy", "200");
-    centerRing.setAttribute("r", "21");
-    centerRing.setAttribute("fill", "#111");
-    centerRing.setAttribute("stroke", "#888");
-    centerRing.setAttribute("stroke-width", "4");
-
-    svg.appendChild(centerRing);
-
-    const centerCircle = document.createElementNS(
-        "http://www.w3.org/2000/svg",
-        "circle"
-    );
-
-    centerCircle.setAttribute("cx", "200");
-    centerCircle.setAttribute("cy", "200");
-    centerCircle.setAttribute("r", "12");
-    centerCircle.setAttribute("fill", "#000");
-
-    svg.appendChild(centerCircle);
 }
+
+/* ========================================
+   CARTESIAN
+   ======================================== */
 
 function polarToCartesian(
     centerX: number,
     centerY: number,
     radius: number,
     angleInDegrees: number
-): { x: number; y: number } {
+): {
+    x: number;
+    y: number;
+} {
 
     const angleInRadians =
-        (angleInDegrees * Math.PI) / 180;
+        angleInDegrees *
+        Math.PI /
+        180;
 
     return {
-        x: centerX + radius * Math.cos(angleInRadians),
-        y: centerY + radius * Math.sin(angleInRadians)
+        x:
+            centerX +
+            radius *
+            Math.cos(
+                angleInRadians
+            ),
+
+        y:
+            centerY +
+            radius *
+            Math.sin(
+                angleInRadians
+            )
     };
 }
 
-function createRewardList(wheelElement: HTMLElement): HTMLElement {
-    const list = document.createElement("div");
+/* ========================================
+   REWARD LIST
+   ======================================== */
 
-    list.className = "reward-list";
+function createRewardList(
+    wheelElement: HTMLElement
+): HTMLElement {
 
-    rewards.forEach((reward, index) => {
-        const row = document.createElement("div");
+    const list =
+        document.createElement(
+            "div"
+        );
 
-        row.className = "reward-row";
+    list.className =
+        "reward-list";
 
-        row.innerHTML = `
-            <input
-                class="reward-name-input"
-                type="text"
-                value="${reward.name}"
-            >
+    rewards.forEach(
+        (reward, index) => {
 
-            <input
-                class="reward-chance-input"
-                type="number"
-                min="0"
-                max="100"
-                value="${reward.chance}"
-            >
+            const row =
+                document.createElement(
+                    "div"
+                );
 
-            <div class="reward-color"></div>
+            row.className =
+                "reward-row";
 
-            <button class="remove-reward-button">
-                ×
-            </button>
-        `;
+            const nameInput =
+                document.createElement(
+                    "input"
+                );
 
-        const nameInput =
-            row.querySelector<HTMLInputElement>(".reward-name-input");
+            nameInput.className =
+                "reward-name-input";
 
-        const chanceInput =
-            row.querySelector<HTMLInputElement>(".reward-chance-input");
+            nameInput.type =
+                "text";
 
-        const removeButton =
-            row.querySelector<HTMLButtonElement>(".remove-reward-button");
+            nameInput.value =
+                reward.name;
 
-        const colorElement =
-            row.querySelector<HTMLElement>(".reward-color");
+            const chanceInput =
+                document.createElement(
+                    "input"
+                );
 
-        if (colorElement) {
-            colorElement.style.backgroundColor = reward.color;
+            chanceInput.className =
+                "reward-chance-input";
+
+            chanceInput.type =
+                "number";
+
+            chanceInput.min =
+                "0";
+
+            chanceInput.max =
+                "100";
+
+            chanceInput.step =
+                "0.01";
+
+            chanceInput.value =
+                String(
+                    reward.chance
+                );
+
+            const percent =
+                document.createElement(
+                    "span"
+                );
+
+            percent.className =
+                "reward-percent";
+
+            percent.textContent =
+                "%";
+
+            const colorElement =
+                document.createElement(
+                    "div"
+                );
+
+            colorElement.className =
+                "reward-color";
+
+            colorElement.style.backgroundColor =
+                reward.color;
+
+            const removeButton =
+                document.createElement(
+                    "button"
+                );
+
+            removeButton.className =
+                "remove-reward-button";
+
+            removeButton.textContent =
+                "×";
+
+            nameInput.addEventListener(
+                "input",
+                () => {
+
+                    reward.name =
+                        nameInput.value;
+
+                    updateWheel(
+                        wheelElement
+                    );
+                }
+            );
+
+            chanceInput.addEventListener(
+                "input",
+                () => {
+
+                    const value =
+                        Number(
+                            chanceInput.value
+                        );
+
+                    reward.chance =
+                        Number.isFinite(
+                            value
+                        )
+                            ? Math.max(
+                                0,
+                                value
+                            )
+                            : 0;
+
+                    updateRewardTotal();
+
+                    updateWheel(
+                        wheelElement
+                    );
+                }
+            );
+
+            removeButton.addEventListener(
+                "click",
+                () => {
+
+                    if (
+                        isSpinning
+                    ) {
+                        return;
+                    }
+
+                    rewards.splice(
+                        index,
+                        1
+                    );
+
+                    rewards.forEach(
+                        (
+                            item,
+                            rewardIndex
+                        ) => {
+
+                            item.color =
+                                getWheelColor(
+                                    rewardIndex
+                                );
+                        }
+                    );
+
+                    updateRewards(
+                        wheelElement
+                    );
+
+                    updateWheel(
+                        wheelElement
+                    );
+                }
+            );
+
+            row.append(
+                nameInput,
+                chanceInput,
+                percent,
+                colorElement,
+                removeButton
+            );
+
+            list.appendChild(
+                row
+            );
         }
-
-        if (!nameInput || !chanceInput || !removeButton) {
-            throw new Error("Nie znaleziono elementów nagrody");
-        }
-
-        nameInput.addEventListener("input", () => {
-            reward.name = nameInput.value;
-        });
-
-        chanceInput.addEventListener("input", () => {
-            reward.chance = Number(chanceInput.value);
-
-            updateRewardTotal();
-            updateWheel(wheelElement);
-        });
-
-        removeButton.addEventListener("click", () => {
-            rewards.splice(index, 1);
-
-            updateRewards(wheelElement);
-            updateWheel(wheelElement);
-        });
-
-        list.appendChild(row);
-    });
+    );
 
     return list;
 }
 
+/* ========================================
+   TOTAL
+   ======================================== */
+
 function updateRewardTotal(): void {
+    const total =
+        getTotalChance();
+
     rewardTotal.textContent =
-        `SUMA: ${getTotalChance()}%`;
+        `SUMA: ${
+            formatChance(
+                total
+            )
+        }%`;
+
+    rewardTotal.classList.toggle(
+        "invalid",
+        Math.abs(
+            total -
+            100
+        ) >
+        0.001
+    );
 }
 
-function updateRewards(wheelElement: HTMLElement): void {
-    rewardContainer.innerHTML = "";
+function formatChance(
+    value: number
+): string {
+
+    return Number.isInteger(
+        value
+    )
+        ? value.toString()
+        : value.toFixed(
+            2
+        );
+}
+
+function updateRewards(
+    wheelElement: HTMLElement
+): void {
+
+    rewardContainer.innerHTML =
+        "";
 
     rewardContainer.appendChild(
-        createRewardList(wheelElement)
+        createRewardList(
+            wheelElement
+        )
     );
 
     updateRewardTotal();
 }
 
-function spinWheel(wheel: HTMLElement, wheelPage: HTMLElement): void {
-    const svg = wheel.querySelector<SVGElement>(".wheel-svg");
+/* ========================================
+   SPIN
+   ======================================== */
 
-    if (!svg || rewards.length === 0) {
+function spinWheel(
+    wheel: HTMLElement,
+    wheelPage: HTMLElement,
+    spinButton: HTMLButtonElement
+): void {
+
+    if (
+        isSpinning
+    ) {
         return;
     }
 
-    const totalChance = getTotalChance();
+    const svg =
+        wheel.querySelector<SVGSVGElement>(
+            ".wheel-svg"
+        );
 
-    if (totalChance <= 0) {
+    if (!svg) {
         return;
     }
 
-    // Losujemy nagrodę
-    const winningReward = getRandomReward();
+    const totalChance =
+        getTotalChance();
 
-    // Szukamy kąta środka wylosowanego segmentu
-    let currentAngle = -90;
-    let winningStartAngle = 0;
-    let winningEndAngle = 0;
+    if (
+        Math.abs(
+            totalChance -
+            100
+        ) >
+        0.001
+    ) {
+        const status =
+            wheelPage.querySelector<HTMLElement>(
+                ".spin-status"
+            );
 
-    for (const reward of rewards) {
-        if (reward.chance <= 0) {
-            continue;
+        if (status) {
+            status.textContent =
+                `Suma musi wynosić 100%. Teraz: ${
+                    formatChance(
+                        totalChance
+                    )
+                }%`;
         }
 
-        const angle = (reward.chance / totalChance) * 360;
-
-        const startAngle = currentAngle;
-        const endAngle = currentAngle + angle;
-
-        if (reward === winningReward) {
-            winningStartAngle = startAngle;
-            winningEndAngle = endAngle;
-            break;
-        }
-
-        currentAngle = endAngle;
+        return;
     }
 
-    const winningAngle =
-        (winningStartAngle + winningEndAngle) / 2;
+    const visualRewards =
+        getVisualRewards();
 
-    // Normalizujemy aktualny obrót koła
-    const currentRotation =
-        ((wheelRotation % 360) + 360) % 360;
+    if (
+        visualRewards.length === 0
+    ) {
+        return;
+    }
 
-    // Kąt, który musi pokonać koło,
-    // żeby środek wygranego segmentu trafił pod strzałkę
-    let targetRotation =
-        -winningAngle - currentRotation;
+    const winningReward =
+        getRandomReward();
 
-    // Normalizujemy do 0-360
-    targetRotation =
-        ((targetRotation % 360) + 360) % 360;
+    const visualWinner =
+        visualRewards.find(
+            (reward) =>
+                reward.name ===
+                winningReward.name
+        );
 
-    // Dodajemy pełne obroty
-    const extraSpins = 5 * 360;
+    if (
+        !visualWinner
+    ) {
+        return;
+    }
 
-    // Aktualizujemy całkowity obrót
-    wheelRotation += extraSpins + targetRotation;
+    isSpinning =
+        true;
 
-    // Obracamy koło
+    spinButton.disabled =
+        true;
+
+    spinButton.textContent =
+        "KRĘCĘ...";
+
+    const status =
+        wheelPage.querySelector<HTMLElement>(
+            ".spin-status"
+        );
+
+    if (status) {
+        status.textContent =
+            "Koło się kręci...";
+    }
+
+    /*
+        Losujemy punkt WEWNĄTRZ
+        wybranego segmentu.
+
+        Dzięki temu koło nie zatrzymuje
+        się zawsze dokładnie na środku.
+    */
+
+    const segmentSize =
+        visualWinner.endAngle -
+        visualWinner.startAngle;
+
+    const safeMargin =
+        Math.min(
+            3,
+            segmentSize *
+            0.15
+        );
+
+    const minAngle =
+        visualWinner.startAngle +
+        safeMargin;
+
+    const maxAngle =
+        visualWinner.endAngle -
+        safeMargin;
+
+    let targetSegmentAngle =
+        visualWinner.centerAngle;
+
+    if (
+        maxAngle >
+        minAngle
+    ) {
+        targetSegmentAngle =
+            minAngle +
+            Math.random() *
+            (
+                maxAngle -
+                minAngle
+            );
+    }
+
+    const pointerAngle =
+        -90;
+
+    const desiredRotation =
+        pointerAngle -
+        targetSegmentAngle;
+
+    const currentNormalized =
+        normalizeAngle(
+            wheelRotation
+        );
+
+    const desiredNormalized =
+        normalizeAngle(
+            desiredRotation
+        );
+
+    let delta =
+        desiredNormalized -
+        currentNormalized;
+
+    delta =
+        normalizeAngle(
+            delta
+        );
+
+    const extraSpins =
+        6 *
+        360;
+
+    wheelRotation +=
+        extraSpins +
+        delta;
+
     svg.style.transition =
-        "transform 4s cubic-bezier(0.15, 0.85, 0.25, 1)";
+        "transform 5s cubic-bezier(0.12, 0.76, 0.15, 1)";
 
     svg.style.transform =
         `rotate(${wheelRotation}deg)`;
 
-    console.log("Wylosowano:", winningReward.name);
+    setTimeout(
+        () => {
 
-    setTimeout(() => {
-        const resultOverlay =
-            wheelPage.querySelector<HTMLElement>(".spin-result-overlay");
+            showResult(
+                wheelPage,
+                winningReward
+            );
 
-        const resultReward =
-            wheelPage.querySelector<HTMLElement>(".spin-result-reward");
+            isSpinning =
+                false;
 
-        const resultChance =
-            wheelPage.querySelector<HTMLElement>(".spin-result-chance");
+            spinButton.disabled =
+                false;
 
-        if (!resultOverlay || !resultReward || !resultChance) {
-            return;
-        }
+            spinButton.textContent =
+                "ZAKRĘĆ";
 
-        resultReward.textContent = winningReward.name;
-        resultChance.textContent =
-            `Szansa: ${winningReward.chance}%`;
+            if (status) {
+                status.textContent =
+                    `Wynik: ${
+                        winningReward.name
+                    }`;
+            }
 
-        resultOverlay.classList.add("show");
-    }, 4000);
+        },
+        5000
+    );
+}
+
+function normalizeAngle(
+    angle: number
+): number {
+
+    return (
+        (
+            angle %
+            360
+        ) +
+        360
+    ) %
+    360;
+}
+
+/* ========================================
+   RESULT
+   ======================================== */
+
+function showResult(
+    wheelPage: HTMLElement,
+    reward: Reward
+): void {
+
+    const overlay =
+        wheelPage.querySelector<HTMLElement>(
+            ".spin-result-overlay"
+        );
+
+    const resultReward =
+        wheelPage.querySelector<HTMLElement>(
+            ".spin-result-reward"
+        );
+
+    const resultChance =
+        wheelPage.querySelector<HTMLElement>(
+            ".spin-result-chance"
+        );
+
+    if (
+        !overlay ||
+        !resultReward ||
+        !resultChance
+    ) {
+        return;
+    }
+
+    resultReward.textContent =
+        reward.name;
+
+    resultChance.textContent =
+        `Szansa na trafienie: ${
+            reward.chance
+        }%`;
+
+    overlay.classList.add(
+        "show"
+    );
 }

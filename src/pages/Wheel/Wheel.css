@@ -4,56 +4,99 @@
 }
 
 
-/* =========================
-   CAŁA STRONA
-   ========================= */
+/* ========================================
+   PAGE
+   ======================================== */
 
 .wheel-page {
     min-height: 100vh;
 
-    padding: 40px;
+    padding:
+        28px
+        40px
+        80px;
 
-    box-sizing: border-box;
+    box-sizing:
+        border-box;
 
     display: flex;
     flex-direction: column;
     align-items: center;
 
-    background: #080808;
-
-    font-family: "Karma", serif;
+    background:
+        radial-gradient(
+            circle at 28% 40%,
+            rgba(124, 58, 237, 0.09),
+            transparent 33%
+        ),
+        radial-gradient(
+            circle at 76% 60%,
+            rgba(34, 197, 94, 0.05),
+            transparent 30%
+        ),
+        #080808;
 
     color: white;
+
+    font-family:
+        "Karma",
+        serif;
 }
 
 
-/* =========================
-   TYTUŁ
-   ========================= */
+/* ========================================
+   TITLE
+   ======================================== */
 
 .wheel-page-title {
-    margin: 0;
+    margin:
+        0
+        0
+        16px;
 
-    font-size: clamp(55px, 6vw, 90px);
+    font-size:
+        clamp(
+            52px,
+            5vw,
+            82px
+        );
 
-    color: rgb(7, 6, 1);
+    color:
+        #f4f4f4;
 
-    letter-spacing: 0.08em;
+    letter-spacing:
+        0.09em;
 
-    text-align: center;
+    text-align:
+        center;
 
     text-shadow:
-        0 0 5px rgba(226, 226, 223, 0.7);
+        0 0 7px
+        rgba(
+            255,
+            255,
+            255,
+            0.28
+        ),
+        0 0 30px
+        rgba(
+            139,
+            92,
+            246,
+            0.18
+        );
 }
 
 
-/* =========================
-   GŁÓWNA CZĘŚĆ
-   ========================= */
+/* ========================================
+   CONTENT
+   ======================================== */
 
 .wheel-content {
     width: 100%;
-    max-width: 1200px;
+
+    max-width:
+        1450px;
 
     flex: 1;
 
@@ -62,491 +105,1301 @@
     align-items: center;
     justify-content: center;
 
-    gap: 120px;
+    gap:
+        90px;
 }
 
-/* =========================
-   POINTER
-   ========================= */
-.wheel-pointer {
-    position: absolute;
-    right: -20px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 0;
-    height: 0;
 
-    border-top: 14px solid transparent;
-    border-bottom: 14px solid transparent;
-    border-right: 28px solid #e00000;
-
-    z-index: 5;
-
-    filter: drop-shadow(0 2px 2px black);
-}
-
-/* =========================
-   KOŁO
-   ========================= */
+/* ========================================
+   LEFT
+   ======================================== */
 
 .wheel-section {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 30px;
+
+    gap:
+        22px;
 }
 
-.wheel-placeholder {
-    width: 400px;
-    height: 400px;
-    box-sizing: border-box;
-    position: relative;
-    border-radius: 50%;
+
+/* ========================================
+   WRAPPER
+   ======================================== */
+
+.wheel-wrapper {
+    position:
+        relative;
+
+    width:
+        580px;
+
+    height:
+        580px;
+
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 8px solid rgb(172, 172, 170);
-    box-shadow:
-        0 0 20px rgba(141, 139, 130, 0.5),
-        0 0 60px rgba(0, 0, 0, 0.2);
-    overflow: visible;
 }
 
-.wheel-tooltip {
-    position: absolute;
-    display: none;
-    pointer-events: none;
-    z-index: 10;
 
-    padding: 8px 12px;
+/* ========================================
+   POINTER
+   ======================================== */
 
-    background: rgba(10, 10, 10, 0.95);
-    border: 2px solid rgb(249, 208, 2);
-    border-radius: 6px;
+.wheel-pointer {
+    position:
+        absolute;
 
-    color: white;
-    font-family: "Karma", serif;
-    font-size: 18px;
+    left:
+        50%;
 
-    white-space: nowrap;
+    top:
+        -6px;
+
+    transform:
+        translateX(-50%);
+
+    width:
+        54px;
+
+    height:
+        72px;
+
+    z-index:
+        20;
+
+    display:
+        flex;
+
+    justify-content:
+        center;
+
+    filter:
+        drop-shadow(
+            0 4px 4px
+            rgba(
+                0,
+                0,
+                0,
+                0.85
+            )
+        );
+}
+
+.wheel-pointer::before {
+    content:
+        "";
+
+    position:
+        absolute;
+
+    top:
+        0;
+
+    width:
+        44px;
+
+    height:
+        44px;
+
+    border-radius:
+        50%;
+
+    box-sizing:
+        border-box;
+
+    border:
+        4px solid
+        #f5f5f5;
+
+    background:
+        linear-gradient(
+            145deg,
+            #ff4545,
+            #a40000
+        );
+}
+
+.wheel-pointer-inner {
+    position:
+        absolute;
+
+    top:
+        31px;
+
+    width:
+        0;
+
+    height:
+        0;
+
+    border-left:
+        20px solid
+        transparent;
+
+    border-right:
+        20px solid
+        transparent;
+
+    border-top:
+        40px solid
+        #e00000;
+}
+
+
+/* ========================================
+   WHEEL
+   ======================================== */
+
+.wheel-placeholder {
+    position:
+        relative;
+
+    width:
+        550px;
+
+    height:
+        550px;
+
+    border-radius:
+        50%;
+
+    box-sizing:
+        border-box;
+
+    background:
+        #161616;
 
     box-shadow:
-        0 0 12px rgba(249, 208, 2, 0.3);
+        0 0 0
+        7px
+        #222,
+
+        0 0 0
+        11px
+        #8c8c8c,
+
+        0 0 30px
+        rgba(
+            255,
+            255,
+            255,
+            0.15
+        ),
+
+        0 0 80px
+        rgba(
+            124,
+            58,
+            237,
+            0.15
+        );
+
+    overflow:
+        visible;
 }
 
 .wheel-svg {
-    width: 100%;
-    height: 100%;
+    width:
+        100%;
 
-    display: block;
+    height:
+        100%;
+
+    display:
+        block;
+
+    border-radius:
+        50%;
+
+    transform-origin:
+        center;
+
+    will-change:
+        transform;
 }
 
-/* =========================
-   ZAKRĘĆ
-   ========================= */
 
-.spin-button {
-    padding: 14px 60px;
+/* ========================================
+   SEGMENTS
+   ======================================== */
 
-    border: 2px solid rgb(249, 208, 2);
-
-    border-radius: 8px;
-
-    background: rgba(249, 208, 2, 0.1);
-
-    color: rgb(249, 208, 2);
-
-    font-family: "Karma", serif;
-
-    font-size: 28px;
-
-    letter-spacing: 0.1em;
-
-    cursor: pointer;
+.wheel-segment {
+    cursor:
+        pointer;
 
     transition:
-        transform 0.2s ease,
-        background 0.2s ease,
-        box-shadow 0.2s ease;
+        filter
+        0.15s
+        ease;
 }
 
-.spin-button:hover {
-    transform: scale(1.08);
+.wheel-segment:hover {
+    filter:
+        brightness(
+            1.2
+        );
+}
 
-    background: rgba(249, 208, 2, 0.2);
+
+/* ========================================
+   LABELS
+   ======================================== */
+
+.wheel-label {
+    fill:
+        white;
+
+    font-family:
+        Arial,
+        sans-serif;
+
+    font-size:
+        14px;
+
+    font-weight:
+        900;
+
+    letter-spacing:
+        0.01em;
+
+    pointer-events:
+        none;
+
+    paint-order:
+        stroke;
+
+    stroke:
+        rgba(
+            0,
+            0,
+            0,
+            0.88
+        );
+
+    stroke-width:
+        3px;
+
+    stroke-linejoin:
+        round;
+}
+
+.wheel-center-logo {
+    fill:
+        #facc15;
+
+    font-family:
+        "Karma",
+        serif;
+
+    font-size:
+        34px;
+
+    font-weight:
+        bold;
+}
+
+
+/* ========================================
+   TOOLTIP
+   ======================================== */
+
+.wheel-tooltip {
+    position:
+        absolute;
+
+    display:
+        none;
+
+    flex-direction:
+        column;
+
+    pointer-events:
+        none;
+
+    z-index:
+        50;
+
+    min-width:
+        165px;
+
+    padding:
+        10px
+        14px;
+
+    box-sizing:
+        border-box;
+
+    border:
+        2px solid
+        #facc15;
+
+    border-radius:
+        8px;
+
+    background:
+        rgba(
+            8,
+            8,
+            8,
+            0.97
+        );
+
+    color:
+        white;
+
+    font-family:
+        Arial,
+        sans-serif;
+
+    font-size:
+        14px;
 
     box-shadow:
-        0 0 15px rgba(249, 208, 2, 0.5),
-        0 0 35px rgba(249, 208, 2, 0.2);
+        0 5px 20px
+        rgba(
+            0,
+            0,
+            0,
+            0.7
+        );
+}
+
+.wheel-tooltip strong {
+    margin-bottom:
+        4px;
+
+    font-size:
+        16px;
+}
+
+.wheel-tooltip span {
+    color:
+        #facc15;
 }
 
 
-/* =========================
-   PANEL NAGRÓD
-   ========================= */
+/* ========================================
+   SPIN BUTTON
+   ======================================== */
+
+.spin-button {
+    min-width:
+        270px;
+
+    padding:
+        15px
+        55px;
+
+    border:
+        2px solid
+        #facc15;
+
+    border-radius:
+        9px;
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(
+                250,
+                204,
+                21,
+                0.17
+            ),
+            rgba(
+                250,
+                204,
+                21,
+                0.05
+            )
+        );
+
+    color:
+        #facc15;
+
+    font-family:
+        "Karma",
+        serif;
+
+    font-size:
+        29px;
+
+    letter-spacing:
+        0.12em;
+
+    cursor:
+        pointer;
+
+    transition:
+        transform
+        0.2s
+        ease,
+
+        background
+        0.2s
+        ease,
+
+        box-shadow
+        0.2s
+        ease;
+}
+
+.spin-button:hover:not(:disabled) {
+    transform:
+        scale(
+            1.06
+        );
+
+    background:
+        rgba(
+            250,
+            204,
+            21,
+            0.2
+        );
+
+    box-shadow:
+        0 0 18px
+        rgba(
+            250,
+            204,
+            21,
+            0.4
+        );
+}
+
+.spin-button:disabled {
+    opacity:
+        0.55;
+
+    cursor:
+        not-allowed;
+}
+
+.spin-status {
+    min-height:
+        24px;
+
+    color:
+        rgba(
+            255,
+            255,
+            255,
+            0.55
+        );
+
+    font-family:
+        Arial,
+        sans-serif;
+
+    font-size:
+        15px;
+}
+
+
+/* ========================================
+   REWARDS PANEL
+   ======================================== */
 
 .rewards-panel {
-    width: 360px;
-    height: 500px;
+    width:
+        410px;
 
-    padding: 25px;
+    height:
+        590px;
 
-    box-sizing: border-box;
+    padding:
+        24px;
 
-    display: flex;
-    flex-direction: column;
+    box-sizing:
+        border-box;
 
-    border: 2px solid rgba(139, 92, 246, 0.6);
-    border-radius: 12px;
+    display:
+        flex;
 
-    background: rgba(15, 15, 15, 0.9);
+    flex-direction:
+        column;
+
+    border:
+        2px solid
+        rgba(
+            139,
+            92,
+            246,
+            0.65
+        );
+
+    border-radius:
+        14px;
+
+    background:
+        rgba(
+            15,
+            15,
+            17,
+            0.96
+        );
 
     box-shadow:
-        0 0 15px rgba(139, 92, 246, 0.2);
+        0 0 20px
+        rgba(
+            139,
+            92,
+            246,
+            0.18
+        );
 }
-
-
-/* =========================
-   NAPIS NAGRODY
-   ========================= */
 
 .rewards-panel h2 {
-    margin: 0 0 20px;
+    margin:
+        0
+        0
+        20px;
 
-    text-align: center;
+    text-align:
+        center;
 
-    font-size: 36px;
+    font-size:
+        34px;
 
-    color: rgb(139, 92, 246);
+    color:
+        #a78bfa;
 
-    letter-spacing: 0.08em;
+    letter-spacing:
+        0.08em;
 
-    flex-shrink: 0;
+    flex-shrink:
+        0;
 }
 
 
-/* =========================
-   KONTENER LISTY
-   ========================= */
+/* ========================================
+   LIST
+   ======================================== */
 
 .reward-container {
-    flex: 1;
+    flex:
+        1;
 
-    min-height: 0;
+    min-height:
+        0;
 
-    overflow: hidden;
+    overflow:
+        hidden;
 }
-
-
-/* =========================
-   LISTA
-   ========================= */
 
 .reward-list {
-    height: 100%;
+    height:
+        100%;
 
-    display: flex;
-    flex-direction: column;
+    display:
+        flex;
 
-    gap: 10px;
+    flex-direction:
+        column;
 
-    overflow-y: auto;
+    gap:
+        8px;
 
-    padding-right: 8px;
+    overflow-y:
+        auto;
 
-    box-sizing: border-box;
+    padding-right:
+        7px;
+
+    box-sizing:
+        border-box;
+}
+
+.reward-list::-webkit-scrollbar {
+    width:
+        7px;
+}
+
+.reward-list::-webkit-scrollbar-thumb {
+    background:
+        rgba(
+            139,
+            92,
+            246,
+            0.55
+        );
+
+    border-radius:
+        10px;
 }
 
 
-/* =========================
-   POJEDYNCZA NAGRODA
-   ========================= */
+/* ========================================
+   ROW
+   ======================================== */
 
 .reward-row {
-    display: grid;
+    display:
+        grid;
 
-    grid-template-columns: minmax(0, 1fr) 70px 24px 35px;
+    grid-template-columns:
+        minmax(
+            0,
+            1fr
+        )
+        67px
+        18px
+        22px
+        34px;
 
-    gap: 10px;
+    gap:
+        7px;
 
-    align-items: center;
+    align-items:
+        center;
 
-    padding: 8px;
+    padding:
+        7px;
 
-    box-sizing: border-box;
+    border-radius:
+        7px;
 
-    border-radius: 6px;
+    background:
+        rgba(
+            255,
+            255,
+            255,
+            0.045
+        );
 
-    background: rgba(255, 255, 255, 0.05);
-
-    flex-shrink: 0;
+    flex-shrink:
+        0;
 }
 
 
-/* =========================
-   INPUTY
-   ========================= */
+/* ========================================
+   INPUTS
+   ======================================== */
 
 .reward-name-input,
 .reward-chance-input {
-    width: 100%;
+    width:
+        100%;
 
-    min-width: 0;
+    min-width:
+        0;
 
-    box-sizing: border-box;
+    padding:
+        8px;
 
-    padding: 8px;
+    box-sizing:
+        border-box;
 
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border:
+        1px solid
+        rgba(
+            255,
+            255,
+            255,
+            0.18
+        );
 
-    border-radius: 4px;
+    border-radius:
+        5px;
 
-    background: rgba(0, 0, 0, 0.5);
+    background:
+        rgba(
+            0,
+            0,
+            0,
+            0.48
+        );
 
-    color: white;
+    color:
+        white;
 
-    font-family: "Karma", serif;
+    font-family:
+        Arial,
+        sans-serif;
 
-    font-size: 18px;
+    font-size:
+        14px;
 }
 
 .reward-name-input:focus,
 .reward-chance-input:focus {
-    outline: none;
+    outline:
+        none;
 
-    border-color: rgb(249, 208, 2);
+    border-color:
+        #facc15;
+}
 
-    box-shadow:
-        0 0 8px rgba(249, 208, 2, 0.3);
+.reward-percent {
+    color:
+        rgba(
+            255,
+            255,
+            255,
+            0.55
+        );
+
+    font-family:
+        Arial,
+        sans-serif;
+
+    font-size:
+        14px;
 }
 
 .reward-color {
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    border: 2px solid rgba(255, 255, 255, 0.5);
-    box-shadow: 0 0 8px rgba(255, 255, 255, 0.2);
+    width:
+        20px;
+
+    height:
+        20px;
+
+    border-radius:
+        50%;
+
+    border:
+        2px solid
+        rgba(
+            255,
+            255,
+            255,
+            0.45
+        );
 }
 
 
-/* =========================
-   USUWANIE
-   ========================= */
+/* ========================================
+   REMOVE
+   ======================================== */
 
 .remove-reward-button {
-    width: 35px;
-    height: 35px;
+    width:
+        34px;
 
-    padding: 0;
+    height:
+        34px;
 
-    border: 1px solid rgba(255, 80, 80, 0.5);
+    padding:
+        0;
 
-    border-radius: 4px;
+    border:
+        1px solid
+        rgba(
+            255,
+            80,
+            80,
+            0.5
+        );
 
-    background: rgba(255, 0, 0, 0.1);
+    border-radius:
+        5px;
 
-    color: rgb(255, 100, 100);
+    background:
+        rgba(
+            255,
+            0,
+            0,
+            0.1
+        );
 
-    font-size: 24px;
+    color:
+        #ff6464;
 
-    cursor: pointer;
+    font-size:
+        22px;
 
-    transition:
-        background 0.2s ease,
-        transform 0.2s ease;
+    cursor:
+        pointer;
 }
 
 .remove-reward-button:hover {
-    background: rgba(255, 0, 0, 0.25);
-
-    transform: scale(1.1);
+    background:
+        rgba(
+            255,
+            0,
+            0,
+            0.25
+        );
 }
 
 
-/* =========================
-   DODAJ NAGRODĘ
-   ========================= */
+/* ========================================
+   ADD
+   ======================================== */
 
 .add-reward-button {
-    width: 100%;
+    width:
+        100%;
 
-    margin-top: 15px;
+    margin-top:
+        14px;
 
-    padding: 12px;
+    padding:
+        11px;
 
-    flex-shrink: 0;
+    flex-shrink:
+        0;
 
-    border: 2px dashed rgba(34, 197, 94, 0.7);
+    border:
+        2px dashed
+        rgba(
+            34,
+            197,
+            94,
+            0.7
+        );
 
-    border-radius: 6px;
+    border-radius:
+        6px;
 
-    background: transparent;
+    background:
+        transparent;
 
-    color: rgb(34, 197, 94);
+    color:
+        #22c55e;
 
-    font-family: "Karma", serif;
+    font-family:
+        "Karma",
+        serif;
 
-    font-size: 21px;
+    font-size:
+        19px;
 
-    cursor: pointer;
-
-    transition:
-        background 0.2s ease,
-        box-shadow 0.2s ease;
+    cursor:
+        pointer;
 }
 
 .add-reward-button:hover {
-    background: rgba(34, 197, 94, 0.1);
-
-    box-shadow:
-        0 0 15px rgba(34, 197, 94, 0.3);
+    background:
+        rgba(
+            34,
+            197,
+            94,
+            0.1
+        );
 }
 
 
-/* =========================
-   SUMA
-   ========================= */
+/* ========================================
+   TOTAL
+   ======================================== */
 
 .reward-total {
-    margin-top: 15px;
+    margin-top:
+        13px;
 
-    flex-shrink: 0;
+    flex-shrink:
+        0;
 
-    text-align: right;
+    text-align:
+        right;
 
-    font-size: 20px;
+    font-family:
+        Arial,
+        sans-serif;
 
-    color: rgba(255, 255, 255, 0.7);
-}
-/* =========================
-   POWRÓT
-   ========================= */
+    font-size:
+        17px;
 
-.back-button {
-    position: fixed;
-
-    left: 25px;
-    bottom: 25px;
-
-    padding: 10px 18px;
-
-    border: 1px solid rgba(255, 255, 255, 0.4);
-
-    border-radius: 6px;
-
-    background: rgba(10, 10, 10, 0.8);
-
-    color: white;
-
-    font-family: "Karma", serif;
-
-    font-size: 18px;
-
-    cursor: pointer;
-
-    transition:
-        transform 0.2s ease,
-        box-shadow 0.2s ease;
+    color:
+        #22c55e;
 }
 
-.back-button:hover {
-    transform: translateX(5px);
-
-    box-shadow:
-        0 0 15px rgba(255, 255, 255, 0.3);
+.reward-total.invalid {
+    color:
+        #ff5d5d;
 }
 
 
-/* =========================
-   RESPONSIVE
-   ========================= */
-
-@media (max-width: 900px) {
-
-    .wheel-content {
-        flex-direction: column;
-
-        gap: 50px;
-
-        padding: 50px 0;
-    }
-
-    .wheel-placeholder {
-        width: 300px;
-        height: 300px;
-    }
-
-    .rewards-panel {
-        width: min(500px, 90vw);
-    }
-}
-
-
-/* =========================
-   WYNIK KOŁA
-   ========================= */
-
+/* ========================================
+   RESULT
+   ======================================== */
 
 .spin-result-overlay {
-    position: fixed;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(0, 0, 0, 0.75);
-    z-index: 1000;
-    visibility: hidden;
-    opacity: 0;
+    position:
+        fixed;
+
+    inset:
+        0;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    background:
+        rgba(
+            0,
+            0,
+            0,
+            0.82
+        );
+
+    backdrop-filter:
+        blur(
+            5px
+        );
+
+    z-index:
+        1000;
+
+    visibility:
+        hidden;
+
+    opacity:
+        0;
+
+    transition:
+        opacity
+        0.25s
+        ease,
+
+        visibility
+        0.25s
+        ease;
 }
 
 .spin-result-overlay.show {
-    visibility: visible;
-    opacity: 1;
+    visibility:
+        visible;
+
+    opacity:
+        1;
 }
 
 .spin-result-modal {
-    width: min(500px, 90vw);
-    padding: 40px;
-    box-sizing: border-box;
-    text-align: center;
-    border: 3px solid rgb(249, 208, 2);
-    border-radius: 15px;
-    background: #0c0c0c;
+    width:
+        min(
+            560px,
+            90vw
+        );
+
+    padding:
+        35px
+        40px
+        40px;
+
+    box-sizing:
+        border-box;
+
+    text-align:
+        center;
+
+    border:
+        3px solid
+        #facc15;
+
+    border-radius:
+        18px;
+
+    background:
+        radial-gradient(
+            circle at top,
+            #241f08,
+            #0b0b0b
+            55%
+        );
+
     box-shadow:
-        0 0 25px rgba(249, 208, 2, 0.4),
-        0 0 60px rgba(249, 208, 2, 0.15);
+        0 0 35px
+        rgba(
+            250,
+            204,
+            21,
+            0.35
+        ),
+
+        0 0 90px
+        rgba(
+            250,
+            204,
+            21,
+            0.12
+        );
+
+    transform:
+        scale(
+            0.8
+        );
+
+    transition:
+        transform
+        0.25s
+        ease;
+}
+
+.spin-result-overlay.show
+.spin-result-modal {
+    transform:
+        scale(
+            1
+        );
+}
+
+.result-banana {
+    font-size:
+        58px;
+
+    margin-bottom:
+        5px;
 }
 
 .spin-result-modal h2 {
-    margin: 0 0 25px;
-    font-size: 48px;
-    color: rgb(249, 208, 2);
-    letter-spacing: 0.08em;
+    margin:
+        0
+        0
+        24px;
+
+    font-size:
+        46px;
+
+    color:
+        #facc15;
+
+    letter-spacing:
+        0.08em;
 }
 
 .spin-result-reward {
-    font-size: 42px;
-    color: white;
-    margin-bottom: 10px;
+    margin-bottom:
+        12px;
+
+    color:
+        white;
+
+    font-family:
+        Arial,
+        sans-serif;
+
+    font-size:
+        34px;
+
+    font-weight:
+        800;
 }
 
 .spin-result-chance {
-    font-size: 22px;
-    color: rgba(255, 255, 255, 0.6);
-    margin-bottom: 30px;
+    margin-bottom:
+        30px;
+
+    color:
+        rgba(
+            255,
+            255,
+            255,
+            0.55
+        );
+
+    font-family:
+        Arial,
+        sans-serif;
+
+    font-size:
+        17px;
 }
 
 .spin-result-close {
-    padding: 12px 35px;
-    border: 2px solid rgb(249, 208, 2);
-    border-radius: 8px;
-    background: rgba(249, 208, 2, 0.1);
-    color: rgb(249, 208, 2);
-    font-family: "Karma", serif;
-    font-size: 22px;
-    cursor: pointer;
+    padding:
+        12px
+        36px;
+
+    border:
+        2px solid
+        #facc15;
+
+    border-radius:
+        8px;
+
+    background:
+        rgba(
+            250,
+            204,
+            21,
+            0.1
+        );
+
+    color:
+        #facc15;
+
+    font-family:
+        "Karma",
+        serif;
+
+    font-size:
+        21px;
+
+    cursor:
+        pointer;
 }
 
 .spin-result-close:hover {
-    background: rgba(249, 208, 2, 0.2);
+    background:
+        rgba(
+            250,
+            204,
+            21,
+            0.2
+        );
+}
+
+
+/* ========================================
+   BACK
+   ======================================== */
+
+.back-button {
+    position:
+        fixed;
+
+    left:
+        25px;
+
+    bottom:
+        25px;
+
+    padding:
+        10px
+        18px;
+
+    border:
+        1px solid
+        rgba(
+            255,
+            255,
+            255,
+            0.4
+        );
+
+    border-radius:
+        6px;
+
+    background:
+        rgba(
+            10,
+            10,
+            10,
+            0.85
+        );
+
+    color:
+        white;
+
+    font-family:
+        "Karma",
+        serif;
+
+    font-size:
+        18px;
+
+    cursor:
+        pointer;
+
+    z-index:
+        100;
+}
+
+.back-button:hover {
+    transform:
+        translateX(
+            5px
+        );
+
+    box-shadow:
+        0 0 15px
+        rgba(
+            255,
+            255,
+            255,
+            0.3
+        );
+}
+
+
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+
+@media (
+    max-width:
+    1050px
+) {
+
+    .wheel-content {
+        flex-direction:
+            column;
+
+        gap:
+            55px;
+
+        padding:
+            30px
+            0
+            70px;
+    }
+
+    .wheel-wrapper {
+        width:
+            470px;
+
+        height:
+            470px;
+    }
+
+    .wheel-placeholder {
+        width:
+            440px;
+
+        height:
+            440px;
+    }
+
+    .rewards-panel {
+        width:
+            min(
+                520px,
+                92vw
+            );
+    }
+}
+
+@media (
+    max-width:
+    560px
+) {
+
+    .wheel-page {
+        padding:
+            20px
+            10px
+            80px;
+    }
+
+    .wheel-wrapper {
+        width:
+            350px;
+
+        height:
+            350px;
+    }
+
+    .wheel-placeholder {
+        width:
+            330px;
+
+        height:
+            330px;
+    }
+
+    .wheel-label {
+        font-size:
+            12px;
+    }
 }
