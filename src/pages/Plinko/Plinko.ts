@@ -2,11 +2,14 @@ import "./Plinko.css";
 import Matter from "matter-js"
 
 import { createBananas } from "../../utils/createBananas";
+import {ActivePlayerPanel} from "../../components/ActivePlayer/ActivePlayer";
 
 export function Plinko(onBack: () => void): HTMLElement {
     const plinkoPage = document.createElement("main");
 
     plinkoPage.className = "plinko-page";
+
+    plinkoPage.appendChild(ActivePlayerPanel());
 
     const title = document.createElement("h1");
 

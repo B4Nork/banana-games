@@ -1,6 +1,6 @@
 import "./Wheel.css";
 import { createBananas } from "../../utils/createBananas";
-
+import {ActivePlayerPanel} from "../../components/ActivePlayer/ActivePlayer";
 
 let rewardContainer: HTMLElement;
 let rewardTotal: HTMLElement;
@@ -40,7 +40,6 @@ const rewards: Reward[] = [
 
 export function Wheel(onBack: () => void): HTMLElement {
     const wheelPage = document.createElement("main");
-    
 
     wheelPage.className = "wheel-page";
 
@@ -88,6 +87,8 @@ export function Wheel(onBack: () => void): HTMLElement {
 
         </div>
     `;
+
+    wheelPage.appendChild(ActivePlayerPanel());
 
     rewardContainer =
         wheelPage.querySelector<HTMLDivElement>(".reward-container")!;

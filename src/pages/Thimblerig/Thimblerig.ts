@@ -1,6 +1,7 @@
 import "./Thimblerig.css";
 
 import { createBananas } from "../../utils/createBananas";
+import {ActivePlayerPanel} from "../../components/ActivePlayer/ActivePlayer";
 
 type CupData = {
     id: number;
@@ -120,6 +121,8 @@ export function Thimblerig(onBack: () => void): HTMLElement {
 
         </div>
     `;
+
+    pageThimblerig.appendChild(ActivePlayerPanel());
 
     const startButton =
         pageThimblerig.querySelector<HTMLButtonElement>(
