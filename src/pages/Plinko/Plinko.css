@@ -421,3 +421,30 @@
     box-shadow:
         0 0 25px rgba(255, 80, 80, 0.7);
 }
+
+.plinko-ball-value {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    gap: 3px;
+
+    padding: 8px 14px;
+
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 6px;
+
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.plinko-ball-value span {
+    font-size: 11px;
+
+    color: rgba(230, 108, 108, 0.55);
+}
+
+.plinko-ball-value strong {
+    color: #d34856;
+
+    font-size: 17px;
+}

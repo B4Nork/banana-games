@@ -99,7 +99,7 @@ const rewards: Reward[] = [
         text: "Timeout do wykonania wyzwania"
     },
     {
-        name: "Jackpot 10 000 000 BP",
+        name: "Jackpot",
         chance: 0.5,
         color: getWheelColor(5),
 

@@ -87,6 +87,60 @@ export function Plinko(onBack: () => void): HTMLElement {
     const resultValue =
         result.querySelector("strong") as HTMLElement;
     
+    const ballValueDisplay =
+        document.createElement("div");
+
+    ballValueDisplay.className =
+        "plinko-ball-value";
+
+    ballValueDisplay.innerHTML = `
+        <span>WARTOŚĆ 1 KULKI</span>
+        <strong>1000 BP</strong>
+    `;
+
+    controls.appendChild(ballValueDisplay);
+
+    const ballValueText =
+        ballValueDisplay.querySelector("strong") as HTMLElement;
+    
+    function updateBallValuePreview(): void {
+        const bet =
+            Math.floor(Number(betInput.value));
+
+        const count =
+            Math.floor(Number(ballsInput.value));
+
+        if (
+            !Number.isFinite(bet) ||
+            !Number.isFinite(count) ||
+            bet < 1 ||
+            count < 1
+        ) {
+            ballValueText.textContent = "-";
+            return;
+        }
+
+        const previewValue =
+            bet / count;
+
+        ballValueText.textContent =
+            `${previewValue.toLocaleString("pl-PL", {
+                maximumFractionDigits: 2
+            })} BP`;
+    }
+
+    betInput.addEventListener(
+        "input",
+        updateBallValuePreview
+    );
+
+    ballsInput.addEventListener(
+        "input",
+        updateBallValuePreview
+    );
+
+    updateBallValuePreview();
+    
     const progress = document.createElement("div");
 
     progress.className = "plinko-progress";
@@ -116,8 +170,9 @@ export function Plinko(onBack: () => void): HTMLElement {
 
     let currentBet = 1000;
 
-    let totalPoints =
-        currentBet;
+    let totalPoints = 0;
+
+    let ballValue = 1000;
 
     let completedBalls = 0;
 
@@ -419,20 +474,20 @@ export function Plinko(onBack: () => void): HTMLElement {
     );
 
     const slotRewards = [
-        0,
-        5,
-        3,
-        1.5,
-        1,
+        10,
+        4,
+        2,
+        1.2,
         0.75,
-        0.5,
-        0.5,
+        0.45,
+        0.20,
+        0.20,
+        0.45,
         0.75,
-        1,
-        1.5,
-        3,
-        5,
-        0,
+        1.2,
+        2,
+        4,
+        10,
     ];
 
     const slotWalls = createSlotWalls();
@@ -476,7 +531,9 @@ export function Plinko(onBack: () => void): HTMLElement {
                     reward;
             }
 
-            totalPoints *= reward;
+            const ballPayout = ballValue * reward;
+
+            totalPoints += ballPayout;
 
             completedBalls++;
 
@@ -660,14 +717,18 @@ export function Plinko(onBack: () => void): HTMLElement {
                 firstCollisions
             );
 
-            totalPoints =
-                currentBet;
+           currentDropCount = count;
 
-            completedBalls =
-                0;
+            ballValue = currentBet / currentDropCount;
 
-            currentDropCount =
-                count;
+            totalPoints = 0;
+
+            completedBalls = 0;
+
+            ballValueText.textContent =
+                `${ballValue.toLocaleString("pl-PL", {
+                    maximumFractionDigits: 2
+                })} BP`;
 
             resultValue.textContent =
                 totalPoints.toLocaleString(
