@@ -17,10 +17,10 @@ type CupData = {
 type SwapPair = [number, number];
 
 type DifficultyConfig = {
-    name: string;
     moves: number;
     swapDuration: number;
     pauseDuration: number;
+    speedPercent: number;
 };
 
 export function Thimblerig(onBack: () => void): HTMLElement {
@@ -74,7 +74,7 @@ export function Thimblerig(onBack: () => void): HTMLElement {
                         <input
                             class="thimblerig-bet-input"
                             type="number"
-                            min="1"
+                            min="1000"
                             step="1"
                             value="1000"
                         />
@@ -88,9 +88,16 @@ export function Thimblerig(onBack: () => void): HTMLElement {
                     <div class="bet-info">
 
                         <div class="bet-info-row">
-                            <span>POZIOM</span>
+                            <span>PRĘDKOŚĆ</span>
                             <strong class="difficulty-value">
-                                ŁATWY
+                                100%
+                            </strong>
+                        </div>
+
+                        <div class="bet-info-row">
+                            <span>PRZETASOWANIA</span>
+                            <strong class="shuffle-count-value">
+                                5
                             </strong>
                         </div>
 
@@ -111,7 +118,8 @@ export function Thimblerig(onBack: () => void): HTMLElement {
                     </div>
 
                     <div class="bet-risk-info">
-                        Im większa stawka, tym trudniejsze mieszanie.
+                        Im większa stawka, tym trudniejsze mieszanie. 
+                        Sam wybierasz poziom ryzyka.
                     </div>
 
                     <button class="thimblerig-start">
@@ -144,6 +152,11 @@ export function Thimblerig(onBack: () => void): HTMLElement {
     const difficultyValue =
         pageThimblerig.querySelector<HTMLElement>(
             ".difficulty-value"
+        )!;
+
+    const shuffleCountValue =
+        pageThimblerig.querySelector<HTMLElement>(
+            ".shuffle-count-value"
         )!;
 
     const winValue =
@@ -194,6 +207,8 @@ export function Thimblerig(onBack: () => void): HTMLElement {
     const ballCupId = 2;
 
     let canChoose = false;
+    
+    let roundStarting = false;
 
     /*
         Stawka używana podczas aktualnej rundy.
@@ -213,60 +228,43 @@ export function Thimblerig(onBack: () => void): HTMLElement {
         ===============================
     */
 
+    const MIN_BET = 1000;
+
     function getDifficulty(
         bet: number
     ): DifficultyConfig {
 
-        if (bet < 1000) {
-            return {
-                name: "BARDZO ŁATWY",
-                moves: 3,
-                swapDuration: 800,
-                pauseDuration: 150
-            };
-        }
+        const safeBet = Math.max(
+            MIN_BET,
+            bet
+        );
 
-        if (bet < 5000) {
-            return {
-                name: "ŁATWY",
-                moves: 8,
-                swapDuration: 650,
-                pauseDuration: 120
-            };
-        }
+        const progress = Math.min(
+            1,
+            Math.log10(safeBet / MIN_BET) / 3
+        );
 
-        if (bet < 20000) {
-            return {
-                name: "NORMALNY",
-                moves: 10,
-                swapDuration: 200,
-                pauseDuration: 70
-            };
-        }
+        const moves = Math.round(
+            8 + 30 * progress
+        );
 
-        if (bet < 50000) {
-            return {
-                name: "TRUDNY",
-                moves: 20,
-                swapDuration: 150,
-                pauseDuration: 70
-            };
-        }
+        const swapDuration = Math.round(
+            150 - 120 * progress
+        );
 
-        if (bet < 100000) {
-            return {
-                name: "BARDZO TRUDNY",
-                moves: 20,
-                swapDuration: 90,
-                pauseDuration: 30
-            };
-        }
+        const pauseDuration = Math.round(
+            100 - 80 * progress
+        );
+
+        const speedPercent = Math.round(
+            (150 / swapDuration) * 100
+        );
 
         return {
-            name: "EKSTREMALNY",
-            moves: 200,
-            swapDuration: 20,
-            pauseDuration: 10
+            moves,
+            swapDuration,
+            pauseDuration,
+            speedPercent
         };
     }
 
@@ -303,17 +301,19 @@ export function Thimblerig(onBack: () => void): HTMLElement {
 
     function getBetValue(): number {
 
-        const value =
-            Number(betInput.value);
+        const value = Number(
+            betInput.value
+        );
 
         if (
             !Number.isFinite(value) ||
-            value < 1
+            !Number.isSafeInteger(value) ||
+            value < MIN_BET
         ) {
-            return 1;
+            return MIN_BET;
         }
 
-        return Math.floor(value);
+        return value;
     }
 
     function updateBetPanel(): void {
@@ -328,7 +328,10 @@ export function Thimblerig(onBack: () => void): HTMLElement {
             bet * 2;
 
         difficultyValue.textContent =
-            difficulty.name;
+            `${difficulty.speedPercent}%`;
+
+        shuffleCountValue.textContent =
+            `${difficulty.moves}`;
 
         winValue.textContent =
             formatBP(possibleWin);
@@ -840,6 +843,10 @@ export function Thimblerig(onBack: () => void): HTMLElement {
         "click",
         async () => {
 
+            if (roundStarting || startButton.disabled) {
+                return;
+            }
+
             currentBet =
                 getBetValue();
 
@@ -870,18 +877,24 @@ export function Thimblerig(onBack: () => void): HTMLElement {
 
                 statusText.textContent =
                     "GRACZ NIE MA TYLE BP";
-
+ 
                 return;
             }
+
+            roundStarting = true;
+            startButton.disabled = true;
 
             const roundStarted =
                 await startRoundInDatabase(
                     activePlayer.id,
                     currentBet,
-                    difficulty.name
+                    `Tempo ${difficulty.speedPercent}% / ${difficulty.moves} ruchów`
                 );
 
+            roundStarting = false;
+
             if (!roundStarted) {
+                startButton.disabled = false;
                 return;
             }
             
@@ -939,7 +952,7 @@ export function Thimblerig(onBack: () => void): HTMLElement {
             */
 
             statusText.textContent =
-                `MIESZANIE — ${difficulty.name}`;
+                `MIESZANIE — ${difficulty.speedPercent}% / ${difficulty.moves} RUCHÓW`;
 
             await shuffleCups(
                 difficulty

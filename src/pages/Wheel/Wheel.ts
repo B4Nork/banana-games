@@ -126,7 +126,7 @@ const rewards: Reward[] = [
         text: "30 pompek"
     },
     {
-        name: "Ściana Legend",
+        name: "Wybierz grę do ogrania",
         chance: 1,
         color: getWheelColor(8),
 
