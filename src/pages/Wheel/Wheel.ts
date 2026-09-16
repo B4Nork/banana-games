@@ -1,6 +1,7 @@
 import "./Wheel.css";
 import { createBananas } from "../../utils/createBananas";
 import { ActivePlayerPanel } from "../../components/ActivePlayer/ActivePlayer";
+import { openChallengeWheel } from "../../components/ChallengeWheel/ChallengeWheel";
 
 import {
     getActivePlayer,
@@ -54,94 +55,108 @@ const WHEEL_COLORS = [
 
 const rewards: Reward[] = [
     {
-        name: "Bananowy Łup",
-        chance: 0.25,
-        color: getWheelColor(0),
-
+        name: "Jackpot — 1 mln BP",
+        chance: 1,
+        color: "#FACC15",
+        type: "bp",
+        value: 1000000,
+        text: "JACKPOT! Wygrywasz 1 000 000 BP."
+    },
+    {
+        name: "Wybierz mi grę",
+        chance: 0.5,
+        color: "#EAB308",
+        type: "game_choice",
+        value: null,
+        text: "Wybierasz grę, którą B4Nork ma ograć."
+    },
+    {
+        name: "Bananowy łup",
+        chance: 0.2,
+        color: "#F59E0B",
         type: "physical",
         value: null,
-        text: "Losowy fizyczny przedmiot"
+        text: "Wygrywasz tajemniczą paczkę!"
     },
     {
-        name: "Prezent dla czatu",
-        chance: 25,
-        color: getWheelColor(1),
-
-        type: "stream",
-        value: null,
-        text: null
-    },
-    {
-        name: "100k BP",
-        chance: 3,
-        color: getWheelColor(2),
-
-        type: "bp",
-        value: 100000,
-        text: null
-    },
-    {
-        name: "Ukradnij 10 000 BP",
-        chance: 5,
-        color: getWheelColor(3),
-
+        name: "Ukradnij 10k BP",
+        chance: 12,
+        color: "#DC2626",
         type: "steal_bp",
         value: 10000,
-        text: "Zabiera innemu graczowi 10k BP"
+        text: "Kradniesz innemu graczowi maksymalnie 10 000 BP."
     },
     {
-        name: "Timeout challenge dla widza",
-        chance: 15,
-        color: getWheelColor(4),
-
-        type: "challenge",
-        value: null,
-        text: "Timeout do wykonania wyzwania"
-    },
-    {
-        name: "Jackpot",
-        chance: 0.5,
-        color: getWheelColor(5),
-
+        name: "50k BP",
+        chance: 8,
+        color: "#16A34A",
         type: "bp",
-        value: 10000000,
-        text: "Jackpot"
+        value: 50000,
+        text: "Wygrywasz 50 000 BP."
     },
     {
-        name: "Timeout challenge dla streamera",
-        chance: 15,
-        color: getWheelColor(6),
-
-        type: "challenge",
+        name: "Podpis Steam",
+        chance: 6,
+        color: "#2563EB",
+        type: "steam_signature",
         value: null,
-        text: "Przerwa w strimie do wykonania wyzwania"
+        text: "B4Nork podpisuje Twój profil Steam."
     },
     {
-        name: "Pompki 30",
-        chance: 15,
-        color: getWheelColor(7),
-
+        name: "30 pompek",
+        chance: 13,
+        color: "#EA580C",
+        type: "stream",
+        value: 30,
+        text: "B4Nork robi 30 pompek."
+    },
+    {
+        name: "Fikołek",
+        chance: 8,
+        color: "#9333EA",
         type: "stream",
         value: null,
-        text: "30 pompek"
+        text: "B4Nork robi fikołka."
     },
     {
-        name: "Wybierz grę do ogrania",
-        chance: 1,
-        color: getWheelColor(8),
-
-        type: "legend",
+        name: "Pompki na rękach",
+        chance: 10,
+        color: "#7C3AED",
+        type: "stream",
         value: null,
-        text: "Zapisać widza na ścianę legend"
+        text: "B4Nork podejmuje próbę pompek w staniu na rękach."
     },
     {
-        name: "Darmowa gra",
-        chance: 20.25,
-        color: getWheelColor(9),
-
-        type: "free_game",
+        name: "Timeout dla widza",
+        chance: 12.3,
+        color: "#DB2777",
+        type: "challenge",
         value: null,
-        text: "Gra bez wydawania Twitch Channel Points"
+        text: "Losowanie wyzwania timeout dla widza."
+    },
+    {
+        name: "Timeout dla streamera",
+        chance: 12,
+        color: "#BE185D",
+        type: "challenge",
+        value: null,
+        text: "Losowanie wyzwania timeout dla streamera."
+    },
+    {
+        name: "Pusta skórka",
+        chance: 6,
+        color: "#64748B",
+        type: "empty",
+        value: null,
+        text: "Niestety, nic nie wygrywasz."
+    },
+    {
+        name: "10 pompek / 10k BP",
+        chance: 11,
+        color: "#0891B2",
+        type: "choice",
+        value: 10000,
+        text: "Wybierz: 10 pompek dla B4Norka albo 10 000 BP dla siebie."
     }
 ];
 
@@ -323,14 +338,21 @@ export function Wheel(onBack: () => void): HTMLElement {
         );
     }
 
-    resultClose.addEventListener(
-        "click",
-        () => {
-            resultOverlay.classList.remove(
-                "show"
-            );
+    resultClose.addEventListener("click", () => {
+        resultOverlay.classList.remove("show");
+
+        const pendingTarget = resultOverlay.dataset.challengeTarget;
+
+        delete resultOverlay.dataset.challengeTarget;
+
+        if (pendingTarget === "viewer" || pendingTarget === "streamer") {
+            spinButton.disabled = true;
+
+            openChallengeWheel(pendingTarget, () => {
+                spinButton.disabled = false;
+            });
         }
-    );
+    });
 
     const addRewardButton =
         wheelPage.querySelector<HTMLButtonElement>(
@@ -723,6 +745,26 @@ function updateWheel(
     );
 }
 
+function getWheelLabel(name: string): string {
+    const labels: Record<string, string> = {
+        "Jackpot — 1 mln BP": "JACKPOT",
+        "Wybierz mi grę": "WYBIERZ GRĘ",
+        "Bananowy łup 📦": "BANANOWY ŁUP",
+        "Ukradnij 10k BP": "UKRADNIJ 10K",
+        "50k BP": "50K BP",
+        "Podpis Steam": "PODPIS STEAM",
+        "30 pompek": "30 POMPEK",
+        "Fikołek": "FIKOŁEK",
+        "Pompki na rękach": "POMPKI NA RĘKACH",
+        "Timeout dla widza": "TIMEOUT WIDZ",
+        "Timeout dla streamera": "TIMEOUT STREAMER",
+        "Pusta skórka": "PUSTA SKÓRKA",
+        "10 pompek / 10k BP": "POMPKI / 10K"
+    };
+
+    return labels[name] ?? name;
+}
+
 /* ========================================
    LABEL
    ======================================== */
@@ -783,6 +825,14 @@ function createSegmentLabel(
         "wheel-label"
     );
 
+    if (angleSize < 12) {
+        text.setAttribute("font-size", "10");
+    } else if (angleSize < 20) {
+        text.setAttribute("font-size", "12");
+    } else {
+        text.setAttribute("font-size", "14");
+    }
+
     text.setAttribute(
         "x",
         String(position.x)
@@ -841,10 +891,7 @@ function createSegmentLabel(
         krótsza nazwa.
     */
 
-    let lines =
-        splitRewardName(
-            reward.name
-        );
+    let lines = splitRewardName(getWheelLabel(reward.name));
 
     if (
         angleSize < 18
@@ -2015,6 +2062,16 @@ function showResult(
 
     resultReward.textContent =
         reward.name;
+    
+    if (reward.type === "challenge") {
+        if (reward.name === "Timeout dla widza") {
+            overlay.dataset.challengeTarget = "viewer";
+        } else if (reward.name === "Timeout dla streamera") {
+            overlay.dataset.challengeTarget = "streamer";
+        }
+    } else {
+        delete overlay.dataset.challengeTarget;
+    }
 
     resultChance.textContent =
         `Szansa na trafienie: ${
