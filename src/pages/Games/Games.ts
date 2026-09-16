@@ -30,6 +30,21 @@ export function Games(onGameClick: (game: string) => void): HTMLElement {
 
     gamesPage.appendChild(rankingButton);
 
+    const shopButton = document.createElement("button");
+
+    shopButton.className = "games-shop-button";
+
+    shopButton.innerHTML = `
+        <span class="games-shop-icon">🛒</span>
+        <span>SKLEP</span>
+    `;
+
+    shopButton.addEventListener("click", () => {
+        onGameClick("shop");
+    });
+
+    gamesPage.appendChild(shopButton);
+
     const adminButton = document.createElement("button");
 
     adminButton.className = "games-admin-button";

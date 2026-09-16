@@ -1,0 +1,146 @@
+.shop-page {
+    position: relative;
+    min-height: 100vh;
+    padding: 32px;
+    background: #09090d;
+    color: white;
+    overflow: hidden;
+}
+
+.shop-content {
+    position: relative;
+    z-index: 2;
+    width: min(1200px, 100%);
+    margin: 55px auto 0;
+}
+
+.shop-title {
+    margin: 0;
+    text-align: center;
+    font-size: clamp(36px, 5vw, 68px);
+    font-weight: 900;
+    color: #b4ff50;
+    text-shadow: 0 0 20px #83ff4055;
+}
+
+.shop-subtitle {
+    margin: 12px 0 35px;
+    text-align: center;
+    color: #c7b8d8;
+    font-size: 17px;
+}
+
+.shop-message {
+    min-height: 25px;
+    margin-bottom: 18px;
+    text-align: center;
+    font-weight: 700;
+}
+
+.shop-message.success {
+    color: #a4ff43;
+}
+
+.shop-message.error {
+    color: #ff6b7a;
+}
+
+.shop-message.info {
+    color: #c7b8d8;
+}
+
+.shop-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 24px;
+    padding-bottom: 50px;
+}
+
+.shop-card {
+    display: flex;
+    flex-direction: column;
+    min-height: 310px;
+    padding: 28px;
+    border: 1px solid #593679;
+    border-radius: 22px;
+    background: linear-gradient(
+        145deg,
+        #21162e,
+        #101015
+    );
+    box-shadow: 0 10px 35px #0007;
+    transition:
+        transform 0.2s ease,
+        border-color 0.2s ease;
+}
+
+.shop-card:hover {
+    transform: translateY(-5px);
+    border-color: #b4ff50;
+}
+
+.shop-card-icon {
+    font-size: 46px;
+    margin-bottom: 18px;
+}
+
+.shop-card-name {
+    margin: 0 0 12px;
+    font-size: 23px;
+    color: white;
+}
+
+.shop-card-description {
+    margin: 0 0 22px;
+    color: #b9abc9;
+    line-height: 1.5;
+    flex-grow: 1;
+}
+
+.shop-card-price {
+    margin-bottom: 18px;
+    color: #b4ff50;
+    font-size: 22px;
+    font-weight: 900;
+}
+
+.shop-buy {
+    width: 100%;
+    padding: 15px;
+    border: none;
+    border-radius: 12px;
+    background: #b4ff50;
+    color: #111;
+    font-weight: 900;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.shop-buy:hover:not(:disabled) {
+    background: #d0ff91;
+}
+
+.shop-buy:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+@media (max-width: 950px) {
+    .shop-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 600px) {
+    .shop-page {
+        padding: 18px;
+    }
+
+    .shop-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .shop-content {
+        margin-top: 35px;
+    }
+}

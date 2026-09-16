@@ -8,10 +8,17 @@ export type ActivePlayer = {
 
 let activePlayer: ActivePlayer | null = null;
 
+const listeners = new Set<() => void>();
+
+function notifyListeners(): void {
+    listeners.forEach(listener => listener());
+}
+
 export function setActivePlayer(
     player: ActivePlayer
 ): void {
     activePlayer = player;
+    notifyListeners();
 }
 
 export function getActivePlayer(): ActivePlayer | null {
@@ -20,4 +27,15 @@ export function getActivePlayer(): ActivePlayer | null {
 
 export function clearActivePlayer(): void {
     activePlayer = null;
+    notifyListeners();
+}
+
+export function subscribeActivePlayer(
+    listener: () => void
+): () => void {
+    listeners.add(listener);
+
+    return () => {
+        listeners.delete(listener);
+    };
 }

@@ -18,6 +18,12 @@ import {
 } from "./wheelService.ts";
 
 import {
+    getShopProducts,
+    purchaseProduct,
+    getShopPurchases
+} from "./shopService.ts";
+
+import {
     createPlayer,
     getPlayer,
     getBalance,
@@ -721,6 +727,71 @@ app.get(
         }
     }
 );
+
+app.get("/api/shop/products", (_req, res) => {
+    try {
+        return res.json({
+            products: getShopProducts()
+        });
+    } catch (error) {
+        console.error(error);
+
+        return res.status(500).json({
+            error: "Nie udało się pobrać produktów"
+        });
+    }
+});
+
+app.post("/api/shop/purchase", (req, res) => {
+    const { playerId, productId } = req.body;
+
+    if (
+        !Number.isSafeInteger(playerId) ||
+        playerId <= 0 ||
+        !Number.isSafeInteger(productId) ||
+        productId <= 0
+    ) {
+        return res.status(400).json({
+            error: "Niepoprawne dane zakupu"
+        });
+    }
+
+    try {
+        const result = purchaseProduct(
+            playerId,
+            productId
+        );
+
+        const rank = getPlayerRank(playerId);
+
+        return res.status(201).json({
+            ...result,
+            rank
+        });
+
+    } catch (error) {
+        return res.status(400).json({
+            error:
+                error instanceof Error
+                    ? error.message
+                    : "Nie udało się zrealizować zakupu"
+        });
+    }
+});
+
+app.get("/api/shop/purchases", (_req, res) => {
+    try {
+        return res.json({
+            purchases: getShopPurchases()
+        });
+    } catch (error) {
+        console.error(error);
+
+        return res.status(500).json({
+            error: "Nie udało się pobrać zakupów"
+        });
+    }
+});
 
 app.listen(PORT, () => {
     console.log(

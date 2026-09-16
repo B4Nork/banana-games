@@ -2,11 +2,13 @@ import "./styles/global.css";
 
 import { Admin } from "./pages/Admin/Admin";
 import { Home } from "./pages/Home/Home";
+import { Shop } from "./pages/Shop/Shop";
 import { Games } from "./pages/Games/Games";
 import { Wheel } from "./pages/Wheel/Wheel";
 import { Plinko } from "./pages/Plinko/Plinko";
 import { Thimblerig } from "./pages/Thimblerig/Thimblerig";
 import { Players } from "./pages/Players/Players";
+
 
 const app = document.querySelector<HTMLDivElement>("#app");
 
@@ -55,6 +57,11 @@ function showGame(game: string): void {
             Admin(showGames)
         );
     }
-}
+    
+    if (game === "shop") {
+        root.innerHTML = "";
+        root.appendChild(Shop(showGames));
+    }
+    }
 
 showHome();

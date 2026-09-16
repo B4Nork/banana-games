@@ -2,7 +2,8 @@ import "./ActivePlayer.css";
 
 import {
     getActivePlayer,
-    setActivePlayer
+    setActivePlayer,
+    subscribeActivePlayer
 } from "../../state/activePlayer";
 
 type PlayerResponse = {
@@ -215,6 +216,20 @@ export function ActivePlayerPanel(): HTMLElement {
     }
 
     render();
+
+    const unsubscribe = subscribeActivePlayer(render);
+
+    const observer = new MutationObserver(() => {
+        if (!panel.isConnected) {
+            unsubscribe();
+            observer.disconnect();
+        }
+    });
+
+    observer.observe(document.body, {
+        childList: true,
+        subtree: true
+    });
 
     return panel;
 }

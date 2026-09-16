@@ -138,6 +138,32 @@ db.exec(`
             REFERENCES game_sessions(id)
             ON DELETE CASCADE
     );
+    
+    CREATE TABLE IF NOT EXISTS shop_products (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        description TEXT NOT NULL DEFAULT '',
+        price INTEGER NOT NULL CHECK(price > 0),
+        available INTEGER NOT NULL DEFAULT 1
+            CHECK(available IN (0, 1))
+    );
+
+    CREATE TABLE IF NOT EXISTS shop_purchases (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        player_id INTEGER NOT NULL,
+        product_id INTEGER NOT NULL,
+        product_name TEXT NOT NULL,
+        price INTEGER NOT NULL,
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+        FOREIGN KEY (player_id)
+            REFERENCES players(id)
+            ON DELETE CASCADE,
+
+        FOREIGN KEY (product_id)
+            REFERENCES shop_products(id)
+    );
+
 `);
 
 console.log(

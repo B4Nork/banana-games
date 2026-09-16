@@ -157,3 +157,38 @@
         0 0 15px
         rgba(168, 85, 247, 0.25);
 }
+
+.games-shop-button {
+    position: absolute;
+    top: 30px;
+    right: 240px;
+    z-index: 10;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+
+    padding: 12px 20px;
+    border: 2px solid #b4ff50;
+    border-radius: 12px;
+
+    background: #17171d;
+    color: #b4ff50;
+
+    font-size: 16px;
+    font-weight: 800;
+    cursor: pointer;
+
+    transition: 0.2s;
+}
+
+.games-shop-button:hover {
+    background: #b4ff50;
+    color: #111;
+    box-shadow: 0 0 20px #b4ff5066;
+}
+
+.games-shop-icon {
+    font-size: 20px;
+}
