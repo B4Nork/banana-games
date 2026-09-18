@@ -14,7 +14,8 @@ import {
 
 import {
     startWheel,
-    finishWheel
+    finishWheel,
+    executeWheelSteal
 } from "./wheelService.ts";
 
 import {
@@ -31,7 +32,8 @@ import {
     removeBP,
     getBPTransactions,
     getAllPlayers,
-    getPlayerRank
+    getPlayerRank,
+    getRandomStealVictim
 } from "./playerService.ts";
 
 const app = express();
@@ -792,6 +794,117 @@ app.get("/api/shop/purchases", (_req, res) => {
         });
     }
 });
+
+app.post(
+    "/api/games/wheel/:sessionId/steal/draw",
+    (req, res) => {
+        const sessionId = Number(req.params.sessionId);
+
+        if (!Number.isSafeInteger(sessionId) || sessionId <= 0) {
+            return res.status(400).json({
+                error: "Niepoprawne ID rundy"
+            });
+        }
+
+        try {
+            const session = db.prepare(`
+                SELECT
+                    gs.player_id,
+                    wr.reward_type
+                FROM game_sessions gs
+                JOIN wheel_results wr
+                    ON wr.session_id = gs.id
+                WHERE gs.id = ?
+                  AND gs.game_type = 'wheel'
+                  AND gs.finished_at IS NOT NULL
+            `).get(sessionId) as {
+                player_id: number;
+                reward_type: string;
+            } | undefined;
+
+            if (!session || session.reward_type !== "steal_bp") {
+                return res.status(400).json({
+                    error: "Ta runda nie uprawnia do kradzieży"
+                });
+            }
+
+            const alreadyExecuted = db.prepare(`
+                SELECT session_id
+                FROM wheel_steals
+                WHERE session_id = ?
+            `).get(sessionId);
+
+            if (alreadyExecuted) {
+                return res.status(400).json({
+                    error: "Kradzież została już wykonana"
+                });
+            }
+
+            const victim = getRandomStealVictim(
+                session.player_id
+            );
+
+            if (!victim) {
+                return res.status(404).json({
+                    error: "Brak graczy posiadających co najmniej 10 000 BP"
+                });
+            }
+
+            return res.json({
+                victim: {
+                    id: victim.id,
+                    displayName: victim.display_name,
+                    balance: victim.bp
+                }
+            });
+
+        } catch (error) {
+            return res.status(400).json({
+                error: error instanceof Error
+                    ? error.message
+                    : "Błąd losowania"
+            });
+        }
+    }
+);
+
+app.post(
+    "/api/games/wheel/:sessionId/steal/execute",
+    (req, res) => {
+        const sessionId = Number(req.params.sessionId);
+        const { victimId } = req.body;
+
+        if (
+            !Number.isSafeInteger(sessionId) ||
+            sessionId <= 0 ||
+            !Number.isSafeInteger(victimId) ||
+            victimId <= 0
+        ) {
+            return res.status(400).json({
+                error: "Niepoprawne dane"
+            });
+        }
+
+        try {
+            const result = executeWheelSteal(
+                sessionId,
+                victimId
+            );
+
+            return res.json({
+                ...result,
+                rank: getPlayerRank(result.winnerId)
+            });
+
+        } catch (error) {
+            return res.status(400).json({
+                error: error instanceof Error
+                    ? error.message
+                    : "Nie udało się wykonać kradzieży"
+            });
+        }
+    }
+);
 
 app.listen(PORT, () => {
     console.log(

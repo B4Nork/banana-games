@@ -12,6 +12,12 @@ type WheelSessionRow = {
     finished_at: string | null;
 };
 
+import {
+    getRandomStealVictim,
+    stealBP,
+    getBalance
+} from "./playerService.ts";
+
 export type StartWheelResult = {
     sessionId: number;
     playerId: number;
@@ -176,4 +182,118 @@ export function finishWheel(
     });
 
     return transaction();
+}
+
+type StealSessionRow = {
+    player_id: number;
+    reward_type: string;
+};
+
+type ExistingStealRow = {
+    session_id: number;
+    winner_id: number;
+    victim_id: number;
+    amount: number;
+};
+
+export function executeWheelSteal(
+    sessionId: number,
+    victimId: number
+) {
+    if (
+        !Number.isSafeInteger(sessionId) ||
+        sessionId <= 0 ||
+        !Number.isSafeInteger(victimId) ||
+        victimId <= 0
+    ) {
+        throw new Error("Niepoprawne dane kradzieży");
+    }
+
+    return db.transaction(() => {
+        const session = db.prepare(`
+            SELECT
+                gs.player_id,
+                wr.reward_type
+            FROM game_sessions gs
+            JOIN wheel_results wr
+                ON wr.session_id = gs.id
+            WHERE gs.id = ?
+              AND gs.game_type = 'wheel'
+              AND gs.finished_at IS NOT NULL
+        `).get(sessionId) as StealSessionRow | undefined;
+
+        if (!session) {
+            throw new Error("Nie znaleziono zakończonej rundy");
+        }
+
+        if (session.reward_type !== "steal_bp") {
+            throw new Error("Ta runda nie wygrała kradzieży");
+        }
+
+        if (session.player_id === victimId) {
+            throw new Error("Nie możesz okraść samego siebie");
+        }
+
+        const existing = db.prepare(`
+            SELECT *
+            FROM wheel_steals
+            WHERE session_id = ?
+        `).get(sessionId) as ExistingStealRow | undefined;
+
+        if (existing) {
+            throw new Error("Kradzież została już wykonana");
+        }
+
+        const victim = db.prepare(`
+            SELECT
+                p.id,
+                p.display_name,
+                w.bp
+            FROM players p
+            JOIN wallets w
+                ON w.player_id = p.id
+            WHERE p.id = ?
+              AND w.bp >= 10000
+        `).get(victimId) as {
+            id: number;
+            display_name: string;
+            bp: number;
+        } | undefined;
+
+        if (!victim) {
+            throw new Error(
+                "Wylosowany gracz nie ma już 10 000 BP"
+            );
+        }
+
+        const result = stealBP(
+            session.player_id,
+            victim.id,
+            10000
+        );
+
+        db.prepare(`
+            INSERT INTO wheel_steals (
+                session_id,
+                winner_id,
+                victim_id,
+                amount
+            )
+            VALUES (?, ?, ?, ?)
+        `).run(
+            sessionId,
+            session.player_id,
+            victim.id,
+            10000
+        );
+
+        return {
+            winnerId: session.player_id,
+            victimId: victim.id,
+            victimName: victim.display_name,
+            amount: 10000,
+            winnerBalance: result.winnerBalance,
+            victimBalance: result.victimBalance
+        };
+    })();
 }

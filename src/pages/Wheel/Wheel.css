@@ -1169,21 +1169,15 @@
 }
 
 .spin-result-reward {
-    margin-bottom:
-        12px;
+    margin-bottom: 12px;
+    color: white;
 
-    color:
-        white;
+    font-family: Arial, sans-serif;
+    font-size: clamp(20px, 3vw, 28px);
+    font-weight: 700;
 
-    font-family:
-        Arial,
-        sans-serif;
-
-    font-size:
-        34px;
-
-    font-weight:
-        800;
+    line-height: 1.4;
+    overflow-wrap: break-word;
 }
 
 .spin-result-chance {
@@ -1402,4 +1396,50 @@
         font-size:
             12px;
     }
+}
+
+.spin-steal-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    margin: 20px 0;
+}
+
+.spin-steal-panel[hidden],
+.spin-steal-draw[hidden],
+.spin-steal-execute[hidden] {
+    display: none;
+}
+
+.spin-steal-message {
+    color: white;
+    font-size: 20px;
+    font-weight: 700;
+    text-align: center;
+    line-height: 1.4;
+}
+
+.spin-steal-draw,
+.spin-steal-execute {
+    padding: 14px 24px;
+    border: 2px solid #facc15;
+    border-radius: 12px;
+    background: #171717;
+    color: #facc15;
+    font-size: 17px;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.spin-steal-draw:hover,
+.spin-steal-execute:hover {
+    background: #facc15;
+    color: #171717;
+}
+
+.spin-steal-draw:disabled,
+.spin-steal-execute:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }

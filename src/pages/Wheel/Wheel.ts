@@ -228,6 +228,25 @@ export function Wheel(onBack: () => void): HTMLElement {
 
                         <div class="spin-result-chance"></div>
 
+                        <div class="spin-steal-panel" hidden>
+                            <div class="spin-steal-message"></div>
+
+                            <button
+                                type="button"
+                                class="spin-steal-draw"
+                            >
+                                LOSUJ OFIARĘ
+                            </button>
+
+                            <button
+                                type="button"
+                                class="spin-steal-execute"
+                                hidden
+                            >
+                                WYKONAJ KRADZIEŻ
+                            </button>
+                        </div>
+
                         <button class="spin-result-close">
                             ZAMKNIJ
                         </button>
@@ -1989,6 +2008,10 @@ async function spinWheel(
                     winningReward
                 );
 
+                if (winningReward.type === "steal_bp") {
+                    setupSteal(wheelPage, data.sessionId);
+                }
+
                 if (status) {
                     status.textContent =
                         `Wynik: ${winningReward.name}`;
@@ -2068,8 +2091,16 @@ function showResult(
         return;
     }
 
+    const stealPanel = wheelPage.querySelector<HTMLElement>(
+        ".spin-steal-panel"
+    );
+
+    if (stealPanel) {
+        stealPanel.hidden = true;
+    }
+
     resultReward.textContent =
-        reward.name;
+        reward.text;
     
     if (reward.type === "challenge") {
         if (reward.name === "Timeout dla widza") {
@@ -2089,4 +2120,137 @@ function showResult(
     overlay.classList.add(
         "show"
     );
+}
+
+function setupSteal(
+    wheelPage: HTMLElement,
+    sessionId: number
+): void {
+    const panel = wheelPage.querySelector<HTMLElement>(
+        ".spin-steal-panel"
+    );
+
+    const message = wheelPage.querySelector<HTMLElement>(
+        ".spin-steal-message"
+    );
+
+    const drawButton = wheelPage.querySelector<HTMLButtonElement>(
+        ".spin-steal-draw"
+    );
+
+    const executeButton = wheelPage.querySelector<HTMLButtonElement>(
+        ".spin-steal-execute"
+    );
+
+    if (
+        !panel ||
+        !message ||
+        !drawButton ||
+        !executeButton
+    ) {
+        return;
+    }
+
+    let victimId: number | null = null;
+    let completed = false;
+
+    panel.hidden = false;
+    message.textContent = "Kto straci 10 000 BP? 🍌";
+
+    drawButton.hidden = false;
+    drawButton.disabled = false;
+
+    executeButton.hidden = true;
+    executeButton.disabled = false;
+
+    drawButton.onclick = async () => {
+        drawButton.disabled = true;
+        message.textContent = "Losowanie ofiary...";
+
+        try {
+            const response = await fetch(
+                `/api/games/wheel/${sessionId}/steal/draw`,
+                {
+                    method: "POST"
+                }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(
+                    data.error ?? "Nie udało się wylosować gracza"
+                );
+            }
+
+            victimId = data.victim.id;
+
+            message.textContent =
+                `Wylosowano: ${data.victim.displayName}! ` +
+                `Saldo: ${data.victim.balance.toLocaleString("pl-PL")} BP.`;
+
+            drawButton.hidden = true;
+            executeButton.hidden = false;
+
+        } catch (error) {
+            message.textContent =
+                error instanceof Error
+                    ? error.message
+                    : "Błąd losowania";
+
+            drawButton.disabled = false;
+        }
+    };
+
+    executeButton.onclick = async () => {
+        if (victimId === null || completed) {
+            return;
+        }
+
+        executeButton.disabled = true;
+        message.textContent = "Przenoszenie 10 000 BP...";
+
+        try {
+            const response = await fetch(
+                `/api/games/wheel/${sessionId}/steal/execute`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        victimId
+                    })
+                }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(
+                    data.error ?? "Nie udało się wykonać kradzieży"
+                );
+            }
+
+            completed = true;
+
+            message.textContent =
+                `UKRADZIONO 10 000 BP! 🍌 ` +
+                `${data.victimName} stracił punkty, ` +
+                `a zwycięzca je otrzymał.`;
+
+            executeButton.hidden = true;
+
+            // Jeśli masz funkcję odświeżającą panel gracza
+            // i ranking, wywołaj ją tutaj.
+
+        } catch (error) {
+            message.textContent =
+                error instanceof Error
+                    ? error.message
+                    : "Błąd kradzieży";
+
+            executeButton.disabled = false;
+        }
+    };
 }

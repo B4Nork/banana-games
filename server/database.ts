@@ -166,6 +166,20 @@ db.exec(`
 
 `);
 
+db.exec(`
+    CREATE TABLE IF NOT EXISTS wheel_steals (
+        session_id INTEGER PRIMARY KEY,
+        winner_id INTEGER NOT NULL,
+        victim_id INTEGER NOT NULL,
+        amount INTEGER NOT NULL,
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+        FOREIGN KEY (session_id) REFERENCES game_sessions(id),
+        FOREIGN KEY (winner_id) REFERENCES players(id),
+        FOREIGN KEY (victim_id) REFERENCES players(id)
+    );
+`);
+
 console.log(
     `Banana Games database loaded: ${databasePath}`
 );

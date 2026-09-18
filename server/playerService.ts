@@ -272,3 +272,80 @@ export function getPlayerRank(
 
     return result?.rank;
 }
+
+export function stealBP(
+    winnerId: number,
+    victimId: number,
+    amount = 10000
+): {
+    winnerBalance: number;
+    victimBalance: number;
+} {
+    if (
+        !Number.isSafeInteger(winnerId) ||
+        !Number.isSafeInteger(victimId) ||
+        winnerId <= 0 ||
+        victimId <= 0 ||
+        winnerId === victimId
+    ) {
+        throw new Error("Niepoprawni gracze");
+    }
+
+    if (!Number.isSafeInteger(amount) || amount <= 0) {
+        throw new Error("Niepoprawna kwota kradzieży");
+    }
+
+    return db.transaction(() => {
+        const victimBalance = getBalance(victimId);
+
+        if (victimBalance < amount) {
+            throw new Error(
+                "Wylosowany gracz nie ma już wystarczającej liczby BP"
+            );
+        }
+
+        removeBP(
+            victimId,
+            amount,
+            "wheel_steal_loss",
+            `Kradzież BP przez gracza ID ${winnerId}`
+        );
+
+        addBP(
+            winnerId,
+            amount,
+            "wheel_steal_gain",
+            `Kradzież BP od gracza ID ${victimId}`
+        );
+
+        return {
+            winnerBalance: getBalance(winnerId),
+            victimBalance: getBalance(victimId)
+        };
+    })();
+}
+
+export function getRandomStealVictim(
+    winnerId: number
+): PlayerWithBalance | undefined {
+    return db.prepare(`
+        SELECT
+            p.id,
+            p.twitch_name,
+            p.display_name,
+            w.bp,
+            p.created_at,
+            (
+                SELECT COUNT(*) + 1
+                FROM wallets w2
+                WHERE w2.bp > w.bp
+            ) AS rank
+        FROM players p
+        JOIN wallets w
+            ON w.player_id = p.id
+        WHERE p.id != ?
+          AND w.bp >= 10000
+        ORDER BY RANDOM()
+        LIMIT 1
+    `).get(winnerId) as PlayerWithBalance | undefined;
+}
