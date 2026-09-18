@@ -2,6 +2,7 @@ import "./Wheel.css";
 import { createBananas } from "../../utils/createBananas";
 import { ActivePlayerPanel } from "../../components/ActivePlayer/ActivePlayer";
 import { openChallengeWheel } from "../../components/ChallengeWheel/ChallengeWheel";
+import { openBanOrSave } from "../../components/BanOrSave/BanOrSave";
 
 import {
     getActivePlayer,
@@ -368,14 +369,32 @@ export function Wheel(onBack: () => void): HTMLElement {
     resultClose.addEventListener("click", () => {
         resultOverlay.classList.remove("show");
 
-        const pendingTarget = resultOverlay.dataset.challengeTarget;
+        const pendingTarget =
+            resultOverlay.dataset.challengeTarget;
+
+        const pendingCoin =
+            resultOverlay.dataset.banOrSave;
 
         delete resultOverlay.dataset.challengeTarget;
+        delete resultOverlay.dataset.banOrSave;
 
-        if (pendingTarget === "viewer" || pendingTarget === "streamer") {
+        if (
+            pendingTarget === "viewer" ||
+            pendingTarget === "streamer"
+        ) {
             spinButton.disabled = true;
 
             openChallengeWheel(pendingTarget, () => {
+                spinButton.disabled = false;
+            });
+
+            return;
+        }
+
+        if (pendingCoin === "true") {
+            spinButton.disabled = true;
+
+            openBanOrSave(() => {
                 spinButton.disabled = false;
             });
         }
@@ -2110,6 +2129,12 @@ function showResult(
         }
     } else {
         delete overlay.dataset.challengeTarget;
+    }
+
+    if (reward.type === "ban_or_pardon") {
+        overlay.dataset.banOrSave = "true";
+    } else {
+        delete overlay.dataset.banOrSave;
     }
 
     resultChance.textContent =
