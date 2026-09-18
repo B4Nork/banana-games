@@ -80,15 +80,15 @@ const rewards: Reward[] = [
     },
     {
         name: "Ukradnij 10k BP",
-        chance: 12,
+        chance: 10,
         color: "#DC2626",
         type: "steal_bp",
         value: 10000,
-        text: "Kradniesz innemu graczowi maksymalnie 10 000 BP."
+        text: "Kradniesz maksymalnie 10 000 BP losowemu graczowi."
     },
     {
         name: "50k BP",
-        chance: 8,
+        chance: 5,
         color: "#16A34A",
         type: "bp",
         value: 50000,
@@ -96,35 +96,27 @@ const rewards: Reward[] = [
     },
     {
         name: "Podpis Steam",
-        chance: 6,
+        chance: 3,
         color: "#2563EB",
         type: "steam_signature",
         value: null,
         text: "B4Nork podpisuje Twój profil Steam."
     },
     {
-        name: "30 pompek",
-        chance: 13,
-        color: "#EA580C",
-        type: "stream",
-        value: 30,
-        text: "B4Nork robi 30 pompek."
-    },
-    {
-        name: "Fikołek",
-        chance: 8,
+        name: "20 przysiadów",
+        chance: 12,
         color: "#9333EA",
         type: "stream",
-        value: null,
-        text: "B4Nork robi fikołka."
+        value: 20,
+        text: "B4Nork robi 20 przysiadów."
     },
     {
-        name: "Pompki na rękach",
-        chance: 10,
+        name: "Pompki ręce",
+        chance: 4,
         color: "#7C3AED",
         type: "stream",
         value: null,
-        text: "B4Nork podejmuje próbę pompek w staniu na rękach."
+        text: "B4Nork podejmuje jedną próbę pompek w staniu na rękach."
     },
     {
         name: "Timeout dla widza",
@@ -136,15 +128,23 @@ const rewards: Reward[] = [
     },
     {
         name: "Timeout dla streamera",
-        chance: 12,
+        chance: 8,
         color: "#BE185D",
         type: "challenge",
         value: null,
         text: "Losowanie wyzwania timeout dla streamera."
     },
     {
+        name: "BAN czy ułaskawienie?",
+        chance: 10,
+        color: "#991B1B",
+        type: "ban_or_pardon",
+        value: null,
+        text: "Losowanie 50/50! Timeout na 10 minut albo ułaskawienie."
+    },
+    {
         name: "Pusta skórka",
-        chance: 6,
+        chance: 13,
         color: "#64748B",
         type: "empty",
         value: null,
@@ -157,6 +157,14 @@ const rewards: Reward[] = [
         type: "choice",
         value: 10000,
         text: "Wybierz: 10 pompek dla B4Norka albo 10 000 BP dla siebie."
+    },
+    {
+        name: "Przymusowe kubeczki",
+        chance: 10,
+        color: "#CA8A04",
+        type: "forced_cups",
+        value: 5000,
+        text: "Grasz w Trzy Kubki na koncie B4Norka za 5 000 BP. Wygrana: dostajesz 10 000 BP. Przegrana: timeout na 3 minuty."
     }
 ];
 
